@@ -25,7 +25,7 @@
 		"flowbite": "^3.1.1",
 		"flowbite-svelte": "^1.8.3",
 		"flowbite-svelte-icons": "^2.2.0",
-		"svelte": "^5.37.2",
+		"svelte": "^5.39.7",
 		"tailwindcss": "^4.1.8",
 		"vite": "^6.3.4"
 	},
