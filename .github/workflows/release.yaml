@@ -46,7 +46,7 @@ jobs:
 
       # Release will be created if the tag is in the format v*
       - name: Create release
-        uses: softprops/action-gh-release@v2.3.2
+        uses: softprops/action-gh-release@v2.3.3
         with:
           files: |
             raindrop-sync-for-chrome.zip
