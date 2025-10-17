@@ -2,7 +2,7 @@
 
 [![License: GPL v3](https://img.shields.io/badge/License-GPLv3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0)
 [![codecov](https://codecov.io/gh/lasuillard-s/raindrop-sync-chrome/graph/badge.svg?token=52rvoFBAEb)](https://codecov.io/gh/lasuillard-s/raindrop-sync-chrome)
-![GitHub Release](https://img.shields.io/github/v/release/lasuillard/raindrop-sync-chrome)
+![GitHub Release](https://img.shields.io/github/v/release/lasuillard-s/raindrop-sync-chrome)
 
 Chrome browser extension for syncing bookmarks with Raindrop.
 
@@ -34,7 +34,7 @@ The extension is not yet published to the Chrome Web Store. Follow the steps bel
 
 1. **Download the Extension Archive**
 
-    Download the `.zip` file from the [releases page](https://github.com/lasuillard/raindrop-sync-chrome/releases).
+    Download the `.zip` file from the [releases page](https://github.com/lasuillard-s/raindrop-sync-chrome/releases).
 
 2. **Unzip the Archive**
 
