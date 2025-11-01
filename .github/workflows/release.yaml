@@ -38,7 +38,7 @@ jobs:
         run: zip -r raindrop-sync-for-chrome.zip dist
 
       - name: Preserve build artifact
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v5
         with:
           name: raindrop-sync-for-chrome
           path: ./raindrop-sync-for-chrome.zip
