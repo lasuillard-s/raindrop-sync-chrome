@@ -1,5 +1,5 @@
 {
-	"name": "lasuillard/raindrop-sync-chrome",
+	"name": "lasuillard-s/raindrop-sync-chrome",
 	"dockerComposeFile": ["./docker-compose.devcontainer.yaml"],
 	"runServices": ["workspace", "novnc"],
 	"service": "workspace",
