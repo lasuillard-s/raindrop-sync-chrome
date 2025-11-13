@@ -1,29 +1,19 @@
 name: Release
 
 on:
-  push:
-    tags:
-      - v*
-
-permissions: read-all
-
-concurrency:
-  group: release
-  cancel-in-progress: false
+  release:
+    types: [published]
 
 jobs:
   release:
-    name: Release
     runs-on: ubuntu-latest
+    environment: chrome-web-store
+    timeout-minutes: 10
     permissions:
       contents: write
-    environment: chrome-web-store
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-
-      - name: Set up Node
-        uses: actions/setup-node@v4
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v6
         with:
           node-version-file: .node-version
           cache: yarn
@@ -38,19 +28,19 @@ jobs:
         run: zip -r raindrop-sync-for-chrome.zip dist
 
       - name: Preserve build artifact
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v5
         with:
           name: raindrop-sync-for-chrome
           path: ./raindrop-sync-for-chrome.zip
           retention-days: 14
 
-      # Release will be created if the tag is in the format v*
       - name: Create release
-        uses: softprops/action-gh-release@v2.3.2
+        uses: softprops/action-gh-release@v2.4.2
         with:
+          tag_name: ${{ github.event.release.tag_name }}
+          generate_release_notes: true
           files: |
             raindrop-sync-for-chrome.zip
-          generate_release_notes: true
 
       - name: Publish to Chrome Web Store (Testers)
         uses: MobileFirstLLC/cws-publish@2.1.1

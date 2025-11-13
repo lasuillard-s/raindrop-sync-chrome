@@ -6,19 +6,15 @@ on:
   pull_request:
     branches: [main]
 
-permissions: read-all
-
 jobs:
   lint:
-    name: Lint
     runs-on: ubuntu-latest
-    timeout-minutes: 10
+    timeout-minutes: 5
+    permissions:
+      contents: read
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-
-      - name: Set up Node
-        uses: actions/setup-node@v4
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v6
         with:
           node-version-file: .node-version
           cache: yarn
@@ -33,18 +29,14 @@ jobs:
         run: yarn run tsc --noEmit
 
   test:
-    name: Test
     runs-on: ubuntu-latest
     timeout-minutes: 10
     permissions:
       contents: read
       id-token: write
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-
-      - name: Set up Node
-        uses: actions/setup-node@v4
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v6
         with:
           node-version-file: .node-version
           cache: yarn
@@ -73,25 +65,24 @@ jobs:
           flags: unit
 
   e2e-test:
-    name: E2E Test
     runs-on: ubuntu-latest
-    timeout-minutes: 10
+    timeout-minutes: 20
     permissions:
       contents: read
       id-token: write
       pull-requests: write
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
 
       - name: Configure AWS credentials
-        uses: aws-actions/configure-aws-credentials@v4
+        uses: aws-actions/configure-aws-credentials@v5
         with:
           aws-region: ${{ vars.AWS_REGION }}
           role-to-assume: ${{ secrets.AWS_ROLE_TO_ASSUME }}
 
       - name: Set up Node
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v6
         with:
           node-version-file: .node-version
           cache: yarn
@@ -124,7 +115,7 @@ jobs:
         run: yarn run e2e
 
       - name: Upload Playwright report to GitHub
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v5
         if: always()
         with:
           name: playwright-artifacts
@@ -149,7 +140,7 @@ jobs:
           EOF
 
       - name: Comment on PR
-        uses: thollander/actions-comment-pull-request@v3
+        uses: thollander/actions-comment-pull-request@v3.0.1
         if: always() && steps.upload-playwright-report-s3.outcome == 'success' && github.event_name == 'pull_request'
         with:
           comment-tag: playwright-report

@@ -1,0 +1,52 @@
+name: Prepare Release
+
+on:
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: Semver-style tag for release (e.g., v1.0.0)
+        required: true
+
+jobs:
+  create-pr:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions:
+      contents: write
+      pull-requests: write
+    steps:
+      - name: Check tag format
+        run: |
+          if [[ ! "${{ inputs.tag }}" =~ ^v ]]; then
+            echo "Tag must start with 'v'"
+            exit 1
+          fi
+
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v6
+        with:
+          node-version-file: package.json
+          cache: yarn
+
+      # https://github.com/killercup/cargo-edit/issues/864
+      - name: Set version
+        run: |
+          tag="${{ inputs.tag }}"
+          tag_no_v="${tag#v}"
+          yarn version --new-version "$tag_no_v" --no-git-tag-version
+
+      - name: Generate GitHub App token
+        uses: actions/create-github-app-token@v2
+        id: generate-token
+        with:
+          app-id: ${{ vars.GH_APP_ID }}
+          private-key: ${{ secrets.GH_APP_PRIVATE_KEY }}
+
+      - name: Create pull request
+        uses: peter-evans/create-pull-request@v7.0.8
+        with:
+          token: ${{ steps.generate-token.outputs.token }}
+          sign-commits: true
+          title: Release ${{ inputs.tag }}
+          branch: release/${{ inputs.tag }}
+          delete-branch: true
