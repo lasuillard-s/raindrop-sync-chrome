@@ -2468,13 +2468,13 @@ flowbite-datepicker@^1.3.0, flowbite-datepicker@^1.3.1:
     "@rollup/plugin-node-resolve" "^15.2.3"
     flowbite "^2.0.0"
 
-flowbite-svelte-icons@^2.2.0:
-  version "2.2.0"
-  resolved "https://registry.yarnpkg.com/flowbite-svelte-icons/-/flowbite-svelte-icons-2.2.0.tgz#840f2589edbdaa660bbc60fd0809352353d9bb3e"
-  integrity sha512-X+xZXeLaYS/NaybPonw1RGIIzmrExmCOrva62NPCXN52xGmJWqcSnnbHO4+iZsDD4V6EsDRqwH8tVq6t6SLLQg==
+flowbite-svelte-icons@^3.0.0:
+  version "3.0.0"
+  resolved "https://registry.yarnpkg.com/flowbite-svelte-icons/-/flowbite-svelte-icons-3.0.0.tgz#af5c698ff00182931d65a36907963df438ed3c95"
+  integrity sha512-7qm8vLOW4uHq1UeDDx0DLrLZXiE8H0i/XCFjGMsSAhIFfpkyIwlE4qXlmy8mjO4p+rzKNbVALQIoDEnuo8tPgg==
   dependencies:
     clsx "^2.1.1"
-    tailwind-merge "^3.3.0"
+    tailwind-merge "^3.3.1"
 
 flowbite-svelte@^1.8.3:
   version "1.8.3"
@@ -4246,7 +4246,7 @@ tailwind-merge@3.0.2:
   resolved "https://registry.yarnpkg.com/tailwind-merge/-/tailwind-merge-3.0.2.tgz#567eff76de12211e24dd909da0f5ed6f4f422b0c"
   integrity sha512-l7z+OYZ7mu3DTqrL88RiKrKIqO3NcpEO8V/Od04bNpvk0kiIFndGEoqfuzvj4yuhRkHKjRkII2z+KS2HfPcSxw==
 
-tailwind-merge@^3.3.0, tailwind-merge@^3.3.1:
+tailwind-merge@^3.3.1:
   version "3.3.1"
   resolved "https://registry.yarnpkg.com/tailwind-merge/-/tailwind-merge-3.3.1.tgz#a7e7db7c714f6020319e626ecfb7e7dac8393a4b"
   integrity sha512-gBXpgUm/3rp1lMZZrM/w7D8GKqshif0zAymAhbCyIt8KMe+0v9DQ7cdYLR4FHH/cKpdTXb+A/tKKU3eolfsI+g==
