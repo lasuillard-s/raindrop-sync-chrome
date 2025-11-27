@@ -5,11 +5,11 @@
 		CloseCircleSolid,
 		ExclamationCircleSolid
 	} from 'flowbite-svelte-icons';
-	import type { ComponentType } from 'svelte';
+	import type { Component } from 'svelte';
 	import { dismissMessage, type Message } from '~/lib/messages';
 
 	const messageMapping: {
-		[type: string]: { icon: ComponentType; color: 'blue' | 'green' | 'red' };
+		[type: string]: { icon: Component; color: 'blue' | 'green' | 'red' };
 	} = {
 		success: {
 			icon: CheckCircleSolid,
@@ -30,12 +30,12 @@
 
 {#if message}
 	{@const color = messageMapping[message.type].color}
-	{@const icon = messageMapping[message.type].icon}
+	{@const icon_ = messageMapping[message.type].icon}
 	<div {...$$restProps}>
-		<Toast {color} on:close={() => dismissMessage(message.id)}>
-			<svelte:fragment slot="icon">
-				<svelte:component this={icon} class="h-5 w-5" />
-			</svelte:fragment>
+		<Toast {color} onclose={() => dismissMessage(message.id)}>
+			{#snippet icon()}
+				<svelte:component this={icon_} class="h-5 w-5" />
+			{/snippet}
 			{message.message}
 		</Toast>
 	</div>
