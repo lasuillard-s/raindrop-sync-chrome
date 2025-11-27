@@ -89,7 +89,6 @@ The extension is not yet published to the Chrome Web Store. Follow the steps bel
     Now, there are two methods for initializing the application:
 
     ![RSFC Access Token](/docs/images/rsfc-access-token.png)
-
     1. **Using a Test Token (Recommended)**
 
         The simplest and recommended way is to use a test token that never expires. Click on **Create test token** in the app settings in Raindrop, then copy and paste it (no need to click **Register**) into the extension settings' **Access Token** field.

@@ -17,8 +17,8 @@
 	--color-primary-900: #a5371b;
 }
 
-@source "../node_modules/flowbite-svelte/dist";
-@source "../node_modules/flowbite-svelte-icons/dist";
+@source '../node_modules/flowbite-svelte/dist';
+@source '../node_modules/flowbite-svelte-icons/dist';
 
 /*
   The default border color has changed to `currentcolor` in Tailwind CSS v4,
