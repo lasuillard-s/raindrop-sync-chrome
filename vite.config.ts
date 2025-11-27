@@ -19,7 +19,7 @@ export default defineConfig({
 				useGitHubOIDC: true
 			}
 		})
-	],
+	] as any,
 	resolve: {
 		conditions: ['browser'],
 		alias: [
@@ -37,7 +37,7 @@ export default defineConfig({
 	build: {
 		target: 'esnext',
 		rollupOptions: {
-			plugins: [nodePolyfills()]
+			plugins: [nodePolyfills()] as any
 		},
 		sourcemap: true
 	},
@@ -58,7 +58,6 @@ export default defineConfig({
 			junit: './junit.xml'
 		},
 		coverage: {
-			all: true,
 			include: ['src/**'],
 			exclude: [
 				'src/**/__mocks__/*',
