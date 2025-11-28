@@ -13,7 +13,7 @@ export default defineConfig(({ mode }) => {
 		tailwindcss(),
 		svelte({
 			compilerOptions: {
-				dev: true
+				dev: mode === 'development'
 			}
 		})
 	] as any[];
@@ -38,7 +38,7 @@ export default defineConfig(({ mode }) => {
 	return {
 		plugins,
 		resolve: {
-			conditions: mode === 'test' ? ['browser'] : [],
+			conditions: mode === 'test' ? ['browser'] : undefined,
 			alias: [
 				{ find: '~', replacement: path.resolve(__dirname, '/src') },
 				{ find: '^', replacement: path.resolve(__dirname, '/') }
@@ -53,7 +53,6 @@ export default defineConfig(({ mode }) => {
 			expect: { requireAssertions: true },
 			include: ['src/**/*.{test,spec}.{js,ts}'],
 			exclude: ['**/__mocks__/*'],
-			environment: 'happy-dom',
 			reporters: ['junit', 'default'],
 			outputFile: {
 				junit: './junit.xml'
