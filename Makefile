@@ -38,7 +38,10 @@ browser:  ## Launch browser with extensions loaded
 		--disable-gpu \
 		--load-extension="${PWD}/dist" \
 		--no-sandbox \
-		--remote-debugging-port=9222
+		--remote-debugging-port=9222 \
+		--enable-logging \
+		--v=1 \
+		--log-file=./chrome.log
 .PHONY: browser
 
 run:  ## Run browser with development server
