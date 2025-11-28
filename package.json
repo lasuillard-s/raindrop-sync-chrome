@@ -14,8 +14,8 @@
 		"build:watch": "vite build --watch",
 		"check": "svelte-check --tsconfig ./tsconfig.json",
 		"check:watch": "yarn run check -- --watch",
-		"test": "vitest --coverage --run",
-		"test:watch": "vitest --silent --coverage --watch --ui",
+		"test": "vitest --run",
+		"test:watch": "vitest --silent --watch --ui",
 		"e2e": "playwright test",
 		"e2e:watch": "playwright test --ui"
 	},
@@ -27,7 +27,8 @@
 		"flowbite-svelte-icons": "^3.0.0",
 		"svelte": "^5.40.2",
 		"tailwindcss": "^4.1.8",
-		"vite": "^6.4.1"
+		"vite": "^6.4.1",
+		"vite-plugin-zip-pack": "^1.2.4"
 	},
 	"devDependencies": {
 		"@codecov/vite-plugin": "^1.9.0",

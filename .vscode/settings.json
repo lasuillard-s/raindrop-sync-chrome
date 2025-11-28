@@ -1,8 +1,5 @@
 {
-	"[json][jsonc]": {
-		"editor.defaultFormatter": "esbenp.prettier-vscode"
-	},
-	"[yaml]": {
+	"[json][jsonc][yaml]": {
 		"editor.defaultFormatter": "esbenp.prettier-vscode"
 	},
 	"conventionalCommits.scopes": [
@@ -15,12 +12,10 @@
 		"workspace"
 	],
 	"cSpell.words": ["cobertura", "CODECOV", "jsonschema", "testid"],
-	"eslint.enable": true,
-	"eslint.format.enable": true,
+	"editor.defaultFormatter": "esbenp.prettier-vscode",
 	"files.associations": {
 		"**/*.css": "tailwindcss"
 	},
 	"playwright.updateSnapshots": "changed",
-	"prettier.enable": true,
 	"svelte.enable-ts-plugin": true
 }

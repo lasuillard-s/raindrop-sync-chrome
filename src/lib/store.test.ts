@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { persisted } from '~/lib/stores';
+import { persisted } from './stores';
 
 describe('persisted', () => {
 	it('should implement original store interface', async () => {

@@ -9,10 +9,10 @@
 	import '~/app.css';
 	import Message from '~/components/Message.svelte';
 	import { messageBox } from '~/lib/messages';
-	import About from './About.svelte';
-	import Bookmarks from './Bookmarks.svelte';
-	import Config from './Config.svelte';
-	import TryIt from './TryIt.svelte';
+	import About from './tabs/About.svelte';
+	import Bookmarks from './tabs/Bookmarks.svelte';
+	import Config from './tabs/Config.svelte';
+	import TryIt from './tabs/TryIt.svelte';
 </script>
 
 <main class="mx-1 mt-4 self-center">
@@ -64,7 +64,7 @@
 </main>
 
 <style lang="postcss">
-	@reference '../../app.css';
+	@reference '../app.css';
 
 	:root {
 		@apply mx-4 my-2 bg-slate-50;

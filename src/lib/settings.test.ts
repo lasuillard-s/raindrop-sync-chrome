@@ -1,6 +1,6 @@
 import { get } from 'svelte/store';
 import { describe, expect, it } from 'vitest';
-import { accessToken, clientID, clientSecret, refreshToken } from '~/lib/settings';
+import { accessToken, clientID, clientSecret, refreshToken } from './settings';
 
 describe('clientID', () => {
 	it('should have an empty string as initial value', () => {
