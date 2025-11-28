@@ -47,7 +47,8 @@ export default defineConfig(({ mode }) => {
 		server: {
 			cors: {
 				origin: /chrome-extension:\/\//
-			}
+			},
+			hmr: { port: 5173 }
 		},
 		test: {
 			expect: { requireAssertions: true },
