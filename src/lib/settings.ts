@@ -1,4 +1,4 @@
-import { DummyStorage, persisted, type AsyncWritable, type Storage } from './stores';
+import { DummyStorage, persisted, type AsyncWritable, type Storage } from '~/lib/store';
 
 export class AppSettings {
 	// API credentials
