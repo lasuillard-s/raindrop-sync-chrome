@@ -45,7 +45,6 @@ export class AppSettings {
 	}
 }
 
-const appSettingsDefault = new AppSettings({
+export default new AppSettings({
 	storage: import.meta.env.MODE === 'test' ? new DummyStorage() : chrome.storage.sync
 });
-export default appSettingsDefault;
