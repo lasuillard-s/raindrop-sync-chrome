@@ -3,7 +3,7 @@
 	import { Button, P } from 'flowbite-svelte';
 	import Tree from '~/components/Tree.svelte';
 	import rd from '~/lib/raindrop';
-	import { syncBookmarks } from '~/lib/sync';
+	import syncManager from '~/lib/sync';
 
 	let treeNode: utils.tree.TreeNode<generated.Collection | null>;
 
@@ -12,12 +12,7 @@
 	};
 
 	const createBookmarks = async () => {
-		if (!treeNode) {
-			console.log('Data not loaded yet');
-			return;
-		}
-
-		await syncBookmarks({ treeNode });
+		await syncManager.startSync();
 	};
 </script>
 

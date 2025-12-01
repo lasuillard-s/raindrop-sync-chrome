@@ -5,7 +5,8 @@
 	import SecretInput from '~/components/SecretInput.svelte';
 	import { putMessage } from '~/lib/messages';
 	import { launchWebAuthFlow as _launchWebAuthFlow } from '~/lib/raindrop/auth';
-	import appSettings, { scheduleAutoSync } from '~/lib/settings';
+	import appSettings from '~/lib/settings';
+	import syncManager from '~/lib/sync';
 
 	const launchWebAuthFlow = async () => {
 		try {
@@ -71,7 +72,7 @@
 		await appSettings.autoSyncExecOnStartup.set(settingsChange.autoSyncExecOnStartup);
 		await appSettings.autoSyncIntervalInMinutes.set(settingsChange.autoSyncIntervalInMinutes);
 		await appSettings.syncLocation.set(settingsChange.syncLocation);
-		await scheduleAutoSync();
+		await syncManager.scheduleAutoSync();
 		putMessage({ type: 'success', message: 'Settings saved.' });
 	};
 </script>

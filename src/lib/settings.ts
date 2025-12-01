@@ -1,4 +1,3 @@
-import { get } from 'svelte/store';
 import { DummyStorage, persisted, type AsyncWritable, type Storage } from './stores';
 
 export class AppSettings {
@@ -50,29 +49,3 @@ const appSettingsDefault = new AppSettings({
 	storage: import.meta.env.MODE === 'test' ? new DummyStorage() : chrome.storage.sync
 });
 export default appSettingsDefault;
-
-/**
- * Schedule auto-sync alarms based on the current settings.
- */
-export async function scheduleAutoSync() {
-	console.debug('Scheduling auto-sync alarms');
-	await chrome.alarms.clearAll();
-
-	if (get(appSettingsDefault.autoSyncEnabled) !== true) {
-		console.info('Auto-sync is disabled');
-		return;
-	}
-
-	const execOnStartup = get(appSettingsDefault.autoSyncExecOnStartup);
-	if (!execOnStartup) {
-		console.info('Sync on startup is disabled');
-	}
-
-	// If `undefined`, sync on startup is disabled
-	const delayInMinutes = execOnStartup ? 0 : undefined;
-
-	const periodInMinutes = get(appSettingsDefault.autoSyncIntervalInMinutes);
-
-	console.debug(`Scheduling alarms with delay: ${delayInMinutes}, period: ${periodInMinutes}`);
-	await chrome.alarms.create('sync-bookmarks', { delayInMinutes, periodInMinutes });
-}

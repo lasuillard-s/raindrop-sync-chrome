@@ -1,64 +1,192 @@
-import { generated, utils } from '@lasuillard/raindrop-client';
+import { client } from '@lasuillard/raindrop-client';
 import { get } from 'svelte/store';
-import { clearBookmarks, createBookmarks } from '~/lib/chrome/bookmark';
-import rd from '~/lib/raindrop';
+import { ChromeBookmarkRepository } from '~/lib/browser/chrome';
+import raindropClient from '~/lib/raindrop';
+import type { AppSettings } from '~/lib/settings';
 import appSettings from '~/lib/settings';
 
-export interface SyncBookmarksArgs {
-	/**
-	 * Tree node of collection to sync.
-	 */
-	treeNode?: utils.tree.TreeNode<generated.Collection | null>;
-
-	/**
-	 * Threshold since last update in seconds to trigger sync bookmarks.
-	 */
-	thresholdSeconds?: number;
-}
-
 /**
- * Sync Raindrop.io collections with Chrome bookmarks.
- * @param args Arguments for syncing bookmarks.
+ * Manages synchronization between Raindrop.io and browser bookmarks.
  */
-export async function syncBookmarks(args: SyncBookmarksArgs = {}) {
-	const treeNode = args.treeNode ?? (await rd.collection.getCollectionTree());
-	const thresholdSeconds = args.thresholdSeconds ?? 60;
+export class SyncManager {
+	appSettings: AppSettings;
+	raindropClient: client.Raindrop;
+	repository: ChromeBookmarkRepository;
 
-	const bookmarksTree = await chrome.bookmarks.getTree();
-	// eslint-disable-next-line @typescript-eslint/no-unused-vars
-	const [bookmarksBar, otherBookmarks] = bookmarksTree[0].children!;
+	/**
+	 * Create a new SyncManager.
+	 * @param opts Options for the SyncManager.
+	 * @param opts.appSettings Application settings.
+	 * @param opts.adapter Adapter for browser bookmarks.
+	 * @param opts.raindropClient Raindrop.io client.
+	 */
+	constructor(opts: {
+		appSettings: AppSettings;
+		adapter: ChromeBookmarkRepository;
+		raindropClient: client.Raindrop;
+	}) {
+		this.appSettings = opts.appSettings;
+		this.repository = opts.adapter;
+		this.raindropClient = opts.raindropClient;
+	}
 
-	// Check user's last update time
-	const currentUser = await rd.user.getCurrentUser();
-	const serverLastUpdate = currentUser.data.user.lastUpdate
-		? new Date(currentUser.data.user.lastUpdate)
-		: new Date();
+	/**
+	 * Validate synchronization settings and prerequisites before starting sync.
+	 */
+	async validateBeforeSync() {
+		// Verify that access token is set
+		if (!this.appSettings.accessToken) {
+			throw new Error('Access token is not set. Please configure your Raindrop.io access token.');
+		}
 
-	const clientLastSyncValue = get(appSettings.clientLastSync);
+		// Verify that the target folder exists
+		const syncLocation = get(this.appSettings.syncLocation);
+		const targetFolder = this.repository.findFolderById(syncLocation);
+		if (!targetFolder) {
+			throw new Error(`Target folder with ID ${syncLocation} not found.`);
+		}
 
-	// Skip sync if last update is within threshold
-	const secondsSinceLastTouch = (serverLastUpdate.getTime() - clientLastSyncValue.getTime()) / 1000;
-	if (secondsSinceLastTouch <= thresholdSeconds) {
-		console.debug('Skipping sync because last touch within threshold:', {
-			serverLastUpdate: serverLastUpdate.toISOString(),
-			clientLastSync: clientLastSyncValue.toISOString(),
-			thresholdSeconds,
-			secondsSinceLastTouch
+		// Verify that the access token is valid by making a test request (lightweight)
+		try {
+			const currentUser = await this.raindropClient.user.getCurrentUser();
+			console.debug('Verified access token for user:', currentUser.data.user.email);
+		} catch (err) {
+			throw new Error(`Access token is invalid. Please re-authenticate with Raindrop.io: ${err}`);
+		}
+	}
+
+	/**
+	 * Determine if synchronization should proceed based on last sync time and server updates.
+	 *
+	 * It will return true if any of the following conditions are met:
+	 * 1. There has been no previous sync.
+	 * 2. The last sync was more than thresholdSeconds ago.
+	 * 3. There have been updates on the server since the last sync.
+	 * @param thresholdSeconds The time threshold in seconds.
+	 * @returns True if sync should proceed, false otherwise.
+	 */
+	async shouldSync(thresholdSeconds: number): Promise<boolean> {
+		console.debug(
+			'Checking if synchronization is needed based on last sync time and server updates'
+		);
+
+		// Case 1: Check if the last sync was successful
+		const now = new Date();
+		const lastSync = get(appSettings.clientLastSync);
+		if (!lastSync) {
+			console.debug('No previous sync found, proceeding with synchronization');
+			return true;
+		}
+
+		// Case 2: The last sync was more than thresholdSeconds ago
+		const timeSinceLastSync = (now.getTime() - lastSync.getTime()) / 1_000;
+		if (timeSinceLastSync < thresholdSeconds) {
+			console.debug(
+				`Last sync was ${timeSinceLastSync} seconds ago, which is less than the threshold of ${thresholdSeconds} seconds. No sync needed.`
+			);
+			return false;
+		}
+
+		// Case 3: There have been updates on the server since the last sync
+		const currentUser = await this.raindropClient.user.getCurrentUser();
+		const serverLastUpdate = currentUser.data.user.lastUpdate
+			? new Date(currentUser.data.user.lastUpdate)
+			: new Date();
+
+		console.debug(
+			`Server last update time was: ${serverLastUpdate.toISOString()},` +
+				` which is ${serverLastUpdate > lastSync ? 'after' : 'before'} last sync (${lastSync.toISOString()}).`
+		);
+		return serverLastUpdate > lastSync;
+	}
+
+	protected async performSync() {
+		console.debug('Performing synchronization process');
+		console.debug('Fetching collection tree from Raindrop.io');
+		const treeNode = await this.raindropClient.collection.getCollectionTree();
+
+		// Get the sync folder
+		const syncFolderId = get(this.appSettings.syncLocation);
+		const syncFolder = await this.repository.getFolderById(syncFolderId);
+		console.debug(`Sync folder found: ${syncFolder.title} (${syncFolder.id})`);
+
+		// Clear existing bookmarks in the sync folder
+		console.debug('Clearing existing bookmarks in sync folder');
+		await this.repository.clearAllBookmarksInFolder(syncFolder);
+
+		// Create bookmarks recursively based on the Raindrop.io collection tree
+		console.debug('Creating bookmarks from Raindrop.io collections');
+		await this.repository.createBookmarksRecursively({
+			baseFolder: syncFolder,
+			tree: treeNode,
+			raindropClient: this.raindropClient
 		});
-		return;
+
+		// Update last sync time
+		const lastSyncTime = new Date();
+		await this.appSettings.clientLastSync.set(lastSyncTime);
+		console.info(`Synchronization completed at ${lastSyncTime.toISOString()}`);
 	}
 
-	const syncFolderId = get(appSettings.syncLocation);
-	const syncFolder = (await chrome.bookmarks.getSubTree(syncFolderId))[0];
-	if (!syncFolder) {
-		throw new Error(`Sync folder ${syncFolderId} not found`);
+	/**
+	 * Start the synchronization process.
+	 * @param opts Options for starting sync.
+	 * @param opts.force Whether to force sync regardless of checks. Default is false.
+	 * @param opts.thresholdSeconds Threshold in seconds to determine if sync is needed.
+	 *  Ignored if force is true. Default is 300 seconds (5 minutes).
+	 */
+	async startSync(opts?: { force?: boolean; thresholdSeconds?: number }) {
+		const force = opts?.force ?? false;
+		const thresholdSeconds = opts?.thresholdSeconds ?? 300;
+		let shouldSync: boolean;
+
+		if (force) {
+			console.warn('Force sync enabled, skipping checks');
+			shouldSync = true;
+		} else {
+			await this.validateBeforeSync();
+			shouldSync = await this.shouldSync(thresholdSeconds);
+		}
+
+		if (shouldSync) {
+			await this.performSync();
+		} else {
+			console.info('No synchronization needed at this time');
+		}
 	}
 
-	console.debug('Clearing bookmarks in sync folder');
-	await clearBookmarks(syncFolder);
+	/**
+	 * Schedule auto-sync alarms based on the current settings.
+	 *
+	 * This code is tightly coupled with service worker. When changing it,
+	 * make sure to also update src/service-worker.ts accordingly.
+	 */
+	async scheduleAutoSync() {
+		console.debug('Scheduling auto-sync alarms');
+		await chrome.alarms.clearAll();
 
-	// TODO: Abstract browser bookmark interface to support other browsers in future
-	await createBookmarks(syncFolder.id, treeNode);
-	await appSettings.clientLastSync.set(new Date());
-	console.info('Synchronization completed');
+		if (get(this.appSettings.autoSyncEnabled) !== true) {
+			console.info('Auto-sync is disabled');
+			return;
+		}
+
+		const execOnStartup = get(this.appSettings.autoSyncExecOnStartup);
+		if (!execOnStartup) {
+			console.info('Sync on startup is disabled');
+		}
+
+		// If `undefined`, sync on startup is disabled
+		const delayInMinutes = execOnStartup ? 0 : undefined;
+
+		const periodInMinutes = get(this.appSettings.autoSyncIntervalInMinutes);
+
+		console.debug(`Scheduling alarms with delay: ${delayInMinutes}, period: ${periodInMinutes}`);
+		await chrome.alarms.create('sync-bookmarks', { delayInMinutes, periodInMinutes });
+	}
 }
+
+export default new SyncManager({
+	appSettings,
+	adapter: new ChromeBookmarkRepository(),
+	raindropClient: raindropClient
+});
