@@ -1,4 +1,4 @@
-import * as settings from '~/lib/settings';
+import { scheduleAutoSync } from '~/lib/settings';
 import { syncBookmarks } from '~/lib/sync';
 
 chrome.runtime.onInstalled.addListener(async (details) => {
@@ -12,7 +12,7 @@ chrome.runtime.onInstalled.addListener(async (details) => {
 	}
 
 	console.info('Re-scheduling auto-sync');
-	await settings.scheduleAutoSync();
+	await scheduleAutoSync();
 });
 
 chrome.alarms.onAlarm.addListener(async (alarm) => {

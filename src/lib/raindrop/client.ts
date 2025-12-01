@@ -2,7 +2,7 @@ import { client, generated } from '@lasuillard/raindrop-client';
 import axios, { AxiosError, type AxiosInstance, type AxiosRequestConfig } from 'axios';
 // import { setupCache } from 'axios-cache-interceptor';
 import { get } from 'svelte/store';
-import * as settings from '~/lib/settings';
+import appSettings from '~/lib/settings';
 
 /**
  * Get Raindrop client.
@@ -45,7 +45,7 @@ export function getAxiosClient(): AxiosInstance {
 	// TODO: Request throttling; https://www.npmjs.com/package/axios-request-throttle
 	instance.interceptors.request.use(
 		function (config) {
-			const accessToken = get(settings.accessToken);
+			const accessToken = get(appSettings.accessToken);
 			if (accessToken) {
 				config.headers.Authorization = `Bearer ${accessToken}`;
 			}
@@ -67,7 +67,7 @@ export function getAxiosClient(): AxiosInstance {
 			// @ts-expect-error Ignore TS error for now
 			const originalRequest: AxiosRequestConfig = error.config;
 			if (error.response?.status === 401) {
-				if (!get(settings.refreshToken)) {
+				if (!get(appSettings.refreshToken)) {
 					console.error('No refresh token available, cannot refresh access token');
 					return Promise.reject(error);
 				}
@@ -121,20 +121,20 @@ async function tryRefreshAccessToken(client: client.Raindrop): Promise<string> {
 	try {
 		console.debug('Requesting new access token using refresh token');
 		const response = await client.auth.refreshToken({
-			client_id: get(settings.clientID),
-			client_secret: get(settings.clientSecret),
-			refresh_token: get(settings.refreshToken)
+			client_id: get(appSettings.clientID),
+			client_secret: get(appSettings.clientSecret),
+			refresh_token: get(appSettings.refreshToken)
 		});
 		const newAccessToken = response.data.access_token;
 
 		console.debug('Updating access token in settings');
-		await settings.accessToken.set(newAccessToken);
+		await appSettings.accessToken.set(newAccessToken);
 
 		return newAccessToken;
 	} catch (err) {
 		console.debug('Failed to refresh access token, clearing tokens in settings');
-		await settings.accessToken.set('');
-		await settings.refreshToken.set('');
+		await appSettings.accessToken.set('');
+		await appSettings.refreshToken.set('');
 
 		throw new Error(`Failed to refresh access token: ${err}`);
 	}

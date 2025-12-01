@@ -2,7 +2,7 @@ import { generated, utils } from '@lasuillard/raindrop-client';
 import { get } from 'svelte/store';
 import { clearBookmarks, createBookmarks } from '~/lib/chrome/bookmark';
 import rd from '~/lib/raindrop';
-import { clientLastSync, syncLocation } from '~/lib/settings';
+import appSettings from '~/lib/settings';
 
 export interface SyncBookmarksArgs {
 	/**
@@ -34,7 +34,7 @@ export async function syncBookmarks(args: SyncBookmarksArgs = {}) {
 		? new Date(currentUser.data.user.lastUpdate)
 		: new Date();
 
-	const clientLastSyncValue = get(clientLastSync);
+	const clientLastSyncValue = get(appSettings.clientLastSync);
 
 	// Skip sync if last update is within threshold
 	const secondsSinceLastTouch = (serverLastUpdate.getTime() - clientLastSyncValue.getTime()) / 1000;
@@ -48,7 +48,7 @@ export async function syncBookmarks(args: SyncBookmarksArgs = {}) {
 		return;
 	}
 
-	const syncFolderId = get(syncLocation);
+	const syncFolderId = get(appSettings.syncLocation);
 	const syncFolder = (await chrome.bookmarks.getSubTree(syncFolderId))[0];
 	if (!syncFolder) {
 		throw new Error(`Sync folder ${syncFolderId} not found`);
@@ -59,6 +59,6 @@ export async function syncBookmarks(args: SyncBookmarksArgs = {}) {
 
 	// TODO: Abstract browser bookmark interface to support other browsers in future
 	await createBookmarks(syncFolder.id, treeNode);
-	await clientLastSync.set(new Date());
+	await appSettings.clientLastSync.set(new Date());
 	console.info('Synchronization completed');
 }

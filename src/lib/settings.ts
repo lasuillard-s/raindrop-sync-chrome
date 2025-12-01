@@ -1,31 +1,55 @@
 import { get } from 'svelte/store';
-import { DummyStorage, persisted } from './stores';
+import { DummyStorage, persisted, type AsyncWritable, type Storage } from './stores';
 
-const options = {
+export class AppSettings {
+	// API credentials
+	clientID: AsyncWritable<string>;
+	clientSecret: AsyncWritable<string>;
+	accessToken: AsyncWritable<string>;
+	refreshToken: AsyncWritable<string>;
+
+	/** Timestamp of the last time changes made in Raindrop.io */
+	clientLastSync: AsyncWritable<Date>;
+
+	/** Parent bookmark ID to create new bookmarks under */
+	syncLocation: AsyncWritable<string>;
+
+	// Auto-sync configurations
+	autoSyncEnabled: AsyncWritable<boolean>;
+	autoSyncIntervalInMinutes: AsyncWritable<number>;
+	autoSyncExecOnStartup: AsyncWritable<boolean>;
+
+	constructor(opts: { storage: Storage }) {
+		const storeOpts = {
+			storage: opts.storage
+		};
+
+		this.clientID = persisted('clientID', '', storeOpts);
+		this.clientSecret = persisted('clientSecret', '', storeOpts);
+		this.accessToken = persisted('accessToken', '', storeOpts);
+		this.refreshToken = persisted('refreshToken', '', storeOpts);
+
+		// Timestamp of the last time changes made in Raindrop.io
+		this.clientLastSync = persisted('clientLastSync', new Date(0), {
+			...storeOpts,
+			serializer: (value: Date) => value.toJSON(),
+			deserializer: (value: string) => new Date(value)
+		});
+
+		// Parent bookmark ID to create new bookmarks under
+		this.syncLocation = persisted<string>('syncLocation', '', storeOpts);
+
+		// Auto-sync configurations
+		this.autoSyncEnabled = persisted('autoSyncEnabled', false, storeOpts);
+		this.autoSyncIntervalInMinutes = persisted('autoSyncIntervalInMinutes', 5, storeOpts);
+		this.autoSyncExecOnStartup = persisted('autoSyncExecOnStartup', false, storeOpts);
+	}
+}
+
+const appSettingsDefault = new AppSettings({
 	storage: import.meta.env.MODE === 'test' ? new DummyStorage() : chrome.storage.sync
-};
-
-// API credentials
-// NOTE: Can use test token for access token instead of OAuth flow
-export const clientID = persisted('clientID', '', options);
-export const clientSecret = persisted('clientSecret', '', options);
-export const accessToken = persisted('accessToken', '', options);
-export const refreshToken = persisted('refreshToken', '', options);
-
-// Timestamp of the last time changes made in Raindrop.io
-export const clientLastSync = persisted('clientLastSync', new Date(0), {
-	...options,
-	serializer: (value: Date) => value.toJSON(),
-	deserializer: (value: string) => new Date(value)
 });
-
-// Parent bookmark ID to create new bookmarks under
-export const syncLocation = persisted<string>('syncLocation', '', options);
-
-// Auto-sync configurations
-export const autoSyncEnabled = persisted('autoSyncEnabled', false, options);
-export const autoSyncIntervalInMinutes = persisted('autoSyncIntervalInMinutes', 5, options);
-export const autoSyncExecOnStartup = persisted('autoSyncExecOnStartup', false, options);
+export default appSettingsDefault;
 
 /**
  * Schedule auto-sync alarms based on the current settings.
@@ -34,12 +58,12 @@ export async function scheduleAutoSync() {
 	console.debug('Scheduling auto-sync alarms');
 	await chrome.alarms.clearAll();
 
-	if (get(autoSyncEnabled) !== true) {
+	if (get(appSettingsDefault.autoSyncEnabled) !== true) {
 		console.info('Auto-sync is disabled');
 		return;
 	}
 
-	const execOnStartup = get(autoSyncExecOnStartup);
+	const execOnStartup = get(appSettingsDefault.autoSyncExecOnStartup);
 	if (!execOnStartup) {
 		console.info('Sync on startup is disabled');
 	}
@@ -47,7 +71,7 @@ export async function scheduleAutoSync() {
 	// If `undefined`, sync on startup is disabled
 	const delayInMinutes = execOnStartup ? 0 : undefined;
 
-	const periodInMinutes = get(autoSyncIntervalInMinutes);
+	const periodInMinutes = get(appSettingsDefault.autoSyncIntervalInMinutes);
 
 	console.debug(`Scheduling alarms with delay: ${delayInMinutes}, period: ${periodInMinutes}`);
 	await chrome.alarms.create('sync-bookmarks', { delayInMinutes, periodInMinutes });
