@@ -18,7 +18,7 @@ export class SyncManager {
 	raindropClient: client.Raindrop;
 	repository: ChromeBookmarkRepository;
 
-	private observers: SyncEventListener[] = [];
+	private listeners: SyncEventListener[] = [];
 
 	/**
 	 * Create a new SyncManager.
@@ -39,17 +39,17 @@ export class SyncManager {
 
 	addListener(observer: SyncEventListener) {
 		console.debug('Attaching a new observer to sync manager');
-		this.observers.push(observer);
+		this.listeners.push(observer);
 	}
 
 	removeListener(observer: SyncEventListener) {
 		console.debug('Detaching a observer from sync manager');
-		this.observers = this.observers.filter((obs) => obs !== observer);
+		this.listeners = this.listeners.filter((obs) => obs !== observer);
 	}
 
 	emitEvent(event: SyncEvent) {
 		console.debug(`Notifying observers of sync event: ${event}`);
-		for (const observer of this.observers) {
+		for (const observer of this.listeners) {
 			observer.onEvent(event);
 		}
 	}
