@@ -109,7 +109,7 @@
 				? 'text-red-600'
 				: 'text-gray-600'}"
 		>
-			{latestSyncEvent?.toMessage()}
+			{latestSyncEvent?.toMessage() ?? ''}
 		</p>
 		<p class="mt-4 text-sm text-gray-600">
 			Last sync: <span class="font-medium text-gray-800">{formatLastSync(lastSyncTime)}</span>
