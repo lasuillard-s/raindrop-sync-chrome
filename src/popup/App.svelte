@@ -26,6 +26,9 @@
 	onMount(() => {
 		const observer = new SyncEventObserver();
 		syncManager.addListener(observer);
+		return () => {
+			syncManager.removeListener(observer);
+		};
 	});
 
 	const formatLastSync = (date: Date): string => {

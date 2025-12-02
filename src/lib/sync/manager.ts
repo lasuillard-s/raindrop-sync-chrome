@@ -68,7 +68,7 @@ export class SyncManager {
 
 		// Verify that the target folder exists
 		const syncLocation = get(this.appSettings.syncLocation);
-		const targetFolder = this.repository.findFolderById(syncLocation);
+		const targetFolder = await this.repository.findFolderById(syncLocation);
 		if (!targetFolder) {
 			throw new Error(`Target folder with ID ${syncLocation} not found.`);
 		}
