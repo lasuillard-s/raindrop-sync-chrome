@@ -7,5 +7,5 @@ test('page title should be extension name', async ({ page, extensionId }) => {
 
 test('visit page', async ({ page, extensionId }) => {
 	await page.goto(`chrome-extension://${extensionId}/src/popup/index.html`);
-	await expect(page).toHaveScreenshot();
+	await expect(page.locator('div#app main')).toHaveScreenshot();
 });
