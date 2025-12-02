@@ -24,16 +24,16 @@ export class SyncManager {
 	 * Create a new SyncManager.
 	 * @param opts Options for the SyncManager.
 	 * @param opts.appSettings Application settings.
-	 * @param opts.adapter Adapter for browser bookmarks.
+	 * @param opts.repository Repository for browser bookmarks.
 	 * @param opts.raindropClient Raindrop.io client.
 	 */
 	constructor(opts: {
 		appSettings: AppSettings;
-		adapter: ChromeBookmarkRepository;
+		repository: ChromeBookmarkRepository;
 		raindropClient: client.Raindrop;
 	}) {
 		this.appSettings = opts.appSettings;
-		this.repository = opts.adapter;
+		this.repository = opts.repository;
 		this.raindropClient = opts.raindropClient;
 	}
 
