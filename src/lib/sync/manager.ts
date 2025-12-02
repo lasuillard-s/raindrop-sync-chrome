@@ -1,7 +1,7 @@
 import { client } from '@lasuillard/raindrop-client';
 import { get } from 'svelte/store';
+import type { AppSettings } from '~/config/settings';
 import { ChromeBookmarkRepository } from '~/lib/browser/chrome';
-import type { AppSettings } from '~/lib/settings';
 import type { SyncEvent, SyncEventListener } from './event-listener';
 import {
 	SyncEventComplete,

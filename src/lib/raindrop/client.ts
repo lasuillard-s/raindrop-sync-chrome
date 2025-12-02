@@ -2,7 +2,7 @@ import { client, generated } from '@lasuillard/raindrop-client';
 import axios, { AxiosError, type AxiosInstance, type AxiosRequestConfig } from 'axios';
 // import { setupCache } from 'axios-cache-interceptor';
 import { get } from 'svelte/store';
-import appSettings from '~/lib/settings';
+import { appSettings } from '~/config';
 
 /**
  * Get Raindrop client.

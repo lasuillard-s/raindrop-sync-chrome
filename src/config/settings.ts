@@ -1,4 +1,4 @@
-import { DummyStorage, persisted, type AsyncWritable, type Storage } from '~/lib/store';
+import { persisted, type AsyncWritable, type Storage } from '~/lib/store';
 
 export class AppSettings {
 	// API credentials
@@ -44,7 +44,3 @@ export class AppSettings {
 		this.autoSyncExecOnStartup = persisted('autoSyncExecOnStartup', false, storeOpts);
 	}
 }
-
-export default new AppSettings({
-	storage: import.meta.env.MODE === 'test' ? new DummyStorage() : chrome.storage.sync
-});

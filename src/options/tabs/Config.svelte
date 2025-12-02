@@ -3,9 +3,9 @@
 	import { onMount } from 'svelte';
 	import { get } from 'svelte/store';
 	import SecretInput from '~/components/SecretInput.svelte';
+	import { appSettings } from '~/config';
 	import { putMessage } from '~/lib/messages';
 	import { launchWebAuthFlow as _launchWebAuthFlow } from '~/lib/raindrop/auth';
-	import appSettings from '~/lib/settings';
 	import syncManager from '~/lib/sync';
 
 	const launchWebAuthFlow = async () => {

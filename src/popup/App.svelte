@@ -3,7 +3,7 @@
 	import { A, Toggle } from 'flowbite-svelte';
 	import { RefreshOutline } from 'flowbite-svelte-icons';
 	import { onMount } from 'svelte';
-	import appSettings from '~/lib/settings';
+	import { appSettings } from '~/config';
 	import syncManager, { type SyncEvent, type SyncEventListener } from '~/lib/sync';
 
 	let isSyncing = false;

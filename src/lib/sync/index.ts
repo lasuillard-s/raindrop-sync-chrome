@@ -1,6 +1,6 @@
+import { appSettings } from '~/config';
 import { ChromeBookmarkRepository } from '~/lib/browser/chrome';
 import raindropClient from '~/lib/raindrop';
-import appSettings from '~/lib/settings';
 import { SyncManager } from './manager';
 
 export {
