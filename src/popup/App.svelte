@@ -2,8 +2,9 @@
 	import { format, formatDistanceToNow } from 'date-fns';
 	import { A, Toggle } from 'flowbite-svelte';
 	import { RefreshOutline } from 'flowbite-svelte-icons';
+	import { onMount } from 'svelte';
 	import appSettings from '~/lib/settings';
-	import syncManager from '~/lib/sync';
+	import syncManager, { type SyncEvent, type SyncEventListener } from '~/lib/sync';
 
 	let isSyncing = false;
 	let forceSync = false;
@@ -11,9 +12,21 @@
 	let animationFrame: number | null = null;
 	const clientLastSync = appSettings.clientLastSync;
 	let lastSyncTime = $clientLastSync;
+	let latestSyncEvent: SyncEvent | null = null;
 
 	// Subscribe to clientLastSync changes
 	$: lastSyncTime = $clientLastSync;
+
+	class SyncEventObserver implements SyncEventListener {
+		onEvent(event: SyncEvent) {
+			latestSyncEvent = event;
+		}
+	}
+
+	onMount(() => {
+		const observer = new SyncEventObserver();
+		syncManager.addListener(observer);
+	});
 
 	const formatLastSync = (date: Date): string => {
 		// If never synced (epoch date)
@@ -88,7 +101,14 @@
 		</button>
 
 		<!-- Status Info -->
-		<p class="mt-6 text-sm text-gray-600">
+		<p
+			class="mt-6 text-center text-sm {latestSyncEvent?.type === 'error'
+				? 'text-red-600'
+				: 'text-gray-600'}"
+		>
+			{latestSyncEvent?.toMessage()}
+		</p>
+		<p class="mt-4 text-sm text-gray-600">
 			Last sync: <span class="font-medium text-gray-800">{formatLastSync(lastSyncTime)}</span>
 		</p>
 
