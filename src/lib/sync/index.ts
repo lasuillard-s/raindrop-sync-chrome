@@ -15,6 +15,6 @@ export { SyncManager } from './manager';
 
 export default new SyncManager({
 	appSettings,
-	adapter: new ChromeBookmarkRepository(),
+	repository: new ChromeBookmarkRepository(),
 	raindropClient: raindropClient
 });
