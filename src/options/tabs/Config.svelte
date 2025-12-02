@@ -63,7 +63,6 @@
 	};
 
 	const save = async () => {
-		console.debug('Saving settings:', settingsChange);
 		await appSettings.clientID.set(settingsChange.clientID);
 		await appSettings.clientSecret.set(settingsChange.clientSecret);
 		await appSettings.accessToken.set(settingsChange.accessToken);
