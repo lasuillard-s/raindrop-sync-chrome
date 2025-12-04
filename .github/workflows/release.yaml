@@ -45,7 +45,7 @@ jobs:
       - name: Publish to Chrome Web Store (Testers)
         uses: MobileFirstLLC/cws-publish@2.1.1
         with:
-          action: testers
+          action: publish
           extension_id: ${{ vars.CWS_EXTENSION_ID }}
           client_id: ${{ secrets.CWS_CLIENT_ID }}
           client_secret: ${{ secrets.CWS_CLIENT_SECRET }}
