@@ -42,7 +42,7 @@ jobs:
           files: |
             raindrop-sync-for-chrome.zip
 
-      - name: Publish to Chrome Web Store (Testers)
+      - name: Publish to Chrome Web Store
         uses: MobileFirstLLC/cws-publish@2.1.1
         with:
           action: publish
