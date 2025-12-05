@@ -3,28 +3,19 @@
 	import { onMount } from 'svelte';
 	import { get } from 'svelte/store';
 	import SecretInput from '~/components/SecretInput.svelte';
+	import { appSettings } from '~/config';
 	import { putMessage } from '~/lib/messages';
 	import { launchWebAuthFlow as _launchWebAuthFlow } from '~/lib/raindrop/auth';
-	import {
-		accessToken,
-		autoSyncEnabled,
-		autoSyncExecOnStartup,
-		autoSyncIntervalInMinutes,
-		clientID,
-		clientSecret,
-		refreshToken,
-		scheduleAutoSync,
-		syncLocation
-	} from '~/lib/settings';
+	import syncManager from '~/lib/sync';
 
 	const launchWebAuthFlow = async () => {
 		try {
 			const result = await _launchWebAuthFlow({
-				clientID: get(clientID),
-				clientSecret: get(clientSecret)
+				clientID: get(appSettings.clientID),
+				clientSecret: get(appSettings.clientSecret)
 			});
-			await accessToken.set(result.accessToken);
-			await refreshToken.set(result.refreshToken);
+			await appSettings.accessToken.set(result.accessToken);
+			await appSettings.refreshToken.set(result.refreshToken);
 			putMessage({ type: 'success', message: 'Successfully authorized app.' });
 		} catch (err) {
 			console.error('Failed to authorize app:', err);
@@ -61,27 +52,26 @@
 
 	// TODO: Alarms for auto sync should be re-scheduled on changes
 	let settingsChange = {
-		clientID: get(clientID),
-		clientSecret: get(clientSecret),
-		accessToken: get(accessToken),
-		refreshToken: get(refreshToken),
-		autoSyncEnabled: get(autoSyncEnabled),
-		autoSyncExecOnStartup: get(autoSyncExecOnStartup),
-		autoSyncIntervalInMinutes: get(autoSyncIntervalInMinutes),
-		syncLocation: get(syncLocation)
+		clientID: get(appSettings.clientID),
+		clientSecret: get(appSettings.clientSecret),
+		accessToken: get(appSettings.accessToken),
+		refreshToken: get(appSettings.refreshToken),
+		autoSyncEnabled: get(appSettings.autoSyncEnabled),
+		autoSyncExecOnStartup: get(appSettings.autoSyncExecOnStartup),
+		autoSyncIntervalInMinutes: get(appSettings.autoSyncIntervalInMinutes),
+		syncLocation: get(appSettings.syncLocation)
 	};
 
 	const save = async () => {
-		console.debug('Saving settings:', settingsChange);
-		await clientID.set(settingsChange.clientID);
-		await clientSecret.set(settingsChange.clientSecret);
-		await accessToken.set(settingsChange.accessToken);
-		await refreshToken.set(settingsChange.refreshToken);
-		await autoSyncEnabled.set(settingsChange.autoSyncEnabled);
-		await autoSyncExecOnStartup.set(settingsChange.autoSyncExecOnStartup);
-		await autoSyncIntervalInMinutes.set(settingsChange.autoSyncIntervalInMinutes);
-		await syncLocation.set(settingsChange.syncLocation);
-		await scheduleAutoSync();
+		await appSettings.clientID.set(settingsChange.clientID);
+		await appSettings.clientSecret.set(settingsChange.clientSecret);
+		await appSettings.accessToken.set(settingsChange.accessToken);
+		await appSettings.refreshToken.set(settingsChange.refreshToken);
+		await appSettings.autoSyncEnabled.set(settingsChange.autoSyncEnabled);
+		await appSettings.autoSyncExecOnStartup.set(settingsChange.autoSyncExecOnStartup);
+		await appSettings.autoSyncIntervalInMinutes.set(settingsChange.autoSyncIntervalInMinutes);
+		await appSettings.syncLocation.set(settingsChange.syncLocation);
+		await syncManager.scheduleAutoSync();
 		putMessage({ type: 'success', message: 'Settings saved.' });
 	};
 </script>

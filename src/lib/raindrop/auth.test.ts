@@ -53,7 +53,7 @@ describe(launchWebAuthFlow, () => {
 			})
 			.returns(undefined);
 
-		expect(
+		await expect(
 			launchWebAuthFlow({
 				clientID: 'client-id',
 				clientSecret: 'client-secret'
@@ -69,7 +69,7 @@ describe(launchWebAuthFlow, () => {
 			})
 			.returns('https://extension-id.chromiumapp.org/?_code=authorization-code');
 
-		expect(
+		await expect(
 			launchWebAuthFlow({
 				clientID: 'client-id',
 				clientSecret: 'client-secret'

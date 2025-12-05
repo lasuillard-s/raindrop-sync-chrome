@@ -8,7 +8,7 @@ export default defineManifest(async (env) => {
 		manifest_version: 3,
 		name: 'Raindrop Sync for Chrome',
 		version: packageManifest.version,
-		description: 'Inspect background service worker console for output',
+		description: 'Chrome browser extension for syncing bookmarks with Raindrop.',
 		homepage_url: packageManifest.homepage,
 		permissions: ['identity', 'storage', 'bookmarks', 'alarms'],
 		host_permissions: [
