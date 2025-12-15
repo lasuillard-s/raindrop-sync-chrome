@@ -10,7 +10,6 @@
 	let nodeTitle: string;
 	let childCount: number;
 
-	console.log(treeNode);
 	$: {
 		isFolder = treeNode.isFolder();
 		href = treeNode.getUrl();
