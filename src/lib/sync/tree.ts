@@ -2,6 +2,15 @@
 export abstract class NodeData {
 	abstract getId(): string;
 	abstract getParentId(): string | null;
+
+	/**
+	 * Generate hash based on current node data for comparison with other node data types.
+	 *
+	 * If two different data type is equal, it should return same hash for equality comparison.
+	 * For empty data, it should generate random hash to avoid equality with any other data.
+	 */
+	abstract getHash(): string;
+
 	abstract getName(): string;
 	abstract getUrl(): string | null;
 	abstract isFolder(): boolean;
@@ -91,11 +100,11 @@ export class TreeNode<D extends NodeData> {
 		// eslint-disable-next-line @typescript-eslint/no-this-alias
 		let currentNode: TreeNode<D> | null = this;
 
-		while (currentNode) {
+		while (currentNode && !currentNode.isRoot()) {
 			segments.unshift(currentNode.getName() || '');
 			currentNode = currentNode.parent;
 		}
-		return '/' + segments.join('/');
+		return segments.join('/');
 	}
 
 	isRoot(): boolean {
