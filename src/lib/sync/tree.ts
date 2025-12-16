@@ -124,7 +124,7 @@ export class TreeNode<D extends NodeData> {
 	}
 
 	isTerminal(): boolean {
-		return this.children.length === 0;
+		return !this.isFolder() && this.children.length === 0;
 	}
 
 	addChild(child: TreeNode<D>) {
