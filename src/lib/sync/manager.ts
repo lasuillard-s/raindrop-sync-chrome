@@ -55,7 +55,7 @@ export class SyncManager {
 	}
 
 	emitEvent(event: SyncEvent) {
-		console.debug(`Notifying listeners of sync event: ${event}`);
+		console.debug('Notifying listeners of sync event:', event);
 		for (const listener of this.listeners) {
 			listener.onEvent(event);
 		}
