@@ -1,0 +1,23 @@
+services:
+  # https://playwright.dev/docs/next/docker
+  playwright:
+    build:
+      # ! Be sure to match the version of @playwright/test in package.json file
+      context: ..
+      dockerfile_inline: |
+        FROM mcr.microsoft.com/playwright:v${PLAYWRIGHT_VERSION:?}-noble
+
+        WORKDIR /workspace
+        VOLUME /workspace/node_modules
+        COPY package.json yarn.lock ./
+        RUN yarn install --frozen-lockfile
+    ports:
+      - 127.0.0.1:8888:8888 # Playwright UI
+      - 127.0.0.1:9323:9323 # Playwright reports
+    volumes:
+      - ..:/workspace
+    environment:
+      PLAYWRIGHT_HTML_HOST: "0.0.0.0"
+    working_dir: /workspace
+    command: sleep infinity
+    init: true

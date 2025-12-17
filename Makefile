@@ -80,7 +80,7 @@ build:
 .PHONY: build
 
 e2e: build  ## Run e2e tests
-	yarn run e2e --update-snapshots
+	yarn run e2e-docker --update-snapshots
 .PHONY: e2e
 
 
