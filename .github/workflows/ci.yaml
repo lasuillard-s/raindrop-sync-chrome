@@ -104,7 +104,7 @@ jobs:
           path: |
             playwright-report/
             test-results/
-            run-*.log
+            e2e-*.log
           retention-days: 7
 
       - name: Upload Playwright report to S3

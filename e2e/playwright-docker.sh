@@ -7,11 +7,11 @@ set -o nounset
 : '
 Set up the environment for end-to-end testing using Docker Compose.
 
-Logs will be saved to e2e/run-*.log files.
+Logs will be saved to e2e-*.log files.
 '
 
 git_root="$(git rev-parse --show-toplevel)"
-log_file="${git_root}/run-$(date +"%Y%m%dT%H%M%S").log"
+log_file="${git_root}/e2e-$(date +"%Y%m%dT%H%M%S").log"
 pass_envvars=( CI )
 
 cd "${git_root}/e2e"
