@@ -8,7 +8,8 @@
 	"workspaceFolder": "/workspaces/${localWorkspaceFolderBasename}",
 	"shutdownAction": "stopCompose",
 	"features": {
-		"ghcr.io/devcontainers-extra/features/pre-commit:2": {}
+		"ghcr.io/devcontainers-extra/features/pre-commit:2": {},
+		"ghcr.io/devcontainers/features/docker-in-docker:2": {}
 	},
 	"overrideCommand": true,
 	"onCreateCommand": "./.devcontainer/onCreateCommand.sh",

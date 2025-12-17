@@ -90,29 +90,11 @@ jobs:
       - name: Install deps
         run: yarn install --frozen-lockfile
 
-      # https://github.com/microsoft/playwright/issues/7249
-      - name: Store Playwright version as env
-        run: |
-          PLAYWRIGHT_VERSION="$(yarn run --silent playwright --version | cut -d' ' -f2)"
-          echo "Playwright version is ${PLAYWRIGHT_VERSION}"
-          echo "PLAYWRIGHT_VERSION=${PLAYWRIGHT_VERSION}" >> ${GITHUB_ENV}
-
-      - name: Cache Playwright browsers
-        id: cache-playwright-browsers
-        uses: actions/cache@v4
-        with:
-          path: ~/.cache/ms-playwright
-          key: playwright-browsers-${{ env.PLAYWRIGHT_VERSION }}
-
-      - name: Install Playwright browsers
-        if: ${{ steps.cache-playwright-browsers.outputs.cache-hit != 'true' }}
-        run: yarn run playwright install --with-deps
-
       - name: Build the application
         run: yarn run build
 
       - name: Run end-to-end tests
-        run: yarn run e2e
+        run: yarn run e2e-docker
 
       - name: Upload Playwright report to GitHub
         uses: actions/upload-artifact@v5
@@ -122,6 +104,7 @@ jobs:
           path: |
             playwright-report/
             test-results/
+            e2e-*.log
           retention-days: 7
 
       - name: Upload Playwright report to S3
