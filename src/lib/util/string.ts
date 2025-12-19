@@ -12,6 +12,9 @@ export function normalizeUrl(url: string): string {
 	// Remove trailing slash
 	normalized = normalized.replace(/\/$/, '');
 
+	// Escape backslashes
+	normalized = normalized.replace(/\\/g, '\\\\');
+
 	// Escape slashes
 	normalized = normalized.replace(/\//g, '\\/');
 
