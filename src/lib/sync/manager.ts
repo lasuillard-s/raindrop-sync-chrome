@@ -7,6 +7,7 @@ import {
 	createTreeFromChromeBookmarks
 } from '~/lib/browser/chrome';
 import { createTreeFromRaindrops, type RaindropNodeData } from '~/lib/raindrop';
+import { SyncDiff } from './diff';
 import type { SyncEvent, SyncEventListener } from './event-listener';
 import {
 	SyncEventComplete,
@@ -14,7 +15,6 @@ import {
 	SyncEventProgress,
 	SyncEventStart
 } from './event-listener';
-import { SyncDiff } from './plan';
 import { TreeNode } from './tree';
 
 /**
