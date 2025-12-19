@@ -17,17 +17,17 @@
 	// Subscribe to clientLastSync changes
 	$: lastSyncTime = $clientLastSync;
 
-	class SyncEventObserver implements SyncEventListener {
+	class SyncEventListenerImpl implements SyncEventListener {
 		onEvent(event: SyncEvent) {
 			latestSyncEvent = event;
 		}
 	}
 
 	onMount(() => {
-		const observer = new SyncEventObserver();
-		syncManager.addListener(observer);
+		const listener = new SyncEventListenerImpl();
+		syncManager.addListener(listener);
 		return () => {
-			syncManager.removeListener(observer);
+			syncManager.removeListener(listener);
 		};
 	});
 
