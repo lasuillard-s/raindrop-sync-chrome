@@ -50,7 +50,7 @@
 		"@types/sinon-chrome": "^2.2.15",
 		"@vitest/coverage-v8": "^4.0.14",
 		"@vitest/ui": "^4.0.14",
-		"axios-cache-interceptor": "^1.8.0",
+		"axios-cache-interceptor": "^1.11.1",
 		"concurrently": "^9.2.0",
 		"dotenv": "^17.2.1",
 		"eslint": "^9.39.1",
