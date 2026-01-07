@@ -10,6 +10,7 @@
 	import PathBreadcrumb from '~/components/PathBreadcrumb.svelte';
 	import Tree from '~/components/Tree.svelte';
 	import type { ChromeBookmarkNodeData } from '~/lib/browser/chrome';
+	import { putMessage } from '~/lib/messages';
 	import { RaindropNodeData } from '~/lib/raindrop';
 	import type { TreeNode } from '~/lib/sync';
 	import syncManager, { SyncDiff } from '~/lib/sync';
@@ -23,6 +24,8 @@
 		isFetchingRaindrops = true;
 		try {
 			expectedBookmarkTree = await syncManager.getExpectedBookmarkTree();
+		} catch (err) {
+			putMessage({ type: 'error', message: `Failed to fetch Raindrop.io bookmarks: ${err}` });
 		} finally {
 			isFetchingRaindrops = false;
 		}
@@ -37,6 +40,8 @@
 		try {
 			currentBookmarkTree = await syncManager.getCurrentBookmarkTree();
 			syncLocationFullPath = currentBookmarkTree.getFullPathSegments().join(' / ') + ' /';
+		} catch (err) {
+			putMessage({ type: 'error', message: `Failed to fetch Chrome bookmarks: ${err}` });
 		} finally {
 			isFetchingChrome = false;
 		}
