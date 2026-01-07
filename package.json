@@ -6,7 +6,7 @@
 		"url": "https://github.com/lasuillard",
 		"email": "lasuillard@gmail.com"
 	},
-	"homepage": "https://github.com/lasuillard/raindrop-sync-chrome",
+	"homepage": "https://github.com/lasuillard-s/raindrop-sync-chrome",
 	"private": true,
 	"scripts": {
 		"dev": "vite dev",
