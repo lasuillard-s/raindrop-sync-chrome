@@ -9,6 +9,7 @@ test-results/
 playwright-report/
 dummy-non-existing-folder/
 release/
+chrome-dev-profile/
 
 # User hook scripts for VSC devcontainer lifecycle
 .devcontainer/initializeCommand/

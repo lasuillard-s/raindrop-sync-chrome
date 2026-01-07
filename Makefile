@@ -32,6 +32,8 @@ update:  ## Update deps and tools
 	pre-commit autoupdate
 .PHONY: update
 
+# Note, --user-data-dir flag is required for debugger to work properly
+# https://stackoverflow.com/questions/56326924/debugging-a-chrome-instance-with-remote-debugging-port-flag
 browser:  ## Launch browser with extensions loaded
 	dotenvx run -- google-chrome \
 		--no-first-run \
@@ -39,6 +41,7 @@ browser:  ## Launch browser with extensions loaded
 		--load-extension="${PWD}/dist" \
 		--no-sandbox \
 		--remote-debugging-port=9222 \
+		--user-data-dir=./chrome-dev-profile \
 		--enable-logging \
 		--v=1 \
 		--log-file=./chrome.log

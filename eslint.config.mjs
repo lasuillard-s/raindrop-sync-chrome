@@ -14,7 +14,8 @@ export default ts.config(
 			'test-results/*',
 			'dist/*',
 			'.svelte-kit/*',
-			'vite.config.{js,ts}.timestamp-*'
+			'vite.config.{js,ts}.timestamp-*',
+			'chrome-dev-profile/*'
 		]
 	},
 	js.configs.recommended,

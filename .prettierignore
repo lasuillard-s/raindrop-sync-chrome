@@ -2,6 +2,7 @@ idl/
 coverage/
 playwright-report/
 test-results/
+chrome-dev-profile/
 
 .DS_Store
 node_modules
