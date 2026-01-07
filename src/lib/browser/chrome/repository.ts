@@ -48,21 +48,32 @@ export class ChromeBookmarkRepository {
 	 * @returns The bookmark node or null if not found.
 	 */
 	async findBookmarkByPath(path: Path): Promise<chrome.bookmarks.BookmarkTreeNode | null> {
-		let currentNodes = await chrome.bookmarks.getTree();
+		const tree = await chrome.bookmarks.getTree();
+		const root = tree[0];
 
-		for (const segment of path.getSegments()) {
+		const segments = path.getSegments();
+		let currentNodes = root.children ?? [];
+
+		while (segments.length > 0) {
+			const segment = segments.shift();
 			const nextNode = currentNodes.find((node) => node.title === segment);
 			if (!nextNode) {
 				return null;
 			}
+
 			if (nextNode.children) {
 				currentNodes = nextNode.children;
 			} else {
 				currentNodes = [];
 			}
+
+			if (segments.length === 0 && currentNodes.length === 0) {
+				return nextNode;
+			}
 		}
 
-		return currentNodes.length > 0 ? currentNodes[0] : null;
+		// Not found
+		return null;
 	}
 
 	/**
