@@ -19,9 +19,9 @@ export class Path {
 				.filter((segment) => segment.length > 0);
 		} else if (args.segments) {
 			this.pathSegments = args.segments;
+		} else {
+			throw new Error('Either fullPath or segments must be provided');
 		}
-
-		throw new Error('Either fullPath or segments must be provided');
 	}
 
 	static root(): Path {
