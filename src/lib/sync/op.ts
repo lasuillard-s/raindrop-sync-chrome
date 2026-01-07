@@ -7,10 +7,10 @@ export abstract class SyncOp {
 
 export class SyncOpNoop extends SyncOp {
 	readonly args: {
-		path: string;
+		path: Path;
 	};
 
-	constructor(args: { path: string }) {
+	constructor(args: { path: Path }) {
 		super();
 		this.args = args;
 	}
@@ -24,40 +24,46 @@ export class SyncOpNoop extends SyncOp {
 
 export class SyncOpAdd extends SyncOp {
 	readonly args: {
-		path: string;
+		path: Path;
 		title: string;
 		url: string;
 	};
 
-	constructor(args: { path: string; title: string; url: string }) {
+	constructor(args: { path: Path; title: string; url: string }) {
 		super();
 		this.args = args;
 	}
 
 	async apply(repository: ChromeBookmarkRepository) {
 		console.debug('Applying SyncOpAdd for path:', this.args.path);
-		await repository.createBookmark(new Path({ fullPath: this.args.path }), {
-			title: this.args.title,
-			url: this.args.url
-		});
+		await repository.createBookmark(
+			this.args.path,
+			{
+				title: this.args.title,
+				url: this.args.url
+			},
+			{
+				createParentIfNotExists: true
+			}
+		);
 	}
 }
 
 export class SyncOpUpdate extends SyncOp {
 	readonly args: {
-		path: string;
+		path: Path;
 		title?: string;
 		url?: string;
 	};
 
-	constructor(args: { path: string; title?: string; url?: string }) {
+	constructor(args: { path: Path; title?: string; url?: string }) {
 		super();
 		this.args = args;
 	}
 
 	async apply(repository: ChromeBookmarkRepository) {
 		console.debug('Applying SyncOpUpdate for path:', this.args.path);
-		await repository.updateBookmark(new Path({ fullPath: this.args.path }), {
+		await repository.updateBookmark(this.args.path, {
 			title: this.args.title,
 			url: this.args.url
 		});
@@ -66,16 +72,16 @@ export class SyncOpUpdate extends SyncOp {
 
 export class SyncOpDelete extends SyncOp {
 	readonly args: {
-		path: string;
+		path: Path;
 	};
 
-	constructor(args: { path: string }) {
+	constructor(args: { path: Path }) {
 		super();
 		this.args = args;
 	}
 
 	async apply(repository: ChromeBookmarkRepository) {
 		console.debug('Applying SyncOpDelete for path:', this.args.path);
-		await repository.deleteBookmark(new Path({ fullPath: this.args.path }));
+		await repository.deleteBookmark(this.args.path);
 	}
 }

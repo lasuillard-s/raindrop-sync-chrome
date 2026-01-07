@@ -1,3 +1,5 @@
+import { Path, PathMap } from '~/lib/util/path';
+
 /** Abstraction for required functionality of raw source data types. */
 export abstract class NodeData {
 	abstract getId(): string;
@@ -108,11 +110,13 @@ export class TreeNode<D extends NodeData> {
 			segments.unshift(currentNode.getName() || '');
 			currentNode = currentNode.parent;
 		}
+
 		return segments;
 	}
 
-	getFullPath(relativeTo?: TreeNode<D>): string {
-		return '/' + this.getFullPathSegments(relativeTo).join('/');
+	getFullPath(relativeTo?: TreeNode<D>): Path {
+		const segments = this.getFullPathSegments(relativeTo);
+		return new Path({ segments });
 	}
 
 	isRoot(): boolean {
@@ -149,9 +153,9 @@ export class TreeNode<D extends NodeData> {
 	 * @param opts.relativeTo If provided, paths will be relative to this node
 	 * @returns Map where keys are paths and values are Tree nodes
 	 */
-	toMap(opts?: { onlyTerminal?: boolean; relativeTo?: TreeNode<D> }): Map<string, TreeNode<D>> {
+	toMap(opts?: { onlyTerminal?: boolean; relativeTo?: TreeNode<D> }): PathMap<TreeNode<D>> {
 		const onlyTerminal = opts?.onlyTerminal ?? false;
-		const map = new Map<string, TreeNode<D>>();
+		const map = new PathMap<TreeNode<D>>();
 		this.dfs((node) => {
 			const key = node.getFullPath(opts?.relativeTo);
 			if (map.has(key)) {

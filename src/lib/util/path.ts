@@ -68,3 +68,39 @@ export class Path {
 		return new Path({ segments: newSegments });
 	}
 }
+
+/**
+ * A generic map where keys are Paths.
+ */
+export class PathMap<Value> {
+	private map: Map<string, Value>;
+
+	constructor() {
+		this.map = new Map<string, Value>();
+	}
+
+	get(path: Path): Value | undefined {
+		return this.map.get(path.toString());
+	}
+
+	set(path: Path, value: Value): void {
+		this.map.set(path.toString(), value);
+	}
+
+	delete(path: Path): boolean {
+		return this.map.delete(path.toString());
+	}
+
+	has(path: Path): boolean {
+		return this.map.has(path.toString());
+	}
+
+	entries(): IterableIterator<[Path, Value]> {
+		// BUG: Path construction malformed here
+		return this.map.entries().map(([key, value]) => [new Path({ fullPath: key }), value]);
+	}
+
+	values(): IterableIterator<Value> {
+		return this.map.values();
+	}
+}

@@ -90,13 +90,14 @@ export class ChromeBookmarkRepository {
 		return bookmark;
 	}
 
-	// TODO: Option to create parent folder if not exists
 	/**
 	 * Create a new bookmark.
 	 * @param path The path where the bookmark should be created.
 	 * @param args The bookmark details.
 	 * @param args.title The title of the bookmark.
 	 * @param args.url The URL of the bookmark.
+	 * @param options Options for bookmark creation.
+	 * @param options.createParentIfNotExists Whether to create the parent folder if it does not exist.
 	 * @returns The created bookmark node.
 	 */
 	async createBookmark(
@@ -104,15 +105,52 @@ export class ChromeBookmarkRepository {
 		args: {
 			title: string;
 			url: string;
+		},
+		options?: {
+			createParentIfNotExists?: boolean;
 		}
 	): Promise<chrome.bookmarks.BookmarkTreeNode> {
+		const createParentIfNotExists = options?.createParentIfNotExists ?? false;
 		const parent = path.getParent();
-		const parentFolder = await this.getBookmarkByPath(parent);
+		let parentFolder: chrome.bookmarks.BookmarkTreeNode;
+		if (createParentIfNotExists) {
+			parentFolder = await this.createFolder(parent, {
+				createParentIfNotExists: createParentIfNotExists
+			});
+		} else {
+			parentFolder = await this.getBookmarkByPath(parent);
+		}
 		return await chrome.bookmarks.create({
 			parentId: parentFolder.id,
 			title: args.title,
 			url: args.url
 		});
+	}
+
+	async createFolder(
+		path: Path,
+		options?: { createParentIfNotExists?: boolean }
+	): Promise<chrome.bookmarks.BookmarkTreeNode> {
+		const tree = await chrome.bookmarks.getTree();
+		let root = tree[0];
+		for (const segment of path.getSegments()) {
+			if (!root.children) {
+				throw new Error(
+					'Invalid bookmark structure; non-folder node encountered while creating folder'
+				);
+			}
+			let nextNode = root.children.find((node) => node.title === segment);
+			if (!nextNode && options?.createParentIfNotExists) {
+				nextNode = await chrome.bookmarks.create({
+					parentId: root.id,
+					title: segment
+				});
+			} else if (!nextNode) {
+				throw new BookmarkNotFoundError(`Folder with path ${path.toString()} not found`);
+			}
+			root = nextNode;
+		}
+		return root;
 	}
 
 	/**
