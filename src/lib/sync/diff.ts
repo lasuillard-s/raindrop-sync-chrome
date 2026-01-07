@@ -43,7 +43,7 @@ export class SyncDiff<L extends NodeData, R extends NodeData> {
 				const rightNode = rightMap.get(path)!;
 
 				// ? Update below condition for more complex comparison logic if needed
-				if (leftNode.data?.getHash() == rightNode.data?.getHash()) {
+				if (leftNode.data?.getHash() === rightNode.data?.getHash()) {
 					diff.unchanged.push({ left: leftNode, right: rightNode });
 				} else {
 					diff.inBothButDifferent.push({ left: leftNode, right: rightNode });
