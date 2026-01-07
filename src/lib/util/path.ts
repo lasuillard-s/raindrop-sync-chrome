@@ -1,7 +1,3 @@
-// TODO(lasuillard): Update codebase to use this Path class for path operations
-
-const PathSeparator = '/';
-
 /**
  * Represents a normalized path for bookmarks.
  */
@@ -13,15 +9,21 @@ export class Path {
 			throw new Error('Cannot provide both fullPath and segments');
 		}
 
+		let segments: string[];
 		if (args.fullPath) {
-			this.pathSegments = args.fullPath
-				.split(PathSeparator)
-				.filter((segment) => segment.length > 0);
+			segments = args.fullPath.split(/(?<!\\)\//); // Split on unescaped slashes
 		} else if (args.segments) {
-			this.pathSegments = args.segments;
+			segments = args.segments;
 		} else {
 			throw new Error('Either fullPath or segments must be provided');
 		}
+
+		// Strip leading empty segment if path starts with a slash
+		if (segments.length > 1 && segments[0] === '') {
+			segments = segments.slice(1);
+		}
+
+		this.pathSegments = segments;
 	}
 
 	static root(): Path {
