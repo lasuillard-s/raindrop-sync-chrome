@@ -4,18 +4,18 @@
 export class Path {
 	private pathSegments: string[];
 
-	constructor(args: { fullPath?: string; segments?: string[] }) {
-		if (args.fullPath && args.segments) {
-			throw new Error('Cannot provide both fullPath and segments');
+	constructor(args: { pathString?: string; segments?: string[] }) {
+		if (args.pathString && args.segments) {
+			throw new Error('Cannot provide both pathString and segments');
 		}
 
 		let segments: string[];
-		if (args.fullPath) {
-			segments = args.fullPath.split(/(?<!\\)\//); // Split on unescaped slashes
+		if (args.pathString) {
+			segments = args.pathString.split(/(?<!\\)\//); // Split on unescaped slashes
 		} else if (args.segments) {
 			segments = args.segments;
 		} else {
-			throw new Error('Either fullPath or segments must be provided');
+			throw new Error('Either pathString or segments must be provided');
 		}
 
 		// Strip leading empty segment if path starts with a slash
@@ -96,7 +96,7 @@ export class PathMap<Value> {
 	}
 
 	entries(): IterableIterator<[Path, Value]> {
-		// NOTE: `this.map.entries().map(([key, value]) => [new Path({ fullPath: key }), value])`
+		// NOTE: `this.map.entries().map(([key, value]) => [new Path({ pathString: key }), value])`
 		//       will fail because Map's iterator does not have a `map` method.
 		const iterator = this.map.entries();
 		return {
@@ -109,7 +109,7 @@ export class PathMap<Value> {
 					return { done: true, value: undefined };
 				}
 				const [key, value] = result.value;
-				return { done: false, value: [new Path({ fullPath: key }), value] };
+				return { done: false, value: [new Path({ pathString: key }), value] };
 			}
 		};
 	}

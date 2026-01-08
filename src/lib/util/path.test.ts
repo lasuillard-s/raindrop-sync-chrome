@@ -9,13 +9,13 @@ describe('Path', () => {
 	});
 
 	it('constructs from string correctly', () => {
-		const path = new Path({ fullPath: '/folder/subfolder/file.txt' });
+		const path = new Path({ pathString: '/folder/subfolder/file.txt' });
 		expect(path.getSegments()).toEqual(['folder', 'subfolder', 'file.txt']);
 		expect(path.toString()).toBe('/folder/subfolder/file.txt');
 	});
 
 	it('constructs from string correctly with escaped path separators in segments', () => {
-		const path = new Path({ fullPath: '/folder/subfolder\\/withslash/file.txt' });
+		const path = new Path({ pathString: '/folder/subfolder\\/withslash/file.txt' });
 		expect(path.getSegments()).toEqual(['folder', 'subfolder\\/withslash', 'file.txt']);
 		expect(path.toString()).toBe('/folder/subfolder\\/withslash/file.txt');
 	});
@@ -23,7 +23,7 @@ describe('Path', () => {
 	it('reconstructs from string created by toString()', () => {
 		const originalPath = new Path({ segments: ['folder', 'subfolder', 'file.txt'] });
 		const pathString = originalPath.toString();
-		const reconstructedPath = new Path({ fullPath: pathString });
+		const reconstructedPath = new Path({ pathString: pathString });
 		expect(reconstructedPath.getSegments()).toEqual(originalPath.getSegments());
 		expect(reconstructedPath.toString()).toBe(originalPath.toString());
 	});
@@ -35,7 +35,7 @@ describe('Path', () => {
 	});
 
 	it('getParent() should return correct parent paths', () => {
-		const path = new Path({ fullPath: '/folder/subfolder/file.txt' });
+		const path = new Path({ pathString: '/folder/subfolder/file.txt' });
 		const parentPath = path.getParent();
 		expect(parentPath.getSegments()).toEqual(['folder', 'subfolder']);
 		expect(parentPath.toString()).toBe('/folder/subfolder');
@@ -49,7 +49,7 @@ describe('Path', () => {
 	});
 
 	it('joinPath() should join segments correctly', () => {
-		const path = new Path({ fullPath: '/folder' });
+		const path = new Path({ pathString: '/folder' });
 		const newPath = path.joinPath('subfolder', 'file.txt');
 		expect(newPath.getSegments()).toEqual(['folder', 'subfolder', 'file.txt']);
 		expect(newPath.toString()).toBe('/folder/subfolder/file.txt');
@@ -59,8 +59,8 @@ describe('Path', () => {
 describe('PathMap', () => {
 	it('implements basic map functionality', () => {
 		const pathMap = new PathMap<number>();
-		const path1 = new Path({ fullPath: '/folder/file1.txt' });
-		const path2 = new Path({ fullPath: '/folder/file2.txt' });
+		const path1 = new Path({ pathString: '/folder/file1.txt' });
+		const path2 = new Path({ pathString: '/folder/file2.txt' });
 
 		pathMap.set(path1, 100);
 		pathMap.set(path2, 200);
@@ -68,7 +68,7 @@ describe('PathMap', () => {
 		expect(pathMap.get(path1)).toBe(100);
 		expect(pathMap.get(path2)).toBe(200);
 		expect(pathMap.has(path1)).toBe(true);
-		expect(pathMap.has(new Path({ fullPath: '/folder/file3.txt' }))).toBe(false);
+		expect(pathMap.has(new Path({ pathString: '/folder/file3.txt' }))).toBe(false);
 
 		pathMap.delete(path1);
 		expect(pathMap.has(path1)).toBe(false);
@@ -76,8 +76,8 @@ describe('PathMap', () => {
 
 	it('implements iteration over entries', () => {
 		const pathMap = new PathMap<number>();
-		const path1 = new Path({ fullPath: '/folder/file1.txt' });
-		const path2 = new Path({ fullPath: '/folder/file2.txt' });
+		const path1 = new Path({ pathString: '/folder/file1.txt' });
+		const path2 = new Path({ pathString: '/folder/file2.txt' });
 
 		pathMap.set(path1, 100);
 		pathMap.set(path2, 200);
@@ -91,8 +91,8 @@ describe('PathMap', () => {
 
 	it('implements iteration over values', () => {
 		const pathMap = new PathMap<number>();
-		const path1 = new Path({ fullPath: '/folder/file1.txt' });
-		const path2 = new Path({ fullPath: '/folder/file2.txt' });
+		const path1 = new Path({ pathString: '/folder/file1.txt' });
+		const path2 = new Path({ pathString: '/folder/file2.txt' });
 
 		pathMap.set(path1, 100);
 		pathMap.set(path2, 200);
