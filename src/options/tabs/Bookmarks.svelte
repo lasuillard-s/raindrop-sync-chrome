@@ -66,10 +66,10 @@
 			isCalculatingDiff = false;
 		}
 	};
-
 	onMount(async () => {
+		// TODO(lasuillard): Auto-fetch after async stores are fixed to work correctly (current implementation has many bugs)
 		// Fetch current tree at init because it's in-browser operation and cheap
-		await fetchCurrentBookmarkTree();
+		// await fetchCurrentBookmarkTree();
 	});
 </script>
 
