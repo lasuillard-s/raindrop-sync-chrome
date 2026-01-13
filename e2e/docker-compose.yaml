@@ -17,7 +17,7 @@ services:
     volumes:
       - ..:/workspace
     environment:
-      PLAYWRIGHT_HTML_HOST: "0.0.0.0"
+      PLAYWRIGHT_HTML_HOST: '0.0.0.0'
     working_dir: /workspace
     command: sleep infinity
     init: true
