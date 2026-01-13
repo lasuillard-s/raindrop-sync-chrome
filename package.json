@@ -63,7 +63,6 @@
 		"prettier": "3.7.4",
 		"prettier-plugin-svelte": "^3.4.0",
 		"prettier-plugin-tailwindcss": "^0.7.2",
-		"sinon-chrome": "^3.0.1",
 		"svelte-check": "^4.3.0",
 		"tailwind-merge": "^3.4.0",
 		"tslib": "^2.7.0",
