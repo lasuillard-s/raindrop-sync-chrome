@@ -2,8 +2,8 @@ import { beforeEach, describe, expect, it } from 'vitest';
 import { Path } from '~/lib/util/path';
 import { NodeData, TreeNode } from './tree';
 
-// Example NodeData implementation for testing
-class ExampleNodeData extends NodeData {
+// NodeData implementation for testing
+class TestNodeData extends NodeData {
 	private _id: string;
 	private _parentId: string | null;
 	private _name: string;
@@ -47,7 +47,7 @@ class ExampleNodeData extends NodeData {
 
 describe('NodeData', () => {
 	it('should return correct properties', () => {
-		const node = new ExampleNodeData({
+		const node = new TestNodeData({
 			id: 'test-id',
 			parentId: 'parent-id',
 			name: 'Test Node',
@@ -78,7 +78,7 @@ describe('TreeNode', () => {
     │       └── Bookmark 1-2-1
     └── Bookmark 2
     */
-		rootData = new ExampleNodeData({
+		rootData = new TestNodeData({
 			id: 'root',
 			parentId: null,
 			name: 'Root',
@@ -86,35 +86,35 @@ describe('TreeNode', () => {
 			isFolder: true
 		});
 		exampleData = [
-			new ExampleNodeData({
+			new TestNodeData({
 				id: '1',
 				parentId: null,
 				name: 'Folder 1',
 				url: null,
 				isFolder: true
 			}),
-			new ExampleNodeData({
+			new TestNodeData({
 				id: '2',
 				parentId: '1',
 				name: 'Bookmark 1-1',
 				url: 'http://example.com/1-1',
 				isFolder: false
 			}),
-			new ExampleNodeData({
+			new TestNodeData({
 				id: '3',
 				parentId: '1',
 				name: 'Folder 1-2',
 				url: null,
 				isFolder: true
 			}),
-			new ExampleNodeData({
+			new TestNodeData({
 				id: '4',
 				parentId: '3',
 				name: 'Bookmark 1-2-1',
 				url: 'http://example.com/1-2-1',
 				isFolder: false
 			}),
-			new ExampleNodeData({
+			new TestNodeData({
 				id: '5',
 				parentId: null,
 				name: 'Bookmark 2',
@@ -223,9 +223,17 @@ describe('TreeNode', () => {
 	it('toMap() should return correct path map', () => {
 		const pathMap = tree.toMap();
 		expect(pathMap.size).toBe(6);
+    expect(Array.from(pathMap.keys()).map(path => path.toString())).toEqual([
+      '/',
+      '/Folder 1',
+      '/Folder 1/Bookmark 1-1',
+      '/Folder 1/Folder 1-2',
+      '/Folder 1/Folder 1-2/Bookmark 1-2-1',
+      '/Bookmark 2'
+    ])
 	});
 
-	it('toMap() with onlyTerminal=true should return correct path map', () => {
+	it('toMap() with onlyTerminal=true should return path map with only terminal nodes', () => {
 		const pathMap = tree.toMap({ onlyTerminal: true });
 		expect(pathMap.size).toBe(3);
 
