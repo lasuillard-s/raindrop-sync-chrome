@@ -1,7 +1,13 @@
-import { client } from '@lasuillard/raindrop-client';
 import { get } from 'svelte/store';
 import type { AppSettings } from '~/config/settings';
-import { ChromeBookmarkRepository } from '~/lib/browser/chrome';
+import {
+	ChromeBookmarkNodeData,
+	ChromeBookmarkRepository,
+	createTreeFromChromeBookmarks
+} from '~/lib/browser/chrome';
+import { createTreeFromRaindrops, type RaindropNodeData } from '~/lib/raindrop';
+import { Path } from '../util/path';
+import { SyncDiff } from './diff';
 import type { SyncEvent, SyncEventListener } from './event-listener';
 import {
 	SyncEventComplete,
@@ -9,13 +15,17 @@ import {
 	SyncEventProgress,
 	SyncEventStart
 } from './event-listener';
+import { SyncExecutor } from './executor';
+import { SyncPlan } from './plan';
+import { TreeNode } from './tree';
+import type { Raindrop } from '~/lib/raindrop/client';
 
 /**
  * Manages synchronization between Raindrop.io and browser bookmarks.
  */
 export class SyncManager {
 	appSettings: AppSettings;
-	raindropClient: client.Raindrop;
+	raindropClient: Raindrop;
 	repository: ChromeBookmarkRepository;
 
 	private listeners: SyncEventListener[] = [];
@@ -30,27 +40,27 @@ export class SyncManager {
 	constructor(opts: {
 		appSettings: AppSettings;
 		repository: ChromeBookmarkRepository;
-		raindropClient: client.Raindrop;
+		raindropClient: Raindrop;
 	}) {
 		this.appSettings = opts.appSettings;
 		this.repository = opts.repository;
 		this.raindropClient = opts.raindropClient;
 	}
 
-	addListener(observer: SyncEventListener) {
-		console.debug('Attaching a new observer to sync manager');
-		this.listeners.push(observer);
+	addListener(listener: SyncEventListener) {
+		console.debug('Attaching a new listener to sync manager');
+		this.listeners.push(listener);
 	}
 
-	removeListener(observer: SyncEventListener) {
-		console.debug('Detaching a observer from sync manager');
-		this.listeners = this.listeners.filter((obs) => obs !== observer);
+	removeListener(listener: SyncEventListener) {
+		console.debug('Detaching a listener from sync manager');
+		this.listeners = this.listeners.filter((obs) => obs !== listener);
 	}
 
 	emitEvent(event: SyncEvent) {
-		console.debug(`Notifying observers of sync event: ${event}`);
-		for (const observer of this.listeners) {
-			observer.onEvent(event);
+		console.debug('Notifying listeners of sync event:', event);
+		for (const listener of this.listeners) {
+			listener.onEvent(event);
 		}
 	}
 
@@ -128,7 +138,70 @@ export class SyncManager {
 		return serverLastUpdate > lastSync;
 	}
 
-	protected async performSync() {
+	/**
+	 * Get the current bookmark tree from Chrome.
+	 * @returns The current bookmark tree.
+	 */
+	async getCurrentBookmarkTree(): Promise<TreeNode<ChromeBookmarkNodeData>> {
+		const syncLocationId = get(this.appSettings.syncLocation);
+		const syncLocation = await this.repository.getFolderById(syncLocationId);
+		return createTreeFromChromeBookmarks(syncLocation);
+	}
+
+	/**
+	 * Get the expected bookmark tree based on Raindrop.io collections.
+	 * @returns The expected bookmark tree.
+	 */
+	async getExpectedBookmarkTree(): Promise<TreeNode<RaindropNodeData>> {
+		// TODO(#31): Extend implementation for customizable expected tree
+		return createTreeFromRaindrops(this.raindropClient);
+	}
+
+	/**
+	 * Calculate the sync difference between Raindrop.io collections and Chrome bookmarks.
+	 * @param args Optional arguments to provide current and expected trees.
+	 * @param args.current The current bookmark tree from Chrome.
+	 * @param args.expected The expected bookmark tree based on Raindrop.io collections.
+	 * @returns The calculated SyncDiff object.
+	 */
+	async calculateSyncDiff(args?: {
+		current?: TreeNode<ChromeBookmarkNodeData>;
+		expected?: TreeNode<RaindropNodeData>;
+	}): Promise<SyncDiff<RaindropNodeData, ChromeBookmarkNodeData>> {
+		let { current, expected } = args ?? {};
+		if (!current) {
+			current = await this.getCurrentBookmarkTree();
+		}
+		if (!expected) {
+			expected = await this.getExpectedBookmarkTree();
+		}
+		return SyncDiff.calculateDiff(expected, current);
+	}
+
+	/**
+	 * Generate a sync plan based on the calculated sync diff.
+	 * @param diff Optional pre-calculated SyncDiff object.
+	 * @param syncFolder The base folder path for synchronization.
+	 * @returns The generated SyncPlan object.
+	 */
+	async generateSyncPlan(
+		diff: SyncDiff<RaindropNodeData, ChromeBookmarkNodeData>,
+		syncFolder: Path
+	) {
+		if (!diff) {
+			diff = await this.calculateSyncDiff();
+		}
+		return SyncPlan.fromDiff(diff, syncFolder);
+	}
+
+	// TODO: Add flag in settings to use legacy sync mechanism for testing purposes
+	/**
+	 * Legacy, simplified synchronization process.
+	 *
+	 * It cleans up the target folder entirely and recreates bookmarks based on Raindrop.io collections.
+	 * @deprecated Use performSync() for a more efficient sync mechanism.
+	 */
+	protected async performSyncLegacy() {
 		console.debug('Performing synchronization process');
 
 		// Fetch the collection tree from Raindrop.io
@@ -154,6 +227,44 @@ export class SyncManager {
 			tree: treeNode,
 			raindropClient: this.raindropClient
 		});
+
+		// Update last sync time
+		const lastSyncTime = new Date();
+		await this.appSettings.clientLastSync.set(lastSyncTime);
+		console.info(`Synchronization completed at ${lastSyncTime.toISOString()}`);
+	}
+
+	protected async performSync() {
+		console.debug('Performing synchronization process');
+
+		// Fetch the collection tree from Raindrop.io
+		console.debug('Fetching collection tree from Raindrop.io');
+		this.emitEvent(new SyncEventProgress('fetching-collections'));
+
+		// Get the sync folder
+		const syncFolderId = get(this.appSettings.syncLocation);
+		const syncFolder = await this.repository.getFolderById(syncFolderId);
+		const currentBookmarkTree = await this.getCurrentBookmarkTree();
+		console.debug(
+			`Sync folder found: ${syncFolder.title} (${syncFolder.id}); ${currentBookmarkTree.getFullPathSegments()}`
+		);
+
+		// Create sync executor
+		const diff = await this.calculateSyncDiff();
+		const plan = await this.generateSyncPlan(
+			diff,
+			new Path({ segments: currentBookmarkTree.getFullPathSegments().slice(1) })
+		);
+		console.debug('Generated sync plan:', plan);
+		const executor = new SyncExecutor({
+			repository: this.repository,
+			plan
+		});
+
+		// Run the sync executor to apply the sync plan
+		// TODO: Add new progress event for detailed progress within executor (e.g. 1/n operations completed...)
+		this.emitEvent(new SyncEventProgress('creating-bookmarks'));
+		await executor.execute();
 
 		// Update last sync time
 		const lastSyncTime = new Date();
