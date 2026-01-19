@@ -35,7 +35,7 @@ update:  ## Update deps and tools
 # Note, --user-data-dir flag is required for debugger to work properly
 # https://stackoverflow.com/questions/56326924/debugging-a-chrome-instance-with-remote-debugging-port-flag
 browser:  ## Launch browser with extensions loaded
-	dotenvx run -- google-chrome \
+	google-chrome \
 		--no-first-run \
 		--disable-gpu \
 		--load-extension="${PWD}/dist" \
@@ -48,7 +48,7 @@ browser:  ## Launch browser with extensions loaded
 .PHONY: browser
 
 run:  ## Run browser with development server
-	dotenvx run -- yarn run concurrently \
+	yarn run concurrently \
 		--kill-others \
 		--kill-signal SIGKILL \
 		--raw \
