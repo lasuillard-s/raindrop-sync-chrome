@@ -28,7 +28,7 @@
 		"flowbite": "^4.0.1",
 		"flowbite-svelte": "^1.31.0",
 		"flowbite-svelte-icons": "^3.1.0",
-		"svelte": "^5.40.2",
+		"svelte": "^5.49.1",
 		"tailwindcss": "^4.1.8",
 		"vite": "^6.4.1",
 		"vite-plugin-zip-pack": "^1.2.4"
