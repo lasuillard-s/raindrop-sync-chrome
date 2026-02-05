@@ -10,6 +10,7 @@ playwright-report/
 dummy-non-existing-folder/
 release/
 chrome-dev-profile/
+.envrc
 
 # User hook scripts for VSC devcontainer lifecycle
 .devcontainer/initializeCommand/
