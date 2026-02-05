@@ -15,7 +15,7 @@
 	import TryIt from './tabs/TryIt.svelte';
 </script>
 
-<main class="mx-1 mt-4 self-center">
+<main class="mx-4 mt-4 self-center">
 	<Tabs style="underline">
 		<TabItem open>
 			{#snippet titleSlot()}
