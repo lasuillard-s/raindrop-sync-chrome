@@ -16,9 +16,9 @@ test('tab Try It', async ({ page, extensionId }) => {
 	await expect(page).toHaveScreenshot({ fullPage: true });
 });
 
-test('tab Settings', async ({ page, extensionId }) => {
+test('tab Integration', async ({ page, extensionId }) => {
 	await page.goto(`chrome-extension://${extensionId}/src/options/index.html`);
-	await page.getByText('Settings', { exact: true }).click();
+	await page.getByText('Integration', { exact: true }).click();
 	await expect(page).toHaveScreenshot({ fullPage: true });
 });
 
