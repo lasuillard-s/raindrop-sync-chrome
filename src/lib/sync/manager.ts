@@ -69,7 +69,6 @@ export class SyncManager {
 	 */
 	async validateBeforeSync() {
 		console.debug('Validating synchronization settings and prerequisites');
-		this.emitEvent(new SyncEventProgress('validating'));
 
 		// Verify that access token is set
 		if (!this.appSettings.accessToken) {
@@ -106,7 +105,6 @@ export class SyncManager {
 		console.debug(
 			'Checking if synchronization is needed based on last sync time and server updates'
 		);
-		this.emitEvent(new SyncEventProgress('check-should-sync'));
 
 		// Case 1: Check if the last sync was successful
 		const now = new Date();
@@ -159,42 +157,71 @@ export class SyncManager {
 
 	/**
 	 * Calculate the sync difference between Raindrop.io collections and Chrome bookmarks.
-	 * @param args Optional arguments to provide current and expected trees.
-	 * @param args.current The current bookmark tree from Chrome.
-	 * @param args.expected The expected bookmark tree based on Raindrop.io collections.
+	 * @param expected The expected bookmark tree based on Raindrop.io collections.
+	 * @param current The current bookmark tree from Chrome.
 	 * @returns The calculated SyncDiff object.
 	 */
-	async calculateSyncDiff(args?: {
-		current?: TreeNode<ChromeBookmarkNodeData>;
-		expected?: TreeNode<RaindropNodeData>;
-	}): Promise<SyncDiff<RaindropNodeData, ChromeBookmarkNodeData>> {
-		let { current, expected } = args ?? {};
-		if (!current) {
-			current = await this.getCurrentBookmarkTree();
-		}
-		if (!expected) {
-			expected = await this.getExpectedBookmarkTree();
-		}
+	async calculateSyncDiff(
+		expected: TreeNode<RaindropNodeData>,
+		current: TreeNode<ChromeBookmarkNodeData>
+	): Promise<SyncDiff<RaindropNodeData, ChromeBookmarkNodeData>> {
 		return SyncDiff.calculateDiff(expected, current);
 	}
 
 	/**
 	 * Generate a sync plan based on the calculated sync diff.
 	 * @param diff Optional pre-calculated SyncDiff object.
-	 * @param syncFolder The base folder path for synchronization.
 	 * @returns The generated SyncPlan object.
 	 */
-	async generateSyncPlan(
-		diff: SyncDiff<RaindropNodeData, ChromeBookmarkNodeData>,
-		syncFolder: Path
-	) {
-		if (!diff) {
-			diff = await this.calculateSyncDiff();
-		}
-		return SyncPlan.fromDiff(diff, syncFolder);
+	async generateSyncPlan(diff: SyncDiff<RaindropNodeData, ChromeBookmarkNodeData>) {
+		// Get the sync folder
+		const syncFolderId = get(this.appSettings.syncLocation);
+		const syncFolder = await this.repository.getFolderById(syncFolderId);
+		console.debug(
+			`Sync folder found: ${syncFolder.title} (${syncFolder.id}); ${diff.right.getFullPathSegments()}`
+		);
+
+		// Create sync executor
+		const plan = SyncPlan.fromDiff(
+			diff,
+			new Path({ segments: diff.right.getFullPathSegments().slice(1) })
+		);
+		return plan;
 	}
 
-	// TODO: Add flag in settings to use legacy sync mechanism for testing purposes
+	/**
+	 * Perform the synchronization process based on the provided sync diff.
+	 * @param diff Calculated SyncDiff object.
+	 */
+	async performSync(diff: SyncDiff<RaindropNodeData, ChromeBookmarkNodeData>) {
+		console.debug('Performing synchronization process');
+
+		// Get the sync folder
+		const syncFolderId = get(this.appSettings.syncLocation);
+		const syncFolder = await this.repository.getFolderById(syncFolderId);
+		console.debug(
+			`Sync folder found: ${syncFolder.title} (${syncFolder.id}); ${diff.right.getFullPathSegments()}`
+		);
+
+		// Create sync executor
+		this.emitEvent(new SyncEventProgress('generating-plan'));
+		const plan = await this.generateSyncPlan(diff);
+		console.debug('Generated sync plan:', plan);
+		const executor = new SyncExecutor({
+			repository: this.repository,
+			plan
+		});
+
+		// Run the sync executor to apply the sync plan
+		this.emitEvent(new SyncEventProgress('syncing'));
+		await executor.execute();
+
+		// Update last sync time
+		const lastSyncTime = new Date();
+		await this.appSettings.clientLastSync.set(lastSyncTime);
+		console.info(`Synchronization completed at ${lastSyncTime.toISOString()}`);
+	}
+
 	/**
 	 * Legacy, simplified synchronization process.
 	 *
@@ -234,68 +261,76 @@ export class SyncManager {
 		console.info(`Synchronization completed at ${lastSyncTime.toISOString()}`);
 	}
 
-	protected async performSync() {
-		console.debug('Performing synchronization process');
-
-		// Fetch the collection tree from Raindrop.io
-		console.debug('Fetching collection tree from Raindrop.io');
-		this.emitEvent(new SyncEventProgress('fetching-collections'));
-
-		// Get the sync folder
-		const syncFolderId = get(this.appSettings.syncLocation);
-		const syncFolder = await this.repository.getFolderById(syncFolderId);
-		const currentBookmarkTree = await this.getCurrentBookmarkTree();
-		console.debug(
-			`Sync folder found: ${syncFolder.title} (${syncFolder.id}); ${currentBookmarkTree.getFullPathSegments()}`
-		);
-
-		// Create sync executor
-		const diff = await this.calculateSyncDiff();
-		const plan = await this.generateSyncPlan(
-			diff,
-			new Path({ segments: currentBookmarkTree.getFullPathSegments().slice(1) })
-		);
-		console.debug('Generated sync plan:', plan);
-		const executor = new SyncExecutor({
-			repository: this.repository,
-			plan
-		});
-
-		// Run the sync executor to apply the sync plan
-		// TODO: Add new progress event for detailed progress within executor (e.g. 1/n operations completed...)
-		this.emitEvent(new SyncEventProgress('creating-bookmarks'));
-		await executor.execute();
-
-		// Update last sync time
-		const lastSyncTime = new Date();
-		await this.appSettings.clientLastSync.set(lastSyncTime);
-		console.info(`Synchronization completed at ${lastSyncTime.toISOString()}`);
-	}
-
 	/**
 	 * Start the synchronization process.
 	 * @param opts Options for starting sync.
+	 * @param opts.currentBookmarkTree Optional current bookmark tree from Chrome.
+	 * @param opts.expectedBookmarkTree Optional expected bookmark tree from Raindrop.io.
+	 * @param opts.precalculatedDiff Optional pre-calculated SyncDiff object.
 	 * @param opts.force Whether to force sync regardless of checks. Default is false.
 	 * @param opts.thresholdSeconds Threshold in seconds to determine if sync is needed.
 	 *  Ignored if force is true. Default is 300 seconds (5 minutes).
+	 * @param opts.useLegacy Whether to use the legacy sync mechanism. Default is false.
 	 */
-	async startSync(opts?: { force?: boolean; thresholdSeconds?: number }) {
+	async startSync(opts?: {
+		currentBookmarkTree?: TreeNode<ChromeBookmarkNodeData>;
+		expectedBookmarkTree?: TreeNode<RaindropNodeData>;
+		precalculatedDiff?: SyncDiff<RaindropNodeData, ChromeBookmarkNodeData>;
+		force?: boolean;
+		thresholdSeconds?: number;
+		useLegacy?: boolean;
+	}) {
+		let { currentBookmarkTree, expectedBookmarkTree } = opts ?? {};
+		let diff: SyncDiff<RaindropNodeData, ChromeBookmarkNodeData> | undefined;
+		const precalculatedDiff = opts?.precalculatedDiff;
 		const force = opts?.force ?? false;
 		const thresholdSeconds = opts?.thresholdSeconds ?? 300;
-		let shouldSync: boolean;
+		const useLegacy = opts?.useLegacy ?? false;
 
+		// Calculate diff
+		if (!useLegacy) {
+			if (precalculatedDiff) {
+				console.debug('Using precalculated sync diff');
+				diff = precalculatedDiff;
+			} else {
+				if (!currentBookmarkTree) {
+					// Fetch the current bookmark tree from Chrome
+					console.debug('Fetching current bookmark tree from Chrome');
+					this.emitEvent(new SyncEventProgress('fetching-bookmarks'));
+					currentBookmarkTree = await this.getCurrentBookmarkTree();
+				}
+				if (!expectedBookmarkTree) {
+					// Fetch the collection tree from Raindrop.io
+					console.debug('Fetching collection tree from Raindrop.io');
+					this.emitEvent(new SyncEventProgress('fetching-collections'));
+					expectedBookmarkTree = await this.getExpectedBookmarkTree();
+				}
+				this.emitEvent(new SyncEventProgress('calculating-diff'));
+				console.debug('Calculating sync diff');
+				diff = await this.calculateSyncDiff(expectedBookmarkTree, currentBookmarkTree);
+			}
+		}
+
+		// Start sync process
+		let shouldSync: boolean;
 		try {
 			this.emitEvent(new SyncEventStart());
 			if (force) {
 				console.warn('Force sync enabled, skipping checks');
 				shouldSync = true;
 			} else {
+				this.emitEvent(new SyncEventProgress('validating'));
 				await this.validateBeforeSync();
+				this.emitEvent(new SyncEventProgress('check-should-sync'));
 				shouldSync = await this.shouldSync(thresholdSeconds);
 			}
 
 			if (shouldSync) {
-				await this.performSync();
+				if (useLegacy) {
+					await this.performSyncLegacy();
+				} else {
+					await this.performSync(diff!);
+				}
 			} else {
 				console.info('No synchronization needed at this time');
 			}

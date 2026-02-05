@@ -23,8 +23,16 @@
 	import type { ChromeBookmarkNodeData } from '~/lib/browser/chrome';
 	import { putMessage } from '~/lib/messages';
 	import { RaindropNodeData } from '~/lib/raindrop';
-	import type { TreeNode } from '~/lib/sync';
+	import type { SyncEvent, SyncEventListener, TreeNode } from '~/lib/sync';
 	import syncManager, { SyncDiff } from '~/lib/sync';
+
+	let latestSyncEvent: SyncEvent | null = $state(null);
+
+	class SyncEventListenerImpl implements SyncEventListener {
+		onEvent(event: SyncEvent) {
+			latestSyncEvent = event;
+		}
+	}
 
 	// Expected (from Raindrop.io)
 	let expectedBookmarkTree: TreeNode<RaindropNodeData> | null = $state(null);
@@ -62,16 +70,17 @@
 	let syncDiff: SyncDiff<RaindropNodeData, ChromeBookmarkNodeData> | null = $state(null);
 	let isCalculatingDiff = $state(false);
 
+	// Force sync
+	let isSyncing = $state(false);
+	let forceSyncEnabled = $state(false);
+
 	const calculateSyncDiff = async () => {
 		if (!expectedBookmarkTree || !currentBookmarkTree) {
 			return;
 		}
 		isCalculatingDiff = true;
 		try {
-			syncDiff = await syncManager.calculateSyncDiff({
-				current: currentBookmarkTree,
-				expected: expectedBookmarkTree
-			});
+			syncDiff = await syncManager.calculateSyncDiff(expectedBookmarkTree, currentBookmarkTree);
 			console.debug('Calculated difference between current and expected tree: ', syncDiff);
 
 			const getCircularReplacer = () => {
@@ -103,6 +112,7 @@
 	let autoSyncExecOnStartup = $state(get(appSettings.autoSyncExecOnStartup));
 	let autoSyncIntervalInMinutes = $state(get(appSettings.autoSyncIntervalInMinutes));
 	let syncLocation = $state(get(appSettings.syncLocation));
+	let useLegacySyncMechanism = $state(get(appSettings.useLegacySyncMechanism));
 
 	// Keep local state in sync with stores
 	$effect(() => {
@@ -129,40 +139,83 @@
 		});
 		return unsubscribe;
 	});
+	$effect(() => {
+		const unsubscribe = appSettings.useLegacySyncMechanism.subscribe((value) => {
+			useLegacySyncMechanism = value;
+		});
+		return unsubscribe;
+	});
 
 	const saveSettings = async () => {
 		await appSettings.autoSyncEnabled.set(autoSyncEnabled);
 		await appSettings.autoSyncExecOnStartup.set(autoSyncExecOnStartup);
 		await appSettings.autoSyncIntervalInMinutes.set(autoSyncIntervalInMinutes);
 		await appSettings.syncLocation.set(syncLocation);
+		await appSettings.useLegacySyncMechanism.set(useLegacySyncMechanism);
 		await syncManager.scheduleAutoSync();
 		putMessage({ type: 'success', message: 'Sync settings saved.' });
 	};
 
-	onMount(async () => {
-		// Load bookmark folders for sync location selection
-		const bookmarksTree = (await chrome.bookmarks.getTree()) || [];
-		if (!bookmarksTree[0]?.children) {
-			putMessage({ type: 'error', message: 'No bookmark folders found.' });
-			console.error('No bookmark folders found.');
-			return;
+	const runSync = async () => {
+		isSyncing = true;
+		if (!currentBookmarkTree) {
+			currentBookmarkTree = await syncManager.getCurrentBookmarkTree();
 		}
+		if (!expectedBookmarkTree) {
+			expectedBookmarkTree = await syncManager.getExpectedBookmarkTree();
+		}
+		try {
+			await fetchCurrentBookmarkTree();
+			await fetchExpectedBookmarkTree();
+			await calculateSyncDiff();
+			await syncManager.startSync({
+				precalculatedDiff: syncDiff!,
+				force: forceSyncEnabled,
+				useLegacy: useLegacySyncMechanism
+			});
+			putMessage({ type: 'success', message: 'Sync completed.' });
+			// Refresh the bookmark trees after sync
+		} catch (err) {
+			putMessage({ type: 'error', message: `Sync failed: ${err}` });
+		} finally {
+			isSyncing = false;
+		}
+	};
 
-		const dfs = (arr: chrome.bookmarks.BookmarkTreeNode[], depth: number = 0) => {
-			for (const node of arr) {
-				if (depth != 0 /* Ignore virtual root */ && node.url === undefined) {
-					bookmarkFolders.push({ id: node.id, title: node.title, depth });
-				}
-				if (node.children) {
-					dfs(node.children ?? [], depth + 1);
-				}
+	onMount(() => {
+		const listener = new SyncEventListenerImpl();
+		syncManager.addListener(listener);
+
+		// Load bookmark folders for sync location selection
+		// About async onMount handler: https://github.com/sveltejs/svelte/issues/4927
+		(async () => {
+			const bookmarksTree = (await chrome.bookmarks.getTree()) || [];
+			if (!bookmarksTree[0]?.children) {
+				putMessage({ type: 'error', message: 'No bookmark folders found.' });
+				console.error('No bookmark folders found.');
+				return;
 			}
+
+			const dfs = (arr: chrome.bookmarks.BookmarkTreeNode[], depth: number = 0) => {
+				for (const node of arr) {
+					if (depth != 0 /* Ignore virtual root */ && node.url === undefined) {
+						bookmarkFolders.push({ id: node.id, title: node.title, depth });
+					}
+					if (node.children) {
+						dfs(node.children ?? [], depth + 1);
+					}
+				}
+			};
+
+			dfs(bookmarksTree);
+
+			// Force trigger reactivity
+			bookmarkFolders = bookmarkFolders;
+		})();
+
+		return () => {
+			syncManager.removeListener(listener);
 		};
-
-		dfs(bookmarksTree);
-
-		// Force trigger reactivity
-		bookmarkFolders = bookmarkFolders;
 	});
 </script>
 
@@ -194,6 +247,17 @@
 							<P class="text-xs text-gray-500">Run sync when browser starts</P>
 						</div>
 						<Toggle bind:checked={autoSyncExecOnStartup} />
+					</div>
+					<div class="flex items-center justify-between">
+						<div>
+							<P class="text-sm font-medium text-gray-900">Use Legacy Sync Mechanism</P>
+							<P class="text-xs text-gray-500"
+								>Use the old synchronization algorithm; clear all bookmarks in the target folder and
+								recreate them based on Raindrop.io collections. This setting will be removed in a
+								future release.
+							</P>
+						</div>
+						<Toggle bind:checked={useLegacySyncMechanism} />
 					</div>
 				</div>
 			</div>
@@ -239,7 +303,7 @@
 							<Radio name="sync-location" bind:group={syncLocation} value={bf.id} class="mr-2" />
 							<span class="text-sm text-gray-700" style="margin-left: {bf.depth * 1.5}rem;">
 								{#if bf.depth > 1}
-									<span class="mr-1 text-gray-400">{'└─'.repeat(bf.depth - 1)}</span>
+									<span class="mr-1 text-gray-400">└─</span>
 								{/if}
 								{bf.title}
 							</span>
@@ -250,7 +314,7 @@
 
 			<!-- Save Button -->
 			<div class="flex justify-end border-t border-gray-200 pt-4">
-				<Button outline onclick={saveSettings} class="px-6">Save Settings</Button>
+				<Button onclick={saveSettings} class="px-6">Save Settings</Button>
 			</div>
 		</div>
 	</div>
@@ -260,12 +324,7 @@
 		<div class="rounded-lg border border-gray-200 bg-white p-4">
 			<div class="mb-4 flex items-center justify-between">
 				<P class="font-semibold text-gray-800">Raindrop.io Bookmarks</P>
-				<Button
-					size="xs"
-					outline
-					onclick={fetchExpectedBookmarkTree}
-					disabled={isFetchingRaindrops}
-				>
+				<Button size="xs" onclick={fetchExpectedBookmarkTree} disabled={isFetchingRaindrops}>
 					{#if isFetchingRaindrops}
 						<Spinner size="4" class="mr-1" />
 					{/if}
@@ -285,7 +344,7 @@
 		<div class="rounded-lg border border-gray-200 bg-white p-4">
 			<div class="mb-4 flex items-center justify-between">
 				<P class="font-semibold text-gray-800">Chrome Bookmarks</P>
-				<Button size="xs" outline onclick={fetchCurrentBookmarkTree} disabled={isFetchingChrome}>
+				<Button size="xs" onclick={fetchCurrentBookmarkTree} disabled={isFetchingChrome}>
 					Reload
 				</Button>
 			</div>
@@ -310,7 +369,6 @@
 			<P class="font-semibold text-gray-800">Sync Differences</P>
 			<Button
 				size="xs"
-				outline
 				onclick={calculateSyncDiff}
 				disabled={isCalculatingDiff || !expectedBookmarkTree || !currentBookmarkTree}
 			>
@@ -442,5 +500,50 @@
 				</P>
 			</div>
 		{/if}
+	</div>
+
+	<!-- Test It Section -->
+	<div class="mt-6 rounded-lg border border-blue-200 bg-blue-50 p-6 shadow-sm">
+		<div class="mb-6 border-b border-blue-200 pb-4">
+			<Heading tag="h5" class="text-xl font-bold text-blue-900">Test It</Heading>
+			<P class="mt-2 text-sm text-blue-700">
+				Trigger an immediate synchronization from Raindrop.io to Chrome with custom options
+			</P>
+		</div>
+
+		<div class="space-y-4">
+			<!-- Sync Options -->
+			<div class="rounded-lg bg-white p-4">
+				<P class="mb-3 text-sm font-semibold text-gray-700">Sync Options</P>
+				<div class="space-y-3">
+					<div class="flex items-center justify-between">
+						<div>
+							<P class="text-sm font-medium text-gray-900">Force Sync</P>
+							<P class="text-xs text-gray-500">
+								Bypass sync threshold and force synchronization immediately
+							</P>
+						</div>
+						<Toggle bind:checked={forceSyncEnabled} />
+					</div>
+				</div>
+			</div>
+
+			<!-- Sync Button -->
+			<div class="flex items-center justify-between gap-4">
+				<div class="flex-1 rounded-md border border-blue-200 bg-white px-4 py-2">
+					<P class="text-sm text-gray-700">
+						{latestSyncEvent?.toMessage() || 'Sync status unavailable'}
+					</P>
+				</div>
+				<Button color="blue" onclick={runSync} disabled={isSyncing} class="px-8 py-2">
+					{#if isSyncing}
+						<Spinner size="4" class="mr-2" />
+						Syncing...
+					{:else}
+						🚀 Start Sync
+					{/if}
+				</Button>
+			</div>
+		</div>
 	</div>
 </div>

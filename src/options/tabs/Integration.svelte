@@ -95,9 +95,7 @@
 						</SecretInput>
 					</div>
 					<div class="mt-4 flex justify-end">
-						<Button outline onclick={launchWebAuthFlow} class="px-6">
-							🔗 Authorize with Raindrop.io
-						</Button>
+						<Button onclick={launchWebAuthFlow} class="px-6">🔗 Authorize with Raindrop.io</Button>
 					</div>
 				</div>
 			</div>
@@ -123,7 +121,7 @@
 
 			<!-- Save Button -->
 			<div class="flex justify-end border-t border-gray-200 pt-4">
-				<Button outline onclick={save} class="px-6">Save Credentials</Button>
+				<Button onclick={save} class="px-6">Save Credentials</Button>
 			</div>
 		</div>
 

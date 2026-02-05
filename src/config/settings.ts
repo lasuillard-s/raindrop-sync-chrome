@@ -17,6 +17,7 @@ export class AppSettings {
 	autoSyncEnabled: AsyncWritable<boolean>;
 	autoSyncIntervalInMinutes: AsyncWritable<number>;
 	autoSyncExecOnStartup: AsyncWritable<boolean>;
+	useLegacySyncMechanism: AsyncWritable<boolean>;
 
 	constructor(opts: { storage: Storage }) {
 		const storeOpts = {
@@ -42,5 +43,6 @@ export class AppSettings {
 		this.autoSyncEnabled = persisted('autoSyncEnabled', false, storeOpts);
 		this.autoSyncIntervalInMinutes = persisted('autoSyncIntervalInMinutes', 5, storeOpts);
 		this.autoSyncExecOnStartup = persisted('autoSyncExecOnStartup', false, storeOpts);
+		this.useLegacySyncMechanism = persisted('useLegacySyncMechanism', false, storeOpts);
 	}
 }
