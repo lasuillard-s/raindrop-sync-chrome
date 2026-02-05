@@ -2,20 +2,20 @@
 	import { TabItem, Tabs } from 'flowbite-svelte';
 	import {
 		BookmarkOutline,
+		LinkOutline,
 		QuestionCircleOutline,
-		SearchOutline,
-		UserSettingsOutline
+		SearchOutline
 	} from 'flowbite-svelte-icons';
 	import '~/app.css';
 	import Message from '~/components/Message.svelte';
 	import { messageBox } from '~/lib/messages';
 	import About from './tabs/About.svelte';
 	import Bookmarks from './tabs/Bookmarks.svelte';
-	import Config from './tabs/Config.svelte';
+	import Integration from './tabs/Integration.svelte';
 	import TryIt from './tabs/TryIt.svelte';
 </script>
 
-<main class="mx-1 mt-4 self-center">
+<main class="mx-4 mt-4 self-center">
 	<Tabs style="underline">
 		<TabItem open>
 			{#snippet titleSlot()}
@@ -38,11 +38,11 @@
 		<TabItem>
 			{#snippet titleSlot()}
 				<div class="flex items-center gap-2">
-					<UserSettingsOutline size="sm" class="focus:outline-hidden" />
-					Settings
+					<LinkOutline size="sm" class="focus:outline-hidden" />
+					Integration
 				</div>
 			{/snippet}
-			<Config />
+			<Integration />
 		</TabItem>
 		<TabItem>
 			{#snippet titleSlot()}

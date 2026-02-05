@@ -16,7 +16,12 @@ export class SyncEventStart extends SyncEvent {
 export type SyncEventProgressKind =
 	| 'validating'
 	| 'check-should-sync'
+	| 'fetching-bookmarks'
 	| 'fetching-collections'
+	| 'calculating-diff'
+	| 'generating-plan'
+	| 'syncing'
+	// ! DEPRECATED: legacy sync events; will be removed in future versions once new sync impl become stable
 	| 'clearing-bookmarks'
 	| 'creating-bookmarks';
 
@@ -35,8 +40,17 @@ export class SyncEventProgress extends SyncEvent {
 				return 'Validating...';
 			case 'check-should-sync':
 				return 'Checking if sync is needed...';
+			case 'fetching-bookmarks':
+				return 'Fetching bookmarks...';
 			case 'fetching-collections':
 				return 'Fetching collections...';
+			case 'calculating-diff':
+				return 'Calculating differences...';
+			case 'generating-plan':
+				return 'Generating synchronization plan...';
+			case 'syncing':
+				return 'Synchronizing...';
+			// ! DEPRECATED: legacy sync events; will be removed in future versions once new sync impl become stable
 			case 'clearing-bookmarks':
 				return 'Clearing bookmarks...';
 			case 'creating-bookmarks':
