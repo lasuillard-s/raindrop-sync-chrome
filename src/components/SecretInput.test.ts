@@ -1,6 +1,6 @@
 // @vitest-environment happy-dom
 import { render } from '@testing-library/svelte';
-import { userEvent } from '@testing-library/user-event';
+import userEvent from '@testing-library/user-event';
 import { createRawSnippet } from 'svelte';
 import { expect, it } from 'vitest';
 import SecretInput from './SecretInput.svelte';
