@@ -22,3 +22,17 @@ export function normalizeUrl(url: string): string {
 
 	return normalized;
 }
+
+/**
+ * Ensure the URL is safe (starts with http:// or https://).
+ * If not, return an empty string and log a warning.
+ * @param href URL to check
+ * @returns Provided URL or empty string
+ */
+export function urlSafeHref(href: string): string {
+	if (!(href.startsWith('http://') || href.startsWith('https://'))) {
+		console.warn(`Unsafe URL detected: ${href}, returning empty string instead.`);
+		return '';
+	}
+	return href;
+}

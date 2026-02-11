@@ -6,19 +6,19 @@ import {
 	createTreeFromChromeBookmarks
 } from '~/lib/browser/chrome';
 import { createTreeFromRaindrops, type RaindropNodeData } from '~/lib/raindrop';
-import { Path } from '../util/path';
+import type { Raindrop } from '~/lib/raindrop/client';
+import { Path } from '~/lib/util/path';
 import { SyncDiff } from './diff';
-import type { SyncEvent, SyncEventListener } from './event-listener';
 import {
 	SyncEventComplete,
 	SyncEventError,
 	SyncEventProgress,
 	SyncEventStart
 } from './event-listener';
+import type { SyncEvent, SyncEventListener } from './event-listener';
 import { SyncExecutor } from './executor';
 import { SyncPlan } from './plan';
 import { TreeNode } from './tree';
-import type { Raindrop } from '~/lib/raindrop/client';
 
 /**
  * Manages synchronization between Raindrop.io and browser bookmarks.
@@ -174,14 +174,11 @@ export class SyncManager {
 	 * @returns The generated SyncPlan object.
 	 */
 	async generateSyncPlan(diff: SyncDiff<RaindropNodeData, ChromeBookmarkNodeData>) {
-		// Get the sync folder
 		const syncFolderId = get(this.appSettings.syncLocation);
 		const syncFolder = await this.repository.getFolderById(syncFolderId);
 		console.debug(
 			`Sync folder found: ${syncFolder.title} (${syncFolder.id}); ${diff.right.getFullPathSegments()}`
 		);
-
-		// Create sync executor
 		const plan = SyncPlan.fromDiff(
 			diff,
 			new Path({ segments: diff.right.getFullPathSegments().slice(1) })
@@ -196,17 +193,12 @@ export class SyncManager {
 	async performSync(diff: SyncDiff<RaindropNodeData, ChromeBookmarkNodeData>) {
 		console.debug('Performing synchronization process');
 
-		// Get the sync folder
-		const syncFolderId = get(this.appSettings.syncLocation);
-		const syncFolder = await this.repository.getFolderById(syncFolderId);
-		console.debug(
-			`Sync folder found: ${syncFolder.title} (${syncFolder.id}); ${diff.right.getFullPathSegments()}`
-		);
-
-		// Create sync executor
+		// Generate sync plan
 		this.emitEvent(new SyncEventProgress('generating-plan'));
 		const plan = await this.generateSyncPlan(diff);
 		console.debug('Generated sync plan:', plan);
+
+		// Create sync executor
 		const executor = new SyncExecutor({
 			repository: this.repository,
 			plan
