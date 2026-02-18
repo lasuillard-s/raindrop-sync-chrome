@@ -1,5 +1,5 @@
 {
-	"[json][jsonc][yaml]": {
+	"[json][jsonc][yaml][dockercompose]": {
 		"editor.defaultFormatter": "esbenp.prettier-vscode"
 	},
 	"conventionalCommits.scopes": [

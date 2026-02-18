@@ -1,8 +1,13 @@
 <script lang="ts">
 	import { FloatingLabelInput } from 'flowbite-svelte';
 	import { EyeSlashSolid, EyeSolid } from 'flowbite-svelte-icons';
+	import type { Snippet } from 'svelte';
 
-	let { children, value = $bindable() } = $props();
+	interface Props {
+		children?: Snippet;
+		value?: string;
+	}
+	let { children, value = $bindable() }: Props = $props();
 	let showSecret = $state(false);
 </script>
 
@@ -15,7 +20,6 @@
 	>
 		{@render children?.()}
 	</FloatingLabelInput>
-
 	<button
 		class="focus:outline-hidden"
 		type="button"

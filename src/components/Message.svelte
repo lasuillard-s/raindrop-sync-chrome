@@ -8,7 +8,7 @@
 	import type { Component } from 'svelte';
 	import { dismissMessage, type Message } from '~/lib/messages';
 
-	const messageMapping: {
+	const messageStyles: {
 		[type: string]: { icon: Component; color: 'blue' | 'green' | 'red' };
 	} = {
 		success: {
@@ -25,18 +25,19 @@
 		}
 	};
 
-	export let message: Message;
+	interface Props {
+		message?: Message;
+	}
+	let { message }: Props = $props();
 </script>
 
 {#if message}
-	{@const color = messageMapping[message.type].color}
-	{@const icon_ = messageMapping[message.type].icon}
-	<div {...$$restProps}>
-		<Toast {color} onclose={() => dismissMessage(message.id)}>
-			{#snippet icon()}
-				<svelte:component this={icon_} class="h-5 w-5" />
-			{/snippet}
-			{message.message}
-		</Toast>
-	</div>
+	{@const color = messageStyles[message.type].color}
+	{@const Icon = messageStyles[message.type].icon}
+	<Toast {color} onclose={() => dismissMessage(message.id)}>
+		{#snippet icon()}
+			<Icon class="h-5 w-5" />
+		{/snippet}
+		{message.message}
+	</Toast>
 {/if}

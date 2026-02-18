@@ -15,7 +15,9 @@
 		"baseUrl": ".",
 		"paths": {
 			"~/*": ["./src/*"],
-			"^/*": ["./*"]
+			"^/*": ["./*"],
+			"@fixtures/*": ["./tests/fixtures/*"],
+			"@test-helpers/*": ["./tests/helpers/*"]
 		},
 		"isolatedModules": true,
 		"useDefineForClassFields": true,

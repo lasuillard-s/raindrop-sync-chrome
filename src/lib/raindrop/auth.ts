@@ -1,4 +1,5 @@
-import { client, generated } from '@lasuillard/raindrop-client';
+import { generated } from '@lasuillard/raindrop-client';
+import { Raindrop } from './client';
 
 export interface AuthFlowParams {
 	clientID: string;
@@ -20,9 +21,9 @@ export type AuthFlowResponse = {
  */
 export async function launchWebAuthFlow(
 	params: AuthFlowParams,
-	raindrop?: client.Raindrop
+	raindrop?: Raindrop
 ): Promise<AuthFlowResponse> {
-	const rd = raindrop ?? new client.Raindrop();
+	const rd = raindrop ?? new Raindrop();
 
 	// NOTE: `url` includes credentials; DO NOT print
 	const redirectURL = chrome.identity.getRedirectURL();

@@ -16,7 +16,7 @@ repos:
       - id: prettier
         name: prettier
         language: system
-        types_or: [javascript, ts, svelte, json]
+        types_or: [javascript, ts, svelte, json, yaml]
         entry: yarn run prettier
         args: [--write]
 

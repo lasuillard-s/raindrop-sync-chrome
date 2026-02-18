@@ -1,36 +1,80 @@
-<script lang="ts">
-	import { generated, utils } from '@lasuillard/raindrop-client';
-	import { Li, List } from 'flowbite-svelte';
+<script lang="ts" generics="T extends NodeData">
+	import { ChevronDownOutline, ChevronRightOutline } from 'flowbite-svelte-icons';
 	import { onMount } from 'svelte';
-	import rd from '~/lib/raindrop';
+	import type { NodeData, TreeNode } from '~/lib/sync';
+	import { urlSafeHref } from '~/lib/util/string';
+	import Self from './Tree.svelte';
 
-	export let treeNode: utils.tree.TreeNode<generated.Collection | null>;
-	let raindrops: generated.GetRaindropResponseItem[] = [];
-	let nodeTitle = treeNode.data?.slug || 'no-title';
+	interface Props {
+		treeNode: TreeNode<T>;
+		collapsed?: boolean;
+		/** Override for title -- root-only. */
+		nodeTitleOverride?: string | null;
+		/** Special property for overriding defaults for all children components. */
+		propagatingDefaults?: {
+			collapsed?: boolean;
+		};
+	}
+	let { treeNode, collapsed, nodeTitleOverride = null, propagatingDefaults }: Props = $props();
 
-	onMount(async () => {
-		// If root, data likely to be `null`
-		const collectionId = treeNode.data?._id || -1;
-		raindrops = await rd.raindrop.getAllRaindrops(collectionId);
+	const isFolder: boolean = $derived(treeNode.isFolder());
+	const href: string | null = $derived(treeNode.getUrl());
+	const nodeTitle: string = $derived(nodeTitleOverride || treeNode.getName() || '');
+	const childCount: number = $derived(treeNode.children.length);
+	const pathString: string = $derived(treeNode.getFullPath().toString());
+
+	const toggleCollapse = () => {
+		collapsed = !collapsed;
+	};
+
+	onMount(() => {
+		collapsed = collapsed ?? propagatingDefaults?.collapsed ?? true;
 	});
 </script>
 
-<List tag="ul">
-	<Li>
-		&lt;Directory&gt; {nodeTitle}
-		{#if treeNode.children.length > 0}
-			<List tag="ul" class="mt-2 space-y-1 pl-5">
-				{#each treeNode.children as child (child.data?._id)}
-					<svelte:self treeNode={child} />
-				{/each}
-			</List>
-		{/if}
-		{#if raindrops}
-			<List tag="ul" class="mt-2 space-y-1 pl-5">
-				{#each raindrops as raindrop (raindrop._id)}
-					<Li>{raindrop.title}</Li>
-				{/each}
-			</List>
-		{/if}
-	</Li>
-</List>
+<div class="leading-relaxed" data-testid={pathString}>
+	{#if isFolder}
+		<div class="inline-flex items-center gap-1.5">
+			{#if treeNode.children.length > 0}
+				<button
+					type="button"
+					onclick={toggleCollapse}
+					class="inline-flex cursor-pointer items-center gap-1.5 rounded px-1.5 py-0.5 transition-colors hover:bg-gray-100"
+					data-testid={`${pathString}::toggle`}
+				>
+					{#if collapsed}
+						<ChevronRightOutline class="h-3.5 w-3.5 shrink-0 text-gray-600" />
+					{:else}
+						<ChevronDownOutline class="h-3.5 w-3.5 shrink-0 text-gray-600" />
+					{/if}
+					<strong class="text-sm">📁 {nodeTitle}</strong>
+					<span class="text-xs font-normal text-gray-500">({childCount})</span>
+				</button>
+			{:else}
+				<span class="inline-flex items-center gap-1.5 px-1.5 py-0.5">
+					<span class="h-3.5 w-3.5"></span>
+					<strong class="text-sm">📁 {nodeTitle}</strong>
+					<span class="text-xs font-normal text-gray-500">({childCount})</span>
+				</span>
+			{/if}
+		</div>
+	{:else}
+		<div class="inline-flex items-center px-1.5 py-0.5">
+			<span class="mr-1.5 h-3.5 w-3.5"></span>
+			<a
+				href={href ? urlSafeHref(href) : undefined}
+				target="_blank"
+				rel="noopener noreferrer"
+				class="text-sm text-blue-600 transition-colors hover:text-blue-700 hover:underline"
+				data-testid={`${pathString}::link`}>🔖 {nodeTitle}</a
+			>
+		</div>
+	{/if}
+	{#if treeNode.children.length > 0 && !collapsed}
+		<div class="mt-0.5 ml-6">
+			{#each treeNode.children as child (child.data?.getId() || Math.random())}
+				<Self treeNode={child} {propagatingDefaults} />
+			{/each}
+		</div>
+	{/if}
+</div>

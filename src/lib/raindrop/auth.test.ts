@@ -1,7 +1,6 @@
-import { client } from '@lasuillard/raindrop-client';
-import chrome from 'sinon-chrome';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { launchWebAuthFlow } from './auth';
+import { Raindrop } from './client';
 
 const tokenResponse = {
 	access_token: '<ACCESS_TOKEN>',
@@ -12,16 +11,15 @@ const tokenResponse = {
 };
 
 describe(launchWebAuthFlow, () => {
-	const rd = new client.Raindrop();
+	const rd = new Raindrop();
 
 	beforeEach(() => {
-		chrome.identity.getRedirectURL.returns('https://extension-id.chromiumapp.org/');
-		chrome.identity.launchWebAuthFlow
-			.withArgs({
-				url: 'https://api.raindrop.io/v1/oauth/authorize?client_id=client-id&redirect_uri=https%3A%2F%2Fextension-id.chromiumapp.org%2F',
-				interactive: true
-			})
-			.returns('https://extension-id.chromiumapp.org/?code=authorization-code');
+		vi.mocked(chrome.identity.getRedirectURL).mockReturnValue(
+			'https://extension-id.chromiumapp.org/'
+		);
+		vi.mocked(chrome.identity.launchWebAuthFlow).mockImplementation(async () => {
+			return 'https://extension-id.chromiumapp.org/?code=authorization-code';
+		});
 	});
 
 	it('conforms to OAuth 2.0 Authorization Code Flow', async () => {
@@ -46,12 +44,9 @@ describe(launchWebAuthFlow, () => {
 	});
 
 	it('throws an error if `responseURL` not provided', async () => {
-		chrome.identity.launchWebAuthFlow
-			.withArgs({
-				url: 'https://api.raindrop.io/v1/oauth/authorize?client_id=client-id&redirect_uri=https%3A%2F%2Fextension-id.chromiumapp.org%2F',
-				interactive: true
-			})
-			.returns(undefined);
+		vi.mocked(chrome.identity.launchWebAuthFlow).mockImplementationOnce(async () => {
+			return undefined;
+		});
 
 		await expect(
 			launchWebAuthFlow({
@@ -62,12 +57,9 @@ describe(launchWebAuthFlow, () => {
 	});
 
 	it('throws an error if `code` not provided', async () => {
-		chrome.identity.launchWebAuthFlow
-			.withArgs({
-				url: 'https://api.raindrop.io/v1/oauth/authorize?client_id=client-id&redirect_uri=https%3A%2F%2Fextension-id.chromiumapp.org%2F',
-				interactive: true
-			})
-			.returns('https://extension-id.chromiumapp.org/?_code=authorization-code');
+		vi.mocked(chrome.identity.launchWebAuthFlow).mockImplementationOnce(async () => {
+			return 'https://extension-id.chromiumapp.org/?_code=authorization-code';
+		});
 
 		await expect(
 			launchWebAuthFlow({

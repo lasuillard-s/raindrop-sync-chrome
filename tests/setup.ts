@@ -1,16 +1,27 @@
 import { cleanup } from '@testing-library/svelte';
-import * as chrome from 'sinon-chrome';
-import { afterEach, beforeEach, vi } from 'vitest';
+import { afterEach, beforeAll, vi } from 'vitest';
+import { mocks as chromeBookmarkMocks } from '@test-helpers/chrome-bookmarks';
 
-// Chrome API N/A in unit tests
-vi.stubGlobal('chrome', chrome);
-
-beforeEach(() => {
-	vi.mock('~/lib/raindrop/client');
+beforeAll(() => {
+	// Tried to use both sinon-chrome and vitest-chrome, but it seems both are not being
+	// maintained for a while. So opted to just stub the parts we need directly.
+	vi.stubGlobal('chrome', {
+		// Here only provide sane defaults and scaffolding for the parts we use in tests.
+		// Each test can follow pattern like:
+		//
+		// vi.mocked(chrome.bookmarks.getSubTree).mockImplementationOnce(...)
+		//
+		bookmarks: {
+			...chromeBookmarkMocks
+		},
+		identity: {
+			getRedirectURL: vi.fn(),
+			launchWebAuthFlow: vi.fn()
+		}
+	});
 });
 
 afterEach(() => {
-	chrome.flush();
 	vi.resetAllMocks();
 	cleanup();
 });
