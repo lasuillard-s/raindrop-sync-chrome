@@ -117,7 +117,7 @@ jobs:
             playwright-report/ \
             "s3://${{ vars.PLAYWRIGHT_REPORTS_BUCKET }}/${{ env.PLAYWRIGHT_REPORT_S3_PREFIX }}/"
 
-          report_index_url="https://${{ vars.PLAYWRIGHT_REPORTS_BUCKET }}.s3.${{ vars.AWS_REGION }}.amazonaws.com/${{ env.PLAYWRIGHT_REPORT_S3_PREFIX }}/index.html"
+          report_index_url="https://${{ vars.PLAYWRIGHT_REPORTS_CDN }}/${{ env.PLAYWRIGHT_REPORT_S3_PREFIX }}/index.html"
           cat <<EOF | tee ./playwright-report.md $GITHUB_STEP_SUMMARY
           📊 Playwright test report is now available at [here](${report_index_url})
           EOF

@@ -1,7 +1,3 @@
----
-description: Instructions for GitHub Copilot to assist in this Chrome extension project.
----
-
 This project is a Chrome browser extension for syncing bookmarks between Chrome and Raindrop.io, providing one-way synchronization from Raindrop collections to Chrome bookmark folders with automatic background sync.
 
 ## Tech Stack
