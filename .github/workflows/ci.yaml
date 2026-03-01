@@ -97,7 +97,7 @@ jobs:
         run: yarn run e2e-docker
 
       - name: Upload Playwright report to GitHub
-        uses: actions/upload-artifact@v6
+        uses: actions/upload-artifact@v7
         if: always()
         with:
           name: playwright-artifacts
