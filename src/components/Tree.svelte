@@ -2,7 +2,7 @@
 	import { ChevronDownOutline, ChevronRightOutline } from 'flowbite-svelte-icons';
 	import { onMount } from 'svelte';
 	import type { NodeData, TreeNode } from '~/lib/sync';
-	import { urlSafeHref } from '~/lib/util/string';
+	import { isUrlSafeHref } from '~/lib/util/string';
 	import Self from './Tree.svelte';
 
 	interface Props {
@@ -62,7 +62,7 @@
 		<div class="inline-flex items-center px-1.5 py-0.5">
 			<span class="mr-1.5 h-3.5 w-3.5"></span>
 			<a
-				href={href ? urlSafeHref(href) : undefined}
+				href={href && isUrlSafeHref(href) ? href : undefined}
 				target="_blank"
 				rel="noopener noreferrer"
 				class="text-sm text-blue-600 transition-colors hover:text-blue-700 hover:underline"

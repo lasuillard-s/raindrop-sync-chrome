@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { normalizeUrl, urlSafeHref } from './string';
+import { isUrlSafeHref, normalizeUrl } from './string';
 
 describe('normalizeUrl', () => {
 	it('trims whitespace from the URL', () => {
@@ -33,17 +33,17 @@ describe('normalizeUrl', () => {
 	});
 });
 
-describe('urlSafeHref', () => {
-	it('returns the URL if it starts with http://', () => {
+describe('isUrlSafeHref', () => {
+	it('returns true if the URL starts with http://', () => {
 		const url = 'http://example.com';
-		const safeUrl = urlSafeHref(url);
-		expect(safeUrl).toBe(url);
+		const safeUrl = isUrlSafeHref(url);
+		expect(safeUrl).toBe(true);
 	});
 
-	it('returns the URL if it starts with https://', () => {
+	it('returns true if the URL starts with https://', () => {
 		const url = 'https://example.com';
-		const safeUrl = urlSafeHref(url);
-		expect(safeUrl).toBe(url);
+		const safeUrl = isUrlSafeHref(url);
+		expect(safeUrl).toBe(true);
 	});
 
 	it.each`
@@ -52,14 +52,14 @@ describe('urlSafeHref', () => {
 		${'file://localfile.txt'}
 		${'javascript:alert("XSS")'}
 		${'data:text/plain;base64,SGVsbG8sIFdvcmxkIQ=='}
-	`('returns an empty string for unsafe URLs', ({ href }) => {
-		const safeUrl = urlSafeHref(href);
-		expect(safeUrl).toBe('');
+	`('returns false for unsafe URLs', ({ href }) => {
+		const safeUrl = isUrlSafeHref(href);
+		expect(safeUrl).toBe(false);
 	});
 
 	it('handles empty string input', () => {
 		const url = '';
-		const safeUrl = urlSafeHref(url);
-		expect(safeUrl).toBe('');
+		const safeUrl = isUrlSafeHref(url);
+		expect(safeUrl).toBe(false);
 	});
 });
