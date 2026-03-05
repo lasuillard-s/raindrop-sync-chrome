@@ -26,7 +26,7 @@ export default {
 	expect: {
 		timeout: 5 * 1000,
 		toHaveScreenshot: {
-			maxDiffPixelRatio: 0.025 // 2.5%
+			maxDiffPixelRatio: 0.01 // 1%
 			// ? Perhaps `fullPage` option is not supported here?
 		}
 	}

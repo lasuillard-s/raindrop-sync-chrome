@@ -1,0 +1,79 @@
+[
+	{
+		"children": [
+			{
+				"children": [
+					{
+						"children": [
+							{
+								"dateAdded": 1768201707926,
+								"id": "6",
+								"index": 0,
+								"parentId": "5",
+								"syncing": false,
+								"title": "updateRaindrops",
+								"url": "https://raindrop.io/"
+							}
+						],
+						"dateAdded": 1768201707921,
+						"dateGroupModified": 1768201707926,
+						"id": "5",
+						"index": 0,
+						"parentId": "1",
+						"syncing": false,
+						"title": "updateRaindrops"
+					},
+					{
+						"dateAdded": 1768201707941,
+						"id": "7",
+						"index": 1,
+						"parentId": "1",
+						"syncing": false,
+						"title": "GitHub · Change is constant. GitHub keeps you ahead.",
+						"url": "https://github.com/"
+					},
+					{
+						"dateAdded": 1768201707944,
+						"id": "8",
+						"index": 2,
+						"parentId": "1",
+						"syncing": false,
+						"title": "https://raindrop.io",
+						"url": "https://raindrop.io/"
+					},
+					{
+						"dateAdded": 1768201707949,
+						"id": "9",
+						"index": 3,
+						"parentId": "1",
+						"syncing": false,
+						"title": "getAllHighlights",
+						"url": "https://raindrop.io/"
+					}
+				],
+				"dateAdded": 1768200846043,
+				"dateGroupModified": 1768201707949,
+				"folderType": "bookmarks-bar",
+				"id": "1",
+				"index": 0,
+				"parentId": "0",
+				"syncing": false,
+				"title": "Bookmarks bar"
+			},
+			{
+				"children": [],
+				"dateAdded": 1768200846043,
+				"folderType": "other",
+				"id": "2",
+				"index": 1,
+				"parentId": "0",
+				"syncing": false,
+				"title": "Other bookmarks"
+			}
+		],
+		"dateAdded": 1768279993452,
+		"id": "0",
+		"syncing": false,
+		"title": ""
+	}
+]

@@ -1,0 +1,103 @@
+{
+	"data": {
+		"items": [
+			{
+				"_id": 57172486,
+				"access": {
+					"draggable": true,
+					"for": 2067190,
+					"level": 4,
+					"root": false
+				},
+				"author": true,
+				"count": 1,
+				"cover": [],
+				"created": "2025-07-02T07:15:37.776Z",
+				"creatorRef": {
+					"_id": 2067190,
+					"email": "",
+					"name": "miyil99106"
+				},
+				"description": "",
+				"expanded": true,
+				"lastAction": "2025-07-02T07:15:38.746Z",
+				"lastUpdate": "2025-07-02T07:15:38.746Z",
+				"parent": null,
+				"public": false,
+				"slug": "update-raindrops",
+				"sort": 0,
+				"title": "updateRaindrops",
+				"user": {
+					"$id": 2067190,
+					"$ref": "users"
+				},
+				"view": "list"
+			},
+			{
+				"_id": 57172489,
+				"access": {
+					"draggable": true,
+					"for": 2067190,
+					"level": 4,
+					"root": false
+				},
+				"author": true,
+				"count": 0,
+				"cover": [],
+				"created": "2025-07-02T07:15:38.506Z",
+				"creatorRef": {
+					"_id": 2067190,
+					"email": "",
+					"name": "miyil99106"
+				},
+				"description": "",
+				"expanded": true,
+				"lastAction": "2025-12-16T05:30:15.443Z",
+				"lastUpdate": "2025-12-16T05:30:15.444Z",
+				"parent": null,
+				"public": false,
+				"slug": "get-highlights-in-collection",
+				"sort": 0,
+				"title": "getHighlightsInCollection",
+				"user": {
+					"$id": 2067190,
+					"$ref": "users"
+				},
+				"view": "list"
+			},
+			{
+				"_id": 57172499,
+				"access": {
+					"draggable": true,
+					"for": 2067190,
+					"level": 4,
+					"root": false
+				},
+				"author": true,
+				"count": 0,
+				"cover": [],
+				"created": "2025-07-02T07:15:46.143Z",
+				"creatorRef": {
+					"_id": 2067190,
+					"email": "",
+					"name": "miyil99106"
+				},
+				"description": "",
+				"expanded": true,
+				"lastAction": "2025-07-02T07:15:46.143Z",
+				"lastUpdate": "2025-07-02T07:15:46.143Z",
+				"parent": null,
+				"public": false,
+				"slug": "share-collection",
+				"sort": 0,
+				"title": "shareCollection",
+				"user": {
+					"$id": 2067190,
+					"$ref": "users"
+				},
+				"view": "list"
+			}
+		],
+		"result": true
+	}
+}
