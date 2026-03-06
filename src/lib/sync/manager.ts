@@ -281,6 +281,8 @@ export class SyncManager {
 
 		// Start sync process
 		try {
+			this.emitEvent(new SyncEventStart());
+
 			// Calculate diff
 			if (!useLegacy) {
 				if (precalculatedDiff) {
@@ -305,7 +307,6 @@ export class SyncManager {
 				}
 			}
 
-			this.emitEvent(new SyncEventStart());
 			let shouldSync: boolean;
 			if (force) {
 				console.warn('Force sync enabled, skipping checks');
