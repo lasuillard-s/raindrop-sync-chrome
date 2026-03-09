@@ -1,5 +1,4 @@
-import { ChromeStorageAdapter } from '~/config/adapter';
-import { SettingsRepository } from '~/config/repository';
+import { ChromeStorageAdapter, Settings, SettingsRepository } from '~/config';
 import { MigrationBase, type MigrationContext } from './types';
 
 export class Migration extends MigrationBase {
@@ -48,7 +47,8 @@ export class Migration extends MigrationBase {
 				console.debug(`Migrated setting "${key}"`);
 			}
 		}
-		await adapter.set(SettingsRepository.STORAGE_KEY, newObj);
+		const newSettings = Settings.parse(newObj);
+		await adapter.set(SettingsRepository.STORAGE_KEY, newSettings);
 
 		// * Leave old keys in place for now
 	}
