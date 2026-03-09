@@ -1,7 +1,6 @@
 import { client, generated } from '@lasuillard/raindrop-client';
 import axios, { AxiosError, type AxiosInstance, type AxiosRequestConfig } from 'axios';
-import { get } from 'svelte/store';
-import { appSettings } from '~/config';
+import { SettingsStore } from '~/config';
 
 type GetRootCollectionsResponseItem = generated.GetRootCollectionsResponse['items'][0];
 type GetChildCollectionsResponseItem = generated.GetChildCollectionsResponse['items'][0];
@@ -75,7 +74,7 @@ export function getClient(
 	axiosClient?: AxiosInstance
 ): Raindrop {
 	configuration ??= new generated.Configuration();
-	axiosClient ??= getAxiosClient();
+	axiosClient ??= getAxiosClient(SettingsStore.getOrCreate());
 
 	return new Raindrop(configuration, axiosClient);
 }
@@ -95,16 +94,17 @@ let isRefreshing = false;
 
 /**
  * Create new Axios client with all interceptors & caches are set.
+ * @param settings Settings store to get access token from and update it when refreshed.
  * @returns New Axios instance.
  */
-export function getAxiosClient(): AxiosInstance {
+export function getAxiosClient(settings: SettingsStore): AxiosInstance {
 	const instance = axios.create({
 		// baseURL: 'https://api.raindrop.io'
 	});
 
 	instance.interceptors.request.use(
 		function (config) {
-			const accessToken = get(appSettings.accessToken);
+			const accessToken = settings.snapshot.accessToken;
 			if (accessToken) {
 				config.headers.Authorization = `Bearer ${accessToken}`;
 			}
@@ -125,8 +125,9 @@ export function getAxiosClient(): AxiosInstance {
 
 			// @ts-expect-error Ignore TS error for now
 			const originalRequest: AxiosRequestConfig = error.config;
+
 			if (error.response?.status === 401) {
-				if (!get(appSettings.refreshToken)) {
+				if (!settings.snapshot.refreshToken) {
 					console.error('No refresh token available, cannot refresh access token');
 					return Promise.reject(error);
 				}
@@ -145,7 +146,7 @@ export function getAxiosClient(): AxiosInstance {
 				const client = getClient(undefined, instance);
 				isRefreshing = true;
 				try {
-					await tryRefreshAccessToken(client);
+					await tryRefreshAccessToken(client, settings);
 					// ? Not awaited it for reason -- don't care; fire-and-forget
 					retryAllRequests(instance);
 				} catch (refreshError) {
@@ -171,27 +172,27 @@ export function getAxiosClient(): AxiosInstance {
  * Try to get new access token using refresh token.
  * If successful, updates access token in settings. Otherwise, clears tokens.
  * @param client Raindrop client to use for the request.
+ * @param settings Settings store to get current tokens from and update them when refreshed.
  * @returns New access token if successful.
  */
-async function tryRefreshAccessToken(client: Raindrop): Promise<string> {
+async function tryRefreshAccessToken(client: Raindrop, settings: SettingsStore): Promise<string> {
 	try {
 		console.debug('Requesting new access token using refresh token');
+		const settingsSnapshot = settings.snapshot;
 		const response = await client.auth.refreshToken({
-			client_id: get(appSettings.clientID),
-			client_secret: get(appSettings.clientSecret),
-			refresh_token: get(appSettings.refreshToken)
+			client_id: settingsSnapshot.clientId,
+			client_secret: settingsSnapshot.clientSecret,
+			refresh_token: settingsSnapshot.refreshToken
 		});
 		const newAccessToken = response.data.access_token;
 
 		console.debug('Updating access token in settings');
-		await appSettings.accessToken.set(newAccessToken);
+		await settings.update({ accessToken: newAccessToken });
 
 		return newAccessToken;
 	} catch (err) {
 		console.debug('Failed to refresh access token, clearing tokens in settings');
-		await appSettings.accessToken.set('');
-		await appSettings.refreshToken.set('');
-
+		settings.update({ accessToken: '', refreshToken: '' });
 		throw new Error(`Failed to refresh access token: ${err}`);
 	}
 }

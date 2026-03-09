@@ -16,15 +16,17 @@
 		ExclamationCircleSolid
 	} from 'flowbite-svelte-icons';
 	import { onMount } from 'svelte';
-	import { get } from 'svelte/store';
 	import PathBreadcrumb from '~/components/PathBreadcrumb.svelte';
 	import Tree from '~/components/Tree.svelte';
-	import { appSettings } from '~/config';
+	import { SettingsStore } from '~/config';
 	import type { ChromeBookmarkNodeData } from '~/lib/browser/chrome';
 	import { putMessage } from '~/lib/messages';
 	import { RaindropNodeData } from '~/lib/raindrop';
 	import type { SyncEvent, SyncEventListener, TreeNode } from '~/lib/sync';
 	import syncManager, { SyncDiff } from '~/lib/sync';
+
+	const settings = SettingsStore.getOrCreate();
+	const settingsSnapshot = settings.snapshot;
 
 	let latestSyncEvent: SyncEvent | null = $state(null);
 
@@ -107,51 +109,33 @@
 	// Sync settings
 	let bookmarkFolders: { id: string; title: string; depth: number }[] = $state([]);
 
-	// Create reactive bindings to stores
-	let autoSyncEnabled = $state(get(appSettings.autoSyncEnabled));
-	let autoSyncExecOnStartup = $state(get(appSettings.autoSyncExecOnStartup));
-	let autoSyncIntervalInMinutes = $state(get(appSettings.autoSyncIntervalInMinutes));
-	let syncLocation = $state(get(appSettings.syncLocation));
-	let useLegacySyncMechanism = $state(get(appSettings.useLegacySyncMechanism));
+	// Create reactive bindings to settings store
+	let autoSyncEnabled = $state(settingsSnapshot.autoSyncEnabled);
+	let autoSyncExecOnStartup = $state(settingsSnapshot.autoSyncExecOnStartup);
+	let autoSyncIntervalInMinutes = $state(settingsSnapshot.autoSyncIntervalInMinutes);
+	let syncLocation = $state(settingsSnapshot.syncLocation);
+	let useLegacySyncMechanism = $state(settingsSnapshot.useLegacySyncMechanism);
 
-	// Keep local state in sync with stores
+	// Keep local state in sync with settings store
 	$effect(() => {
-		const unsubscribe = appSettings.autoSyncEnabled.subscribe((value) => {
-			autoSyncEnabled = value;
-		});
-		return unsubscribe;
-	});
-	$effect(() => {
-		const unsubscribe = appSettings.autoSyncExecOnStartup.subscribe((value) => {
-			autoSyncExecOnStartup = value;
-		});
-		return unsubscribe;
-	});
-	$effect(() => {
-		const unsubscribe = appSettings.autoSyncIntervalInMinutes.subscribe((value) => {
-			autoSyncIntervalInMinutes = value;
-		});
-		return unsubscribe;
-	});
-	$effect(() => {
-		const unsubscribe = appSettings.syncLocation.subscribe((value) => {
-			syncLocation = value;
-		});
-		return unsubscribe;
-	});
-	$effect(() => {
-		const unsubscribe = appSettings.useLegacySyncMechanism.subscribe((value) => {
-			useLegacySyncMechanism = value;
+		const unsubscribe = settings.$data.subscribe((settings) => {
+			autoSyncEnabled = settings.autoSyncEnabled;
+			autoSyncExecOnStartup = settings.autoSyncExecOnStartup;
+			autoSyncIntervalInMinutes = settings.autoSyncIntervalInMinutes;
+			syncLocation = settings.syncLocation;
+			useLegacySyncMechanism = settings.useLegacySyncMechanism;
 		});
 		return unsubscribe;
 	});
 
 	const saveSettings = async () => {
-		await appSettings.autoSyncEnabled.set(autoSyncEnabled);
-		await appSettings.autoSyncExecOnStartup.set(autoSyncExecOnStartup);
-		await appSettings.autoSyncIntervalInMinutes.set(autoSyncIntervalInMinutes);
-		await appSettings.syncLocation.set(syncLocation);
-		await appSettings.useLegacySyncMechanism.set(useLegacySyncMechanism);
+		await settings.update({
+			autoSyncEnabled,
+			autoSyncExecOnStartup,
+			autoSyncIntervalInMinutes,
+			syncLocation,
+			useLegacySyncMechanism
+		});
 		await syncManager.scheduleAutoSync();
 		putMessage({ type: 'success', message: 'Sync settings saved.' });
 	};
@@ -189,6 +173,7 @@
 		// Load bookmark folders for sync location selection
 		// About async onMount handler: https://github.com/sveltejs/svelte/issues/4927
 		(async () => {
+			await settings.init();
 			const bookmarksTree = (await chrome.bookmarks.getTree()) || [];
 			if (!bookmarksTree[0]?.children) {
 				putMessage({ type: 'error', message: 'No bookmark folders found.' });
@@ -228,7 +213,6 @@
 				Configure automatic synchronization behavior and target location
 			</P>
 		</div>
-
 		<div class="space-y-6">
 			<!-- Auto Sync Options -->
 			<div class="rounded-lg bg-gray-50 p-4">

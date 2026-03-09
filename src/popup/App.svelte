@@ -3,19 +3,22 @@
 	import { A, Toggle } from 'flowbite-svelte';
 	import { RefreshOutline } from 'flowbite-svelte-icons';
 	import { onMount } from 'svelte';
-	import { appSettings } from '~/config';
+	import { SettingsStore } from '~/config';
 	import syncManager, { type SyncEvent, type SyncEventListener } from '~/lib/sync';
+
+	const settings = SettingsStore.getOrCreate();
 
 	let isSyncing = false;
 	let forceSync = false;
 	let rotation = 0;
 	let animationFrame: number | null = null;
-	const clientLastSync = appSettings.clientLastSync;
-	let lastSyncTime = $clientLastSync;
+	const clientLastSync = settings.snapshot.clientLastSync;
+	let lastSyncTime = clientLastSync;
 	let latestSyncEvent: SyncEvent | null = null;
 
-	// Subscribe to clientLastSync changes
-	$: lastSyncTime = $clientLastSync;
+	settings.$data.subscribe((data) => {
+		lastSyncTime = data.clientLastSync;
+	});
 
 	class SyncEventListenerImpl implements SyncEventListener {
 		onEvent(event: SyncEvent) {

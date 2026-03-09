@@ -1,4 +1,4 @@
-import { appSettings } from '~/config';
+import { SettingsStore } from '~/config';
 import { ChromeBookmarkRepository } from '~/lib/browser/chrome';
 import raindropClient from '~/lib/raindrop';
 import { SyncManager } from './manager';
@@ -16,7 +16,7 @@ export { SyncManager } from './manager';
 export { NodeData, TreeNode } from './tree';
 
 export default new SyncManager({
-	appSettings,
+	settings: SettingsStore.getOrCreate(),
 	repository: new ChromeBookmarkRepository(),
 	raindropClient: raindropClient
 });
