@@ -21,7 +21,10 @@ export class SettingsStore {
 	}
 
 	static getOrCreate(): SettingsStore {
-		if (!SettingsStore.instance) {
+		if (SettingsStore.instance) {
+			console.debug('Returning existing SettingsStore instance');
+		} else {
+			console.debug('Creating new SettingsStore instance');
 			SettingsStore.instance = new SettingsStore();
 		}
 		return SettingsStore.instance;
