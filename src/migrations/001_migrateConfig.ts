@@ -40,15 +40,22 @@ export class Migration extends MigrationBase {
 		// Migrate existing settings to the new structure (a single settings object)
 		const newObj: Record<string, unknown> = {};
 		for (const [key, oldKey] of keysToMigrate) {
-			console.debug(`Migrating setting "${key}" from old key "${oldKey ?? key}"`);
-			const value = (await adapter.get(oldKey ?? key)) as string;
+			const oldKeyToUse = oldKey ?? key;
+			console.debug(`Migrating setting "${key}" from old key "${oldKeyToUse}"`);
+			const value = (await chrome.storage.sync.get(oldKeyToUse))[oldKeyToUse];
 			if (value !== undefined) {
-				newObj[key] = JSON.parse(value);
+				try {
+					newObj[key] = JSON.parse(value);
+				} catch {
+					console.warn(`Failed to parse value for key "${oldKeyToUse}", using raw string value`);
+					newObj[key] = value;
+				}
 				console.debug(`Migrated setting "${key}"`);
 			}
 		}
 		const newSettings = Settings.parse(newObj);
 		await adapter.set(SettingsRepository.STORAGE_KEY, newSettings);
+		console.debug('Migration completed, new settings saved');
 
 		// * Leave old keys in place for now
 	}

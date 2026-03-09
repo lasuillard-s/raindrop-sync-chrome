@@ -30,11 +30,14 @@ export class ChromeStorageAdapter implements StorageAdapter {
 	async get(key: string): Promise<unknown> {
 		const result = await this.storageArea.get([key]);
 		const stored = result[key];
-		return stored;
+		if (stored === undefined) {
+			return undefined;
+		}
+		return JSON.parse(stored);
 	}
 
 	async set(key: string, value: unknown): Promise<void> {
-		await this.storageArea.set({ [key]: value });
+		await this.storageArea.set({ [key]: JSON.stringify(value) });
 	}
 
 	async remove(key: string): Promise<void> {
