@@ -39,5 +39,5 @@ docker compose up --wait --wait-timeout 600
 docker compose exec \
     $(for var in "${pass_envvars[@]}"; do echo "--env $var"; done) \
     playwright \
-    yarn exec --silent playwright "$@" \
+    yarn exec --silent -- playwright "$@" \
     | tee --append "$log_file"
