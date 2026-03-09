@@ -1,3 +1,5 @@
+import { get } from 'svelte/store';
+import { appSettings } from '~/config';
 import syncManager from '~/lib/sync';
 
 chrome.runtime.onInstalled.addListener(async (details) => {
@@ -17,9 +19,13 @@ chrome.runtime.onInstalled.addListener(async (details) => {
 chrome.alarms.onAlarm.addListener(async (alarm) => {
 	console.debug('Alarm fired:', alarm.name);
 	switch (alarm.name) {
-		case 'sync-bookmarks':
+		case 'sync-bookmarks': {
 			console.debug('Syncing bookmarks');
-			await syncManager.startSync();
+			const useLegacySyncMechanism = get(appSettings.useLegacySyncMechanism);
+			await syncManager.startSync({
+				useLegacy: useLegacySyncMechanism
+			});
 			break;
+		}
 	}
 });
