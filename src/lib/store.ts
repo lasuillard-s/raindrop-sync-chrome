@@ -8,7 +8,7 @@ export interface Storage {
 }
 
 // Dummy in-memory storage for testing w/o real storage backend
-export class DummyStorage implements Storage {
+export class InMemoryStorage implements Storage {
 	protected map: Map<string, unknown> = new Map();
 
 	get(keys: string | string[]): Promise<{ [key: string]: unknown }> {
@@ -44,7 +44,8 @@ export interface AsyncWritable<T> extends Readable<T> {
 	update(this: void, updater: Updater<T>): Promise<void>;
 }
 
-const defaultStorage = import.meta.env.MODE === 'test' ? new DummyStorage() : chrome.storage.local;
+const defaultStorage =
+	import.meta.env.MODE === 'test' ? new InMemoryStorage() : chrome.storage.local;
 
 /**
  * Custom store persisting data via Chrome storage API.
