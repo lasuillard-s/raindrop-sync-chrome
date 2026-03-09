@@ -256,14 +256,14 @@
 								recreate them based on Raindrop.io collections.
 							</P>
 							<P class="my-1 text-xs text-red-500">
-								⚠️ <b>Warning</b> Enabling this will cause all existing bookmarks in the target folder
+								⚠️ <b>Warning:</b> Enabling this will cause all existing bookmarks in the target folder
 								to be deleted and recreated, which may lead to data loss if you have local-only bookmarks
 								or modifications that haven't been synced to Raindrop.io. Use this option only if you
 								are experiencing issues with the new sync mechanism, and make sure to backup your bookmarks
 								before enabling it.
 							</P>
 							<P class="my-1 text-xs text-blue-500">
-								ℹ️ <b>Note</b> This setting will be removed in a near future.
+								ℹ️ <b>Note:</b> This setting will be removed in the near future.
 							</P>
 						</div>
 						<Toggle bind:checked={useLegacySyncMechanism} />
@@ -297,7 +297,7 @@
 					<P class="text-sm font-semibold text-gray-700">Sync Location</P>
 					<div class="mt-2 rounded-md border border-red-200 bg-red-50 p-3">
 						<P class="text-xs font-medium text-red-700">
-							⚠️ <b>Warning</b> Existing bookmarks in the selected folder might be removed or modified
+							⚠️ <b>Warning:</b> Existing bookmarks in the selected folder might be removed or modified
 							during sync!
 						</P>
 					</div>
