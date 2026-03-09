@@ -253,8 +253,17 @@
 							<P class="text-sm font-medium text-gray-900">Use Legacy Sync Mechanism</P>
 							<P class="text-xs text-gray-500"
 								>Use the old synchronization algorithm; clear all bookmarks in the target folder and
-								recreate them based on Raindrop.io collections. This setting will be removed in a
-								future release.
+								recreate them based on Raindrop.io collections.
+							</P>
+							<P class="my-1 text-xs text-red-500">
+								⚠️ <b>Warning</b> Enabling this will cause all existing bookmarks in the target folder
+								to be deleted and recreated, which may lead to data loss if you have local-only bookmarks
+								or modifications that haven't been synced to Raindrop.io. Use this option only if you
+								are experiencing issues with the new sync mechanism, and make sure to backup your bookmarks
+								before enabling it.
+							</P>
+							<P class="my-1 text-xs text-blue-500">
+								ℹ️ <b>Note</b> This setting will be removed in a near future.
 							</P>
 						</div>
 						<Toggle bind:checked={useLegacySyncMechanism} />
