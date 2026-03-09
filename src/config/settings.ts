@@ -43,6 +43,6 @@ export class AppSettings {
 		this.autoSyncEnabled = persisted('autoSyncEnabled', false, storeOpts);
 		this.autoSyncIntervalInMinutes = persisted('autoSyncIntervalInMinutes', 5, storeOpts);
 		this.autoSyncExecOnStartup = persisted('autoSyncExecOnStartup', false, storeOpts);
-		this.useLegacySyncMechanism = persisted('useLegacySyncMechanism', false, storeOpts);
+		this.useLegacySyncMechanism = persisted('useLegacySyncMechanism', true, storeOpts);
 	}
 }
