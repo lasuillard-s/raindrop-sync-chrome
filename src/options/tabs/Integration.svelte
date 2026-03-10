@@ -221,7 +221,5 @@
 				<Button onclick={save} class="px-6">Save Credentials</Button>
 			</div>
 		</div>
-
-		<!-- TODO: Debug actions: check token validity, force refresh token, etc. -->
 	</div>
 </div>
