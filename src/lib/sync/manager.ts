@@ -281,6 +281,9 @@ export class SyncManager {
 		const thresholdSeconds = opts?.thresholdSeconds ?? 300;
 		const useLegacy = opts?.useLegacy ?? false;
 
+		// Ensure settings are loaded and ready before proceeding
+		await this.settings.ready();
+
 		// Calculate diff
 		if (!useLegacy) {
 			if (precalculatedDiff) {
