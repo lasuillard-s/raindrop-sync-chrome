@@ -34,7 +34,7 @@ chrome.alarms.onAlarm.addListener(async (alarm) => {
 			const settings = SettingsStore.getOrCreate();
 			await settings.ready();
 			const useLegacySyncMechanism = settings.snapshot.useLegacySyncMechanism;
-			await new SyncManager().startSync({ useLegacy: useLegacySyncMechanism });
+			await new SyncManager({ settings }).startSync({ useLegacy: useLegacySyncMechanism });
 			break;
 		}
 	}
