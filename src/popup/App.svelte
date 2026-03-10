@@ -32,6 +32,11 @@
 	onMount(() => {
 		const listener = new SyncEventListenerImpl();
 		syncManager.addListener(listener);
+
+		(async () => {
+			await settings.ready();
+		})();
+
 		return () => {
 			syncManager.removeListener(listener);
 		};

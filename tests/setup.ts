@@ -20,11 +20,11 @@ beforeEach(() => {
 			launchWebAuthFlow: vi.fn()
 		}
 	});
-	vi.spyOn(SettingsStore, 'getOrCreate').mockImplementation(() => {
-		const adapter = new InMemoryStorageAdapter();
-		const repository = new SettingsRepository(adapter);
-		return new SettingsStore(repository);
-	});
+
+	const adapter = new InMemoryStorageAdapter();
+	const repository = new SettingsRepository(adapter);
+	const settings = new SettingsStore(repository);
+	vi.spyOn(SettingsStore, 'getOrCreate').mockReturnValue(settings);
 });
 
 afterEach(() => {

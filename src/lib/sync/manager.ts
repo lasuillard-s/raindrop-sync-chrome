@@ -347,6 +347,7 @@ export class SyncManager {
 	 */
 	async scheduleAutoSync() {
 		console.debug('Scheduling auto-sync alarms');
+		await this.settings.ready();
 		const settingsSnapshot = this.settings.snapshot;
 		await chrome.alarms.clearAll();
 
