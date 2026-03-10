@@ -284,34 +284,35 @@ export class SyncManager {
 		// Ensure settings are loaded and ready before proceeding
 		await this.settings.ready();
 
-		// Calculate diff
-		if (!useLegacy) {
-			if (precalculatedDiff) {
-				console.debug('Using precalculated sync diff');
-				diff = precalculatedDiff;
-			} else {
-				if (!currentBookmarkTree) {
-					// Fetch the current bookmark tree from Chrome
-					console.debug('Fetching current bookmark tree from Chrome');
-					this.emitEvent(new SyncEventProgress('fetching-bookmarks'));
-					currentBookmarkTree = await this.getCurrentBookmarkTree();
-				}
-				if (!expectedBookmarkTree) {
-					// Fetch the collection tree from Raindrop.io
-					console.debug('Fetching collection tree from Raindrop.io');
-					this.emitEvent(new SyncEventProgress('fetching-collections'));
-					expectedBookmarkTree = await this.getExpectedBookmarkTree();
-				}
-				this.emitEvent(new SyncEventProgress('calculating-diff'));
-				console.debug('Calculating sync diff');
-				diff = await this.calculateSyncDiff(expectedBookmarkTree, currentBookmarkTree);
-			}
-		}
-
 		// Start sync process
-		let shouldSync: boolean;
 		try {
 			this.emitEvent(new SyncEventStart());
+
+			// Calculate diff
+			if (!useLegacy) {
+				if (precalculatedDiff) {
+					console.debug('Using precalculated sync diff');
+					diff = precalculatedDiff;
+				} else {
+					if (!currentBookmarkTree) {
+						// Fetch the current bookmark tree from Chrome
+						console.debug('Fetching current bookmark tree from Chrome');
+						this.emitEvent(new SyncEventProgress('fetching-bookmarks'));
+						currentBookmarkTree = await this.getCurrentBookmarkTree();
+					}
+					if (!expectedBookmarkTree) {
+						// Fetch the collection tree from Raindrop.io
+						console.debug('Fetching collection tree from Raindrop.io');
+						this.emitEvent(new SyncEventProgress('fetching-collections'));
+						expectedBookmarkTree = await this.getExpectedBookmarkTree();
+					}
+					this.emitEvent(new SyncEventProgress('calculating-diff'));
+					console.debug('Calculating sync diff');
+					diff = await this.calculateSyncDiff(expectedBookmarkTree, currentBookmarkTree);
+				}
+			}
+
+			let shouldSync: boolean;
 			if (force) {
 				console.warn('Force sync enabled, skipping checks');
 				shouldSync = true;
