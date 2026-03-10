@@ -5,16 +5,12 @@ export class Migration extends MigrationBase {
 	name = '001 - Migrate Config';
 	description = 'Migrate configuration from individual keys to a single settings object';
 
+	// eslint-disable-next-line @typescript-eslint/no-unused-vars
 	async shouldMigrate(context: MigrationContext): Promise<boolean> {
 		const adapter = new ChromeStorageAdapter();
 		if (await adapter.get(SettingsRepository.STORAGE_KEY)) {
 			console.debug('New settings key already exists, skipping migration');
 			return false;
-		}
-
-		// ? Consider using a proper semver library for version comparison if the logic gets more complex in the future
-		if (context.previousVersion <= '0.6.1') {
-			return true;
 		}
 
 		return false;

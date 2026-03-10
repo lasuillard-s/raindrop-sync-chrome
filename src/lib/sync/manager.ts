@@ -251,7 +251,7 @@ export class SyncManager {
 
 		// Update last sync time
 		const lastSyncTime = new Date();
-		this.settings.update({ clientLastSync: lastSyncTime });
+		await this.settings.update({ clientLastSync: lastSyncTime });
 		console.info(`Synchronization completed at ${lastSyncTime.toISOString()}`);
 	}
 

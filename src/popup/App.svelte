@@ -9,16 +9,18 @@
 	const settings = SettingsStore.getOrCreate();
 	const syncManager = new SyncManager({ settings });
 
-	let isSyncing = false;
-	let forceSync = false;
-	let rotation = 0;
-	let animationFrame: number | null = null;
-	const clientLastSync = settings.snapshot.clientLastSync;
-	let lastSyncTime = clientLastSync;
-	let latestSyncEvent: SyncEvent | null = null;
+	let isSyncing = $state(false);
+	let forceSync = $state(false);
+	let rotation = $state(0);
+	let animationFrame: number | null = $state(null);
+	let lastSyncTime = $state(settings.snapshot.clientLastSync);
+	let latestSyncEvent: SyncEvent | null = $state(null);
 
-	settings.$data.subscribe((data) => {
-		lastSyncTime = data.clientLastSync;
+	$effect(() => {
+		const unsubscribe = settings.$data.subscribe((data) => {
+			lastSyncTime = data.clientLastSync;
+		});
+		return unsubscribe;
 	});
 
 	class SyncEventListenerImpl implements SyncEventListener {
