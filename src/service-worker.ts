@@ -1,7 +1,7 @@
 import { SyncManager } from '~/lib/sync';
 import { doMigrate } from '~/migrations';
 import type { MigrationContext } from '~/migrations/types';
-import { SettingsStore } from './config';
+import { SettingsStore } from '~/config';
 
 chrome.runtime.onInstalled.addListener(async (details) => {
 	switch (details.reason) {
