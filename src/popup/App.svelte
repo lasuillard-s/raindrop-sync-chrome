@@ -3,19 +3,25 @@
 	import { A, Toggle } from 'flowbite-svelte';
 	import { RefreshOutline } from 'flowbite-svelte-icons';
 	import { onMount } from 'svelte';
-	import { appSettings } from '~/config';
-	import syncManager, { type SyncEvent, type SyncEventListener } from '~/lib/sync';
+	import { SettingsStore } from '~/config';
+	import { SyncManager, type SyncEvent, type SyncEventListener } from '~/lib/sync';
 
-	let isSyncing = false;
-	let forceSync = false;
-	let rotation = 0;
-	let animationFrame: number | null = null;
-	const clientLastSync = appSettings.clientLastSync;
-	let lastSyncTime = $clientLastSync;
-	let latestSyncEvent: SyncEvent | null = null;
+	const settings = SettingsStore.getOrCreate();
+	const syncManager = new SyncManager({ settings });
 
-	// Subscribe to clientLastSync changes
-	$: lastSyncTime = $clientLastSync;
+	let isSyncing = $state(false);
+	let forceSync = $state(false);
+	let rotation = $state(0);
+	let animationFrame: number | null = $state(null);
+	let lastSyncTime = $state(settings.snapshot.clientLastSync);
+	let latestSyncEvent: SyncEvent | null = $state(null);
+
+	$effect(() => {
+		const unsubscribe = settings.$data.subscribe((data) => {
+			lastSyncTime = data.clientLastSync;
+		});
+		return unsubscribe;
+	});
 
 	class SyncEventListenerImpl implements SyncEventListener {
 		onEvent(event: SyncEvent) {
@@ -26,6 +32,11 @@
 	onMount(() => {
 		const listener = new SyncEventListenerImpl();
 		syncManager.addListener(listener);
+
+		(async () => {
+			await settings.ready();
+		})();
+
 		return () => {
 			syncManager.removeListener(listener);
 		};

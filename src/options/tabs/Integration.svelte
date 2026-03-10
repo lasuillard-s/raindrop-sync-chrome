@@ -1,56 +1,46 @@
 <script lang="ts">
 	import { Accordion, AccordionItem, Button, Heading, P } from 'flowbite-svelte';
-	import { get } from 'svelte/store';
+	import { onMount } from 'svelte';
 	import imgCNA1 from '~/assets/raindrop-create-new-app-1.png';
 	import imgCNA2 from '~/assets/raindrop-create-new-app-2.png';
 	import SecretInput from '~/components/SecretInput.svelte';
-	import { appSettings } from '~/config';
+	import { SettingsStore } from '~/config';
 	import { putMessage } from '~/lib/messages';
 	import { launchWebAuthFlow as _launchWebAuthFlow } from '~/lib/raindrop/auth';
+
+	const settings = SettingsStore.getOrCreate();
+	const settingsSnapshot = settings.snapshot;
 
 	const extensionId = chrome.runtime.id;
 	const extensionDescription = chrome.runtime.getManifest().description;
 
-	// Create reactive bindings to stores
-	let clientID = $state(get(appSettings.clientID));
-	let clientSecret = $state(get(appSettings.clientSecret));
-	let accessToken = $state(get(appSettings.accessToken));
-	let refreshToken = $state(get(appSettings.refreshToken));
+	// Create reactive bindings from unified settings store
+	let clientId = $state(settingsSnapshot.clientId);
+	let clientSecret = $state(settingsSnapshot.clientSecret);
+	let accessToken = $state(settingsSnapshot.accessToken);
+	let refreshToken = $state(settingsSnapshot.refreshToken);
 
-	// Keep local state in sync with stores
+	// Keep local state in sync with unified settings store
 	$effect(() => {
-		const unsubscribeClientID = appSettings.clientID.subscribe((value) => {
-			clientID = value;
+		const unsubscribe = settings.$data.subscribe((settings) => {
+			clientId = settings.clientId;
+			clientSecret = settings.clientSecret;
+			accessToken = settings.accessToken;
+			refreshToken = settings.refreshToken;
 		});
-		return unsubscribeClientID;
-	});
-	$effect(() => {
-		const unsubscribeClientSecret = appSettings.clientSecret.subscribe((value) => {
-			clientSecret = value;
-		});
-		return unsubscribeClientSecret;
-	});
-	$effect(() => {
-		const unsubscribeAccessToken = appSettings.accessToken.subscribe((value) => {
-			accessToken = value;
-		});
-		return unsubscribeAccessToken;
-	});
-	$effect(() => {
-		const unsubscribeRefreshToken = appSettings.refreshToken.subscribe((value) => {
-			refreshToken = value;
-		});
-		return unsubscribeRefreshToken;
+		return unsubscribe;
 	});
 
 	const launchWebAuthFlow = async () => {
 		try {
 			const result = await _launchWebAuthFlow({
-				clientID,
+				clientID: clientId,
 				clientSecret
 			});
-			await appSettings.accessToken.set(result.accessToken);
-			await appSettings.refreshToken.set(result.refreshToken);
+			await settings.update({
+				accessToken: result.accessToken,
+				refreshToken: result.refreshToken
+			});
 			putMessage({ type: 'success', message: 'Successfully authorized app.' });
 		} catch (err) {
 			console.error('Failed to authorize app:', err);
@@ -59,12 +49,18 @@
 	};
 
 	const save = async () => {
-		await appSettings.clientID.set(clientID);
-		await appSettings.clientSecret.set(clientSecret);
-		await appSettings.accessToken.set(accessToken);
-		await appSettings.refreshToken.set(refreshToken);
+		await settings.update({
+			clientId,
+			clientSecret,
+			accessToken,
+			refreshToken
+		});
 		putMessage({ type: 'success', message: 'Settings saved.' });
 	};
+
+	onMount(async () => {
+		await settings.ready();
+	});
 </script>
 
 <div>
@@ -193,7 +189,7 @@
 						</a>
 					</P>
 					<div class="space-y-3">
-						<SecretInput bind:value={clientID}>
+						<SecretInput bind:value={clientId}>
 							<span class="text-sm font-medium">Client ID</span>
 						</SecretInput>
 						<SecretInput bind:value={clientSecret}>
@@ -230,7 +226,5 @@
 				<Button onclick={save} class="px-6">Save Credentials</Button>
 			</div>
 		</div>
-
-		<!-- TODO: Debug actions: check token validity, force refresh token, etc. -->
 	</div>
 </div>

@@ -1,6 +1,4 @@
-import { DummyStorage } from '~/lib/store';
-import { AppSettings } from './settings';
-
-export const appSettings = new AppSettings({
-	storage: import.meta.env.MODE === 'test' ? new DummyStorage() : chrome.storage.sync
-});
+export { ChromeStorageAdapter, InMemoryStorageAdapter, type StorageAdapter } from './adapter';
+export { SettingsRepository } from './repository';
+export { Settings } from './settings';
+export { SettingsStore, type SettingsState } from './store';

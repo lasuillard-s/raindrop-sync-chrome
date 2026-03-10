@@ -1,25 +1,37 @@
-import syncManager from '~/lib/sync';
+import { SyncManager } from '~/lib/sync';
+import { doMigrate } from '~/migrations';
+import type { MigrationContext } from '~/migrations/types';
 
 chrome.runtime.onInstalled.addListener(async (details) => {
 	switch (details.reason) {
-		case chrome.runtime.OnInstalledReason.INSTALL:
+		case chrome.runtime.OnInstalledReason.INSTALL: {
 			console.debug('Extension installed');
 			break;
-		case chrome.runtime.OnInstalledReason.UPDATE:
+		}
+		case chrome.runtime.OnInstalledReason.UPDATE: {
 			console.debug('Extension updated');
+
+			// Run migrations on extension update
+			const context: MigrationContext = {
+				previousVersion: details.previousVersion || '0.0.0',
+				installedVersion: (await chrome.management.getSelf()).version
+			};
+			await doMigrate(context);
+
 			break;
+		}
 	}
 
-	console.info('Re-scheduling auto-sync');
-	await syncManager.scheduleAutoSync();
+	await new SyncManager().scheduleAutoSync();
 });
 
 chrome.alarms.onAlarm.addListener(async (alarm) => {
 	console.debug('Alarm fired:', alarm.name);
 	switch (alarm.name) {
-		case 'sync-bookmarks':
+		case 'sync-bookmarks': {
 			console.debug('Syncing bookmarks');
-			await syncManager.startSync();
+			await new SyncManager().startSync();
 			break;
+		}
 	}
 });

@@ -3,8 +3,5 @@
  *
  * Uses \@lasuillard/raindrop-client package for API interactions.
  */
-import { getClient } from './client';
-
+export { getClient } from './client';
 export { createTreeFromRaindrops, RaindropNodeData } from './sync';
-
-export default getClient();
