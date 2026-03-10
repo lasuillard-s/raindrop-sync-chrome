@@ -1,6 +1,7 @@
 import { SyncManager } from '~/lib/sync';
 import { doMigrate } from '~/migrations';
 import type { MigrationContext } from '~/migrations/types';
+import { SettingsStore } from '~/config';
 
 chrome.runtime.onInstalled.addListener(async (details) => {
 	switch (details.reason) {
@@ -30,7 +31,10 @@ chrome.alarms.onAlarm.addListener(async (alarm) => {
 	switch (alarm.name) {
 		case 'sync-bookmarks': {
 			console.debug('Syncing bookmarks');
-			await new SyncManager().startSync();
+			const settings = SettingsStore.getOrCreate();
+			await settings.ready();
+			const useLegacySyncMechanism = settings.snapshot.useLegacySyncMechanism;
+			await new SyncManager({ settings }).startSync({ useLegacy: useLegacySyncMechanism });
 			break;
 		}
 	}
