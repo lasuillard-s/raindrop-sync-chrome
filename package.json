@@ -33,12 +33,13 @@
 		"flowbite": "^4.0.1",
 		"flowbite-svelte": "^1.31.0",
 		"flowbite-svelte-icons": "^3.1.0",
+		"postcss": "^8.5.1",
 		"svelte": "^5.53.5",
 		"tailwindcss": "^4.1.8",
 		"vite": "^6.4.1",
-		"vite-plugin-zip-pack": "^1.2.4",
 		"vite-plugin-node-polyfills": "^0.25.0",
-		"postcss": "^8.5.1"
+		"vite-plugin-zip-pack": "^1.2.4",
+		"zod": "^4.3.6"
 	},
 	"devDependencies": {
 		"@codecov/vite-plugin": "^1.9.0",

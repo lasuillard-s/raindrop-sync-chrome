@@ -16,15 +16,18 @@
 		ExclamationCircleSolid
 	} from 'flowbite-svelte-icons';
 	import { onMount } from 'svelte';
-	import { get } from 'svelte/store';
 	import PathBreadcrumb from '~/components/PathBreadcrumb.svelte';
 	import Tree from '~/components/Tree.svelte';
-	import { appSettings } from '~/config';
+	import { SettingsStore } from '~/config';
 	import type { ChromeBookmarkNodeData } from '~/lib/browser/chrome';
 	import { putMessage } from '~/lib/messages';
 	import { RaindropNodeData } from '~/lib/raindrop';
 	import type { SyncEvent, SyncEventListener, TreeNode } from '~/lib/sync';
-	import syncManager, { SyncDiff } from '~/lib/sync';
+	import { SyncDiff, SyncManager } from '~/lib/sync';
+
+	const settings = SettingsStore.getOrCreate();
+	const settingsSnapshot = settings.snapshot;
+	const syncManager = new SyncManager({ settings });
 
 	let latestSyncEvent: SyncEvent | null = $state(null);
 
@@ -107,51 +110,33 @@
 	// Sync settings
 	let bookmarkFolders: { id: string; title: string; depth: number }[] = $state([]);
 
-	// Create reactive bindings to stores
-	let autoSyncEnabled = $state(get(appSettings.autoSyncEnabled));
-	let autoSyncExecOnStartup = $state(get(appSettings.autoSyncExecOnStartup));
-	let autoSyncIntervalInMinutes = $state(get(appSettings.autoSyncIntervalInMinutes));
-	let syncLocation = $state(get(appSettings.syncLocation));
-	let useLegacySyncMechanism = $state(get(appSettings.useLegacySyncMechanism));
+	// Create reactive bindings to settings store
+	let autoSyncEnabled = $state(settingsSnapshot.autoSyncEnabled);
+	let autoSyncExecOnStartup = $state(settingsSnapshot.autoSyncExecOnStartup);
+	let autoSyncIntervalInMinutes = $state(settingsSnapshot.autoSyncIntervalInMinutes);
+	let syncLocation = $state(settingsSnapshot.syncLocation);
+	let useLegacySyncMechanism = $state(settingsSnapshot.useLegacySyncMechanism);
 
-	// Keep local state in sync with stores
+	// Keep local state in sync with settings store
 	$effect(() => {
-		const unsubscribe = appSettings.autoSyncEnabled.subscribe((value) => {
-			autoSyncEnabled = value;
-		});
-		return unsubscribe;
-	});
-	$effect(() => {
-		const unsubscribe = appSettings.autoSyncExecOnStartup.subscribe((value) => {
-			autoSyncExecOnStartup = value;
-		});
-		return unsubscribe;
-	});
-	$effect(() => {
-		const unsubscribe = appSettings.autoSyncIntervalInMinutes.subscribe((value) => {
-			autoSyncIntervalInMinutes = value;
-		});
-		return unsubscribe;
-	});
-	$effect(() => {
-		const unsubscribe = appSettings.syncLocation.subscribe((value) => {
-			syncLocation = value;
-		});
-		return unsubscribe;
-	});
-	$effect(() => {
-		const unsubscribe = appSettings.useLegacySyncMechanism.subscribe((value) => {
-			useLegacySyncMechanism = value;
+		const unsubscribe = settings.$data.subscribe((settings) => {
+			autoSyncEnabled = settings.autoSyncEnabled;
+			autoSyncExecOnStartup = settings.autoSyncExecOnStartup;
+			autoSyncIntervalInMinutes = settings.autoSyncIntervalInMinutes;
+			syncLocation = settings.syncLocation;
+			useLegacySyncMechanism = settings.useLegacySyncMechanism;
 		});
 		return unsubscribe;
 	});
 
 	const saveSettings = async () => {
-		await appSettings.autoSyncEnabled.set(autoSyncEnabled);
-		await appSettings.autoSyncExecOnStartup.set(autoSyncExecOnStartup);
-		await appSettings.autoSyncIntervalInMinutes.set(autoSyncIntervalInMinutes);
-		await appSettings.syncLocation.set(syncLocation);
-		await appSettings.useLegacySyncMechanism.set(useLegacySyncMechanism);
+		await settings.update({
+			autoSyncEnabled,
+			autoSyncExecOnStartup,
+			autoSyncIntervalInMinutes,
+			syncLocation,
+			useLegacySyncMechanism
+		});
 		await syncManager.scheduleAutoSync();
 		putMessage({ type: 'success', message: 'Sync settings saved.' });
 	};
@@ -189,6 +174,7 @@
 		// Load bookmark folders for sync location selection
 		// About async onMount handler: https://github.com/sveltejs/svelte/issues/4927
 		(async () => {
+			await settings.init();
 			const bookmarksTree = (await chrome.bookmarks.getTree()) || [];
 			if (!bookmarksTree[0]?.children) {
 				putMessage({ type: 'error', message: 'No bookmark folders found.' });
@@ -228,7 +214,6 @@
 				Configure automatic synchronization behavior and target location
 			</P>
 		</div>
-
 		<div class="space-y-6">
 			<!-- Auto Sync Options -->
 			<div class="rounded-lg bg-gray-50 p-4">
@@ -253,8 +238,17 @@
 							<P class="text-sm font-medium text-gray-900">Use Legacy Sync Mechanism</P>
 							<P class="text-xs text-gray-500"
 								>Use the old synchronization algorithm; clear all bookmarks in the target folder and
-								recreate them based on Raindrop.io collections. This setting will be removed in a
-								future release.
+								recreate them based on Raindrop.io collections.
+							</P>
+							<P class="my-1 text-xs text-red-500">
+								⚠️ <b>Warning:</b> Enabling this will cause all existing bookmarks in the target folder
+								to be deleted and recreated, which may lead to data loss if you have local-only bookmarks
+								or modifications that haven't been synced to Raindrop.io. Use this option only if you
+								are experiencing issues with the new sync mechanism, and make sure to backup your bookmarks
+								before enabling it.
+							</P>
+							<P class="my-1 text-xs text-blue-500">
+								ℹ️ <b>Note:</b> This setting will be removed in the near future.
 							</P>
 						</div>
 						<Toggle bind:checked={useLegacySyncMechanism} />
@@ -288,7 +282,7 @@
 					<P class="text-sm font-semibold text-gray-700">Sync Location</P>
 					<div class="mt-2 rounded-md border border-red-200 bg-red-50 p-3">
 						<P class="text-xs font-medium text-red-700">
-							⚠️ <b>Warning</b> Existing bookmarks in the selected folder might be removed or modified
+							⚠️ <b>Warning:</b> Existing bookmarks in the selected folder might be removed or modified
 							during sync!
 						</P>
 					</div>

@@ -1,6 +1,6 @@
 import type { generated, utils } from '@lasuillard/raindrop-client';
-import { Path } from '~/lib/util/path';
 import type { Raindrop } from '~/lib/raindrop/client';
+import { Path } from '~/lib/util/path';
 
 export class FolderNotFoundError extends Error {
 	constructor(message: string) {
@@ -100,6 +100,15 @@ export class ChromeBookmarkRepository {
 	}
 
 	/**
+	 * Check if a bookmark node is a folder.
+	 * @param node The bookmark node to check.
+	 * @returns True if the node is a folder, false otherwise.
+	 */
+	isBookmarkFolder(node: chrome.bookmarks.BookmarkTreeNode): boolean {
+		return node.url === undefined;
+	}
+
+	/**
 	 * Create a folder by its path.
 	 * @param path The path of the folder.
 	 * @param options Options for folder creation.
@@ -112,25 +121,26 @@ export class ChromeBookmarkRepository {
 	): Promise<chrome.bookmarks.BookmarkTreeNode> {
 		const createParentIfNotExists = options?.createParentIfNotExists ?? false;
 		const tree = await chrome.bookmarks.getTree();
-		let root = tree[0];
+		let current = tree[0];
 		for (const segment of path.getSegments()) {
-			if (!root.children) {
+			if (!this.isBookmarkFolder(current)) {
 				throw new Error(
-					'Invalid bookmark structure; non-folder node encountered while creating folder'
+					`Invalid bookmark structure; non-folder node encountered while creating folder: ${current.title} of ${path.toString()}`
 				);
 			}
-			let nextNode = root.children.find((node) => node.title === segment);
+			const children = current.children || [];
+			let nextNode = children.find((node) => node.title === segment);
 			if (!nextNode && createParentIfNotExists) {
 				nextNode = await chrome.bookmarks.create({
-					parentId: root.id,
+					parentId: current.id,
 					title: segment
 				});
 			} else if (!nextNode) {
 				throw new FolderNotFoundError(`Folder with path ${path.toString()} not found`);
 			}
-			root = nextNode;
+			current = nextNode;
 		}
-		return root;
+		return current;
 	}
 
 	/**

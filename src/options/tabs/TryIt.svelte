@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { Button, ButtonGroup, Heading, Input, Label, P, Textarea } from 'flowbite-svelte';
-	import rd from '~/lib/raindrop';
+	import { getClient } from '~/lib/raindrop';
 
 	let query = '';
 	let queryResult: unknown = null;
@@ -8,7 +8,7 @@
 
 	/** Send query to fetch raindrops. */
 	async function sendQuery() {
-		const result = await rd.raindrop.getRaindrops(0, undefined, 5, 0, query);
+		const result = await getClient().raindrop.getRaindrops(0, undefined, 5, 0, query);
 		queryResult = result;
 	}
 </script>
