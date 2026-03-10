@@ -4,9 +4,10 @@
 	import { RefreshOutline } from 'flowbite-svelte-icons';
 	import { onMount } from 'svelte';
 	import { SettingsStore } from '~/config';
-	import syncManager, { type SyncEvent, type SyncEventListener } from '~/lib/sync';
+	import { SyncManager, type SyncEvent, type SyncEventListener } from '~/lib/sync';
 
 	const settings = SettingsStore.getOrCreate();
+	const syncManager = new SyncManager({ settings });
 
 	let isSyncing = false;
 	let forceSync = false;

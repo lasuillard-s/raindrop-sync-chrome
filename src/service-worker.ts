@@ -1,4 +1,4 @@
-import syncManager from '~/lib/sync';
+import { SyncManager } from '~/lib/sync';
 import { doMigrate } from '~/migrations';
 import type { MigrationContext } from '~/migrations/types';
 
@@ -22,7 +22,7 @@ chrome.runtime.onInstalled.addListener(async (details) => {
 		}
 	}
 
-	await syncManager.scheduleAutoSync();
+	await new SyncManager().scheduleAutoSync();
 });
 
 chrome.alarms.onAlarm.addListener(async (alarm) => {
@@ -30,7 +30,7 @@ chrome.alarms.onAlarm.addListener(async (alarm) => {
 	switch (alarm.name) {
 		case 'sync-bookmarks': {
 			console.debug('Syncing bookmarks');
-			await syncManager.startSync();
+			await new SyncManager().startSync();
 			break;
 		}
 	}

@@ -1,8 +1,9 @@
-import { cleanup } from '@testing-library/svelte';
-import { afterEach, beforeAll, vi } from 'vitest';
 import { mocks as chromeBookmarkMocks } from '@test-helpers/chrome-bookmarks';
+import { cleanup } from '@testing-library/svelte';
+import { afterEach, beforeEach, vi } from 'vitest';
+import { InMemoryStorageAdapter, SettingsRepository, SettingsStore } from '~/config';
 
-beforeAll(() => {
+beforeEach(() => {
 	// Tried to use both sinon-chrome and vitest-chrome, but it seems both are not being
 	// maintained for a while. So opted to just stub the parts we need directly.
 	vi.stubGlobal('chrome', {
@@ -18,6 +19,11 @@ beforeAll(() => {
 			getRedirectURL: vi.fn(),
 			launchWebAuthFlow: vi.fn()
 		}
+	});
+	vi.spyOn(SettingsStore, 'getOrCreate').mockImplementation(() => {
+		const adapter = new InMemoryStorageAdapter();
+		const repository = new SettingsRepository(adapter);
+		return new SettingsStore(repository);
 	});
 });
 

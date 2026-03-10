@@ -1,10 +1,10 @@
-import type { SettingsStore } from '~/config';
+import { SettingsStore } from '~/config';
 import {
 	ChromeBookmarkNodeData,
 	ChromeBookmarkRepository,
 	createTreeFromChromeBookmarks
 } from '~/lib/browser/chrome';
-import { createTreeFromRaindrops, type RaindropNodeData } from '~/lib/raindrop';
+import { createTreeFromRaindrops, getClient, type RaindropNodeData } from '~/lib/raindrop';
 import type { Raindrop } from '~/lib/raindrop/client';
 import { Path } from '~/lib/util/path';
 import { SyncDiff } from './diff';
@@ -36,14 +36,14 @@ export class SyncManager {
 	 * @param opts.repository Repository for browser bookmarks.
 	 * @param opts.raindropClient Raindrop.io client.
 	 */
-	constructor(opts: {
-		settings: SettingsStore;
-		repository: ChromeBookmarkRepository;
-		raindropClient: Raindrop;
+	constructor(opts?: {
+		settings?: SettingsStore;
+		repository?: ChromeBookmarkRepository;
+		raindropClient?: Raindrop;
 	}) {
-		this.settings = opts.settings;
-		this.repository = opts.repository;
-		this.raindropClient = opts.raindropClient;
+		this.settings = opts?.settings ?? SettingsStore.getOrCreate();
+		this.repository = opts?.repository ?? new ChromeBookmarkRepository();
+		this.raindropClient = opts?.raindropClient ?? getClient();
 	}
 
 	addListener(listener: SyncEventListener) {

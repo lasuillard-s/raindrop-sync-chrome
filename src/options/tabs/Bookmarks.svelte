@@ -23,10 +23,11 @@
 	import { putMessage } from '~/lib/messages';
 	import { RaindropNodeData } from '~/lib/raindrop';
 	import type { SyncEvent, SyncEventListener, TreeNode } from '~/lib/sync';
-	import syncManager, { SyncDiff } from '~/lib/sync';
+	import { SyncDiff, SyncManager } from '~/lib/sync';
 
 	const settings = SettingsStore.getOrCreate();
 	const settingsSnapshot = settings.snapshot;
+	const syncManager = new SyncManager({ settings });
 
 	let latestSyncEvent: SyncEvent | null = $state(null);
 

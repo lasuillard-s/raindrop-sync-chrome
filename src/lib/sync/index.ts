@@ -1,8 +1,3 @@
-import { SettingsStore } from '~/config';
-import { ChromeBookmarkRepository } from '~/lib/browser/chrome';
-import raindropClient from '~/lib/raindrop';
-import { SyncManager } from './manager';
-
 export { SyncDiff } from './diff';
 export {
 	SyncEvent,
@@ -14,9 +9,3 @@ export {
 export type { SyncEventListener, SyncEventProgressKind } from './event-listener';
 export { SyncManager } from './manager';
 export { NodeData, TreeNode } from './tree';
-
-export default new SyncManager({
-	settings: SettingsStore.getOrCreate(),
-	repository: new ChromeBookmarkRepository(),
-	raindropClient: raindropClient
-});
