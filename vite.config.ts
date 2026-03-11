@@ -37,6 +37,9 @@ export default defineConfig(({ mode }) => {
 
 	return {
 		plugins,
+		build: {
+			minify: !!process.env.VITE_DISABLE_MINIFICATION
+		},
 		resolve: {
 			conditions: mode === 'test' ? ['browser'] : undefined,
 			alias: [
