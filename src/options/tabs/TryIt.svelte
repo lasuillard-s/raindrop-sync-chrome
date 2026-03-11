@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { Button, ButtonGroup, Heading, Input, Label, P, Textarea } from 'flowbite-svelte';
+	import { A, Button, ButtonGroup, Heading, Input, Label, P, Textarea } from 'flowbite-svelte';
 	import { getClient } from '~/lib/raindrop';
 
 	let query = '';
@@ -20,7 +20,15 @@
 			<div class="mb-6 border-b border-gray-200 pb-4">
 				<Heading tag="h4" class="text-xl font-bold text-gray-900">Test Raindrop Queries</Heading>
 				<P class="mt-2 text-sm text-gray-600" data-testid="description">
-					Test and explore Raindrop.io API queries. Enter a search query to fetch raindrops.
+					Test and explore Raindrop.io API queries. Enter a search query to fetch raindrops. See
+					<A
+						href="https://help.raindrop.io/using-search"
+						target="_blank"
+						class="font-medium hover:underline"
+					>
+						the Raindrop.io search query reference
+					</A>
+					for syntax details.
 				</P>
 			</div>
 
@@ -35,6 +43,7 @@
 						<Label for="query" class="mb-2 text-sm font-medium">Query</Label>
 						<ButtonGroup class="w-full">
 							<Input
+								class="placeholder:opacity-40"
 								data-testid="query/input"
 								id="query"
 								type="text"
