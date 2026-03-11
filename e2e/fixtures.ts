@@ -1,10 +1,11 @@
-import { test as base, chromium, type BrowserContext } from '@playwright/test';
+import { test as base, chromium, type BrowserContext, type Worker } from '@playwright/test';
 import path from 'path';
 
 const __dirname = path.dirname(new URL(import.meta.url).pathname);
 
 export const test = base.extend<{
 	context: BrowserContext;
+	serviceWorker: Worker;
 	extensionId: string;
 }>({
 	// eslint-disable-next-line no-empty-pattern
@@ -20,11 +21,15 @@ export const test = base.extend<{
 		await use(context);
 		await context.close();
 	},
-	extensionId: async ({ context }, use) => {
-		let [background] = context.serviceWorkers();
-		if (!background) background = await context.waitForEvent('serviceworker');
-
-		const extensionId = background.url().split('/')[2];
+	serviceWorker: async ({ context }, use) => {
+		let [serviceWorker] = context.serviceWorkers();
+		if (!serviceWorker) {
+			serviceWorker = await context.waitForEvent('serviceworker');
+		}
+		await use(serviceWorker);
+	},
+	extensionId: async ({ serviceWorker }, use) => {
+		const extensionId = serviceWorker.url().split('/')[2];
 		await use(extensionId);
 	}
 });
