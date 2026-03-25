@@ -1,7 +1,7 @@
+import { TestNodeData } from '@test-helpers/tree';
 import { beforeEach, describe, expect, it } from 'vitest';
 import { Path } from '~/lib/util/path';
 import { NodeData, PathConflictError, TreeNode } from './tree';
-import { TestNodeData } from '@test-helpers/tree';
 
 describe('NodeData', () => {
 	it('should return correct properties', () => {

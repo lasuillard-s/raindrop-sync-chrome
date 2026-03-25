@@ -1,8 +1,8 @@
-import { SyncDiff } from './diff';
 import { beforeEach, describe, expect, it } from 'vitest';
-import { NodeData, TreeNode } from '~/lib/sync/tree';
-import { RaindropNodeData } from '~/lib/raindrop';
 import { ChromeBookmarkNodeData } from '~/lib/browser/chrome';
+import { RaindropNodeData } from '~/lib/raindrop';
+import { NodeData, TreeNode } from '~/lib/sync/tree';
+import { SyncDiff } from './diff';
 
 describe('SyncDiff', () => {
 	let leftTree: TreeNode<RaindropNodeData>;

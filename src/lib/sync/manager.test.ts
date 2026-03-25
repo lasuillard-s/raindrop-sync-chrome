@@ -2,6 +2,7 @@ import { describe, expect, it, vi } from 'vitest';
 import type { SettingsStore } from '~/config';
 import type { ChromeBookmarkRepository } from '~/lib/browser/chrome';
 import type { Raindrop } from '~/lib/raindrop/client';
+import { SYNC_BOOKMARKS_ALARM_NAME } from './constants';
 import type { SyncDiff } from './diff';
 import type { SyncEvent, SyncEventListener } from './event-listener';
 import { SyncManager } from './manager';
@@ -14,17 +15,34 @@ class CapturingListener implements SyncEventListener {
 	}
 }
 
-const createManager = () => {
+const createManager = (args?: {
+	clientLastSync?: Date;
+	autoSyncEnabled?: boolean;
+	autoSyncExecOnStartup?: boolean;
+	autoSyncIntervalInMinutes?: number;
+	serverLastUpdate?: string;
+}) => {
+	const clientLastSync = args?.clientLastSync ?? new Date(0);
+	const autoSyncEnabled = args?.autoSyncEnabled ?? false;
+	const autoSyncExecOnStartup = args?.autoSyncExecOnStartup ?? false;
+	const autoSyncIntervalInMinutes = args?.autoSyncIntervalInMinutes ?? 5;
+	const serverLastUpdate = args?.serverLastUpdate ?? new Date().toISOString();
+
+	const snapshot = {
+		accessToken: 'token',
+		syncLocation: 'folder-id',
+		autoSyncEnabled,
+		autoSyncExecOnStartup,
+		autoSyncIntervalInMinutes,
+		clientLastSync
+	};
+
 	const settings = {
 		ready: vi.fn(async () => undefined),
-		snapshotReady: vi.fn(async () => ({
-			accessToken: 'token',
-			syncLocation: 'folder-id',
-			autoSyncEnabled: false,
-			autoSyncExecOnStartup: false,
-			autoSyncIntervalInMinutes: 5,
-			clientLastSync: new Date(0)
-		})),
+		snapshotReady: vi.fn(async () => snapshot),
+		get snapshot() {
+			return snapshot;
+		},
 		update: vi.fn(async () => undefined)
 	} as unknown as SettingsStore;
 
@@ -33,16 +51,16 @@ const createManager = () => {
 		getFolderById: vi.fn(async () => ({ id: 'folder-id', title: 'folder' }))
 	} as unknown as ChromeBookmarkRepository;
 
+	const getCurrentUser = vi.fn(async () => ({
+		data: { user: { email: 'a@example.com', lastUpdate: serverLastUpdate } }
+	}));
+
 	const raindropClient = {
-		user: {
-			getCurrentUser: vi.fn(async () => ({
-				data: { user: { email: 'a@example.com', lastUpdate: new Date().toISOString() } }
-			}))
-		}
+		user: { getCurrentUser }
 	} as unknown as Raindrop;
 
 	const manager = new SyncManager({ settings, repository, raindropClient });
-	return { manager, settings };
+	return { manager, settings, getCurrentUser };
 };
 
 describe('SyncManager.startSync', () => {
@@ -136,5 +154,130 @@ describe('SyncManager.startSync', () => {
 		// Assert
 		expect(listener.events.at(0)?.type).toBe('start');
 		expect(listener.events.at(-1)?.type).toBe('error');
+	});
+});
+
+describe('SyncManager.shouldSync', () => {
+	it('returns false when last sync is within threshold', async () => {
+		// Arrange
+		const { manager, getCurrentUser, settings } = createManager({
+			clientLastSync: new Date(Date.now() - 60_000)
+		});
+
+		// Act
+		const result = await manager.shouldSync(300);
+
+		// Assert
+		expect(result).toBe(false);
+		expect(settings.ready).toHaveBeenCalledTimes(1);
+		expect(getCurrentUser).not.toHaveBeenCalled();
+	});
+
+	it('returns true when server was updated after last sync', async () => {
+		// Arrange
+		const lastSync = new Date('2026-01-01T00:00:00.000Z');
+		const { manager, getCurrentUser } = createManager({
+			clientLastSync: lastSync,
+			serverLastUpdate: '2026-01-01T00:10:00.000Z'
+		});
+
+		// Act
+		const result = await manager.shouldSync(1);
+
+		// Assert
+		expect(result).toBe(true);
+		expect(getCurrentUser).toHaveBeenCalledTimes(1);
+	});
+
+	it('returns false when server was not updated after last sync', async () => {
+		// Arrange
+		const lastSync = new Date('2026-01-01T00:10:00.000Z');
+		const { manager, getCurrentUser } = createManager({
+			clientLastSync: lastSync,
+			serverLastUpdate: '2026-01-01T00:00:00.000Z'
+		});
+
+		// Act
+		const result = await manager.shouldSync(1);
+
+		// Assert
+		expect(result).toBe(false);
+		expect(getCurrentUser).toHaveBeenCalledTimes(1);
+	});
+});
+
+describe('SyncManager.scheduleAutoSync', () => {
+	it('clears alarms and does not create one when auto sync is disabled', async () => {
+		// Arrange
+		const { manager } = createManager({ autoSyncEnabled: false });
+		const clearAll = vi.fn(async () => undefined);
+		const create = vi.fn(async () => undefined);
+		Object.assign(chrome, {
+			alarms: {
+				clearAll,
+				create
+			}
+		});
+
+		// Act
+		await manager.scheduleAutoSync();
+
+		// Assert
+		expect(clearAll).toHaveBeenCalledTimes(1);
+		expect(create).not.toHaveBeenCalled();
+	});
+
+	it('creates recurring alarm with startup delay when enabled and execOnStartup is true', async () => {
+		// Arrange
+		const { manager } = createManager({
+			autoSyncEnabled: true,
+			autoSyncExecOnStartup: true,
+			autoSyncIntervalInMinutes: 15
+		});
+		const clearAll = vi.fn(async () => undefined);
+		const create = vi.fn(async () => undefined);
+		Object.assign(chrome, {
+			alarms: {
+				clearAll,
+				create
+			}
+		});
+
+		// Act
+		await manager.scheduleAutoSync();
+
+		// Assert
+		expect(clearAll).toHaveBeenCalledTimes(1);
+		expect(create).toHaveBeenCalledWith(SYNC_BOOKMARKS_ALARM_NAME, {
+			delayInMinutes: 0,
+			periodInMinutes: 15
+		});
+	});
+
+	it('creates recurring alarm without startup delay when enabled and execOnStartup is false', async () => {
+		// Arrange
+		const { manager } = createManager({
+			autoSyncEnabled: true,
+			autoSyncExecOnStartup: false,
+			autoSyncIntervalInMinutes: 10
+		});
+		const clearAll = vi.fn(async () => undefined);
+		const create = vi.fn(async () => undefined);
+		Object.assign(chrome, {
+			alarms: {
+				clearAll,
+				create
+			}
+		});
+
+		// Act
+		await manager.scheduleAutoSync();
+
+		// Assert
+		expect(clearAll).toHaveBeenCalledTimes(1);
+		expect(create).toHaveBeenCalledWith(SYNC_BOOKMARKS_ALARM_NAME, {
+			delayInMinutes: undefined,
+			periodInMinutes: 10
+		});
 	});
 });

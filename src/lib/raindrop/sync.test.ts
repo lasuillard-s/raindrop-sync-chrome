@@ -1,7 +1,7 @@
-import { beforeEach, describe, expect, it } from 'vitest';
-import { createTreeFromRaindrops } from './sync';
 import { mockRaindropClient } from '@test-helpers/raindrop';
+import { beforeEach, describe, expect, it } from 'vitest';
 import { getClient, type Raindrop } from './client';
+import { createTreeFromRaindrops } from './sync';
 
 let raindropClient: Raindrop;
 
