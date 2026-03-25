@@ -15,6 +15,7 @@ import {
 	SyncEventProgress,
 	SyncEventStart
 } from './event-listener';
+import { SYNC_BOOKMARKS_ALARM_NAME } from './constants';
 import { SyncExecutor } from './executor';
 import { SyncPlan } from './plan';
 import { TreeNode } from './tree';
@@ -367,6 +368,6 @@ export class SyncManager {
 		const periodInMinutes = settingsSnapshot.autoSyncIntervalInMinutes;
 
 		console.debug(`Scheduling alarms with delay: ${delayInMinutes}, period: ${periodInMinutes}`);
-		await chrome.alarms.create('sync-bookmarks', { delayInMinutes, periodInMinutes });
+		await chrome.alarms.create(SYNC_BOOKMARKS_ALARM_NAME, { delayInMinutes, periodInMinutes });
 	}
 }

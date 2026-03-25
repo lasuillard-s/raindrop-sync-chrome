@@ -1,4 +1,4 @@
-import { SyncManager } from '~/lib/sync';
+import { SyncManager, SYNC_BOOKMARKS_ALARM_NAME } from '~/lib/sync';
 import { doMigrate } from '~/migrations';
 import type { MigrationContext } from '~/migrations/types';
 import { SettingsStore } from '~/config';
@@ -29,7 +29,7 @@ chrome.runtime.onInstalled.addListener(async (details) => {
 chrome.alarms.onAlarm.addListener(async (alarm) => {
 	console.debug('Alarm fired:', alarm.name);
 	switch (alarm.name) {
-		case 'sync-bookmarks': {
+		case SYNC_BOOKMARKS_ALARM_NAME: {
 			console.debug('Syncing bookmarks');
 			const settings = SettingsStore.getOrCreate();
 			await settings.ready();
