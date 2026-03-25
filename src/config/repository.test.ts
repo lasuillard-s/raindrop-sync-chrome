@@ -11,12 +11,13 @@ type AdapterDouble = {
 };
 
 /**
- *
- * @param args
- * @param args.stored
- * @param args.getError
- * @param args.setError
- * @param args.removeError
+ * Creates a test double for StorageAdapter.
+ * @param args Optional configuration for the adapter double.
+ * @param args.stored Value to return from get().
+ * @param args.getError Error to throw from get().
+ * @param args.setError Error to throw from set().
+ * @param args.removeError Error to throw from remove().
+ * @returns An object with the adapter and spy references.
  */
 function createAdapterDouble(args?: {
 	stored?: unknown;
