@@ -1,6 +1,5 @@
 <script lang="ts" generics="T extends NodeData">
 	import { ChevronDownOutline, ChevronRightOutline } from 'flowbite-svelte-icons';
-	import { onMount } from 'svelte';
 	import type { NodeData, TreeNode } from '~/lib/sync';
 	import { isUrlSafeHref } from '~/lib/util/string';
 	import Self from './Tree.svelte';
@@ -27,8 +26,10 @@
 		collapsed = !collapsed;
 	};
 
-	onMount(() => {
-		collapsed = collapsed ?? propagatingDefaults?.collapsed ?? true;
+	$effect(() => {
+		if (collapsed === undefined) {
+			collapsed = propagatingDefaults?.collapsed ?? true;
+		}
 	});
 </script>
 

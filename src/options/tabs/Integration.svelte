@@ -1,6 +1,5 @@
 <script lang="ts">
 	import { Accordion, AccordionItem, Button, Heading, P } from 'flowbite-svelte';
-	import { onMount } from 'svelte';
 	import imgCNA1 from '~/assets/raindrop-create-new-app-1.png';
 	import imgCNA2 from '~/assets/raindrop-create-new-app-2.png';
 	import SecretInput from '~/components/SecretInput.svelte';
@@ -58,8 +57,8 @@
 		putMessage({ type: 'success', message: 'Settings saved.' });
 	};
 
-	onMount(async () => {
-		await settings.ready();
+	$effect(() => {
+		void settings.ready();
 	});
 </script>
 

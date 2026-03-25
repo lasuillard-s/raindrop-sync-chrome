@@ -2,7 +2,6 @@
 	import { format, formatDistanceToNow } from 'date-fns';
 	import { A, Toggle } from 'flowbite-svelte';
 	import { RefreshOutline } from 'flowbite-svelte-icons';
-	import { onMount } from 'svelte';
 	import { SettingsStore } from '~/config';
 	import { SyncManager, type SyncEvent, type SyncEventListener } from '~/lib/sync';
 
@@ -29,13 +28,11 @@
 		}
 	}
 
-	onMount(() => {
+	$effect(() => {
 		const listener = new SyncEventListenerImpl();
 		syncManager.addListener(listener);
 
-		(async () => {
-			await settings.ready();
-		})();
+		void settings.ready();
 
 		return () => {
 			syncManager.removeListener(listener);

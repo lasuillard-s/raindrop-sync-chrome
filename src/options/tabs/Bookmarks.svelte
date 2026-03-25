@@ -15,7 +15,6 @@
 		CirclePlusSolid,
 		ExclamationCircleSolid
 	} from 'flowbite-svelte-icons';
-	import { onMount } from 'svelte';
 	import PathBreadcrumb from '~/components/PathBreadcrumb.svelte';
 	import Tree from '~/components/Tree.svelte';
 	import { SettingsStore } from '~/config';
@@ -167,13 +166,12 @@
 		}
 	};
 
-	onMount(() => {
+	$effect(() => {
 		const listener = new SyncEventListenerImpl();
 		syncManager.addListener(listener);
 
-		// Load bookmark folders for sync location selection
-		// About async onMount handler: https://github.com/sveltejs/svelte/issues/4927
-		(async () => {
+		void (async () => {
+			// Load bookmark folders for sync location selection.
 			await settings.init();
 			const bookmarksTree = (await chrome.bookmarks.getTree()) || [];
 			if (!bookmarksTree[0]?.children) {
@@ -182,10 +180,11 @@
 				return;
 			}
 
+			const folders: { id: string; title: string; depth: number }[] = [];
 			const dfs = (arr: chrome.bookmarks.BookmarkTreeNode[], depth: number = 0) => {
 				for (const node of arr) {
 					if (depth != 0 /* Ignore virtual root */ && node.url === undefined) {
-						bookmarkFolders.push({ id: node.id, title: node.title, depth });
+						folders.push({ id: node.id, title: node.title, depth });
 					}
 					if (node.children) {
 						dfs(node.children ?? [], depth + 1);
@@ -194,9 +193,7 @@
 			};
 
 			dfs(bookmarksTree);
-
-			// Force trigger reactivity
-			bookmarkFolders = bookmarkFolders;
+			bookmarkFolders = folders;
 		})();
 
 		return () => {

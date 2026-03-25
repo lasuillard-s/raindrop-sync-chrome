@@ -2,9 +2,9 @@
 	import { Button, ButtonGroup, Heading, Input, Label, P, Textarea } from 'flowbite-svelte';
 	import { getClient } from '~/lib/raindrop';
 
-	let query = '';
-	let queryResult: unknown = null;
-	$: queryResultJSON = JSON.stringify(queryResult, null, 4);
+	let query = $state('');
+	let queryResult: unknown = $state(null);
+	const queryResultJSON = $derived(JSON.stringify(queryResult, null, 4));
 
 	/** Send query to fetch raindrops. */
 	async function sendQuery() {
