@@ -24,6 +24,7 @@
 					<A
 						href="https://help.raindrop.io/using-search"
 						target="_blank"
+						rel="noopener noreferrer"
 						class="font-medium hover:underline"
 					>
 						the Raindrop.io search query reference

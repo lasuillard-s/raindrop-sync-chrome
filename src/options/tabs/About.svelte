@@ -49,6 +49,7 @@
 									<A
 										href={self.homepageUrl}
 										target="_blank"
+										rel="noopener noreferrer"
 										class="text-sm font-medium hover:underline"
 									>
 										🏠 Project Homepage
@@ -59,6 +60,7 @@
 								<A
 									href="https://raindrop.io"
 									target="_blank"
+									rel="noopener noreferrer"
 									class="text-sm font-medium hover:underline"
 								>
 									💧 Raindrop.io

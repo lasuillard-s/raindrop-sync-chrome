@@ -91,6 +91,7 @@
 								<a
 									href="https://app.raindrop.io/settings/integrations"
 									target="_blank"
+									rel="noopener noreferrer"
 									class="font-medium underline hover:text-green-900"
 								>
 									Raindrop.io Settings → Integrations
@@ -183,6 +184,7 @@
 						<a
 							href="https://app.raindrop.io/settings/integrations"
 							target="_blank"
+							rel="noopener noreferrer"
 							class="font-medium underline hover:text-blue-800"
 						>
 							Raindrop.io Settings
