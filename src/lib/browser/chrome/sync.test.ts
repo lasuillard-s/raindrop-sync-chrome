@@ -10,11 +10,16 @@ beforeEach(() => {
 
 describe('createTreeFromChromeBookmarks', () => {
 	it('should create a tree structure from Chrome bookmarks', async () => {
-		const root = await createTreeFromChromeBookmarks();
+		// Arrange
 		const paths: string[] = [];
+
+		// Act
+		const root = await createTreeFromChromeBookmarks();
 		root.dfs((node) => {
 			paths.push(node.getFullPath().toString() || '');
 		});
+
+		// Assert
 		expect(paths).toEqual([
 			'/',
 			'/Bookmarks bar',
@@ -28,12 +33,17 @@ describe('createTreeFromChromeBookmarks', () => {
 	});
 
 	it('pass base parameter to get non-root node as base', async () => {
+		// Arrange
 		const baseNode = await repository.getFolderById('5'); // 'updateRaindrops' folder
-		const base = await createTreeFromChromeBookmarks(baseNode);
 		const paths: string[] = [];
+
+		// Act
+		const base = await createTreeFromChromeBookmarks(baseNode);
 		base.dfs((node) => {
 			paths.push(node.getFullPath().toString() || '');
 		});
+
+		// Assert
 		expect(paths).toEqual([
 			'/Bookmarks bar/updateRaindrops',
 			'/Bookmarks bar/updateRaindrops/updateRaindrops'

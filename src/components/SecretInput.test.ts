@@ -24,6 +24,7 @@ it('renders SecretInput component with a label property', () => {
 });
 
 it('renders SecretInput component with a value property', async () => {
+	// Arrange
 	const user = userEvent.setup();
 	const { getByLabelText } = render(SecretInput, {
 		props: {
@@ -36,6 +37,7 @@ it('renders SecretInput component with a value property', async () => {
 		}
 	});
 
+	// Act + Assert
 	// Verify initial value and type
 	const input = getByLabelText('Secret Label') as HTMLInputElement;
 	expect(input.type).toBe('password');
@@ -50,6 +52,7 @@ it('renders SecretInput component with a value property', async () => {
 
 // NOTE: This test can't verify the value is actually "hidden" in component testing
 it('toggles secret visibility when button is clicked', async () => {
+	// Arrange
 	const user = userEvent.setup();
 	const { getByLabelText, getByRole } = render(SecretInput, {
 		props: {
@@ -65,6 +68,7 @@ it('toggles secret visibility when button is clicked', async () => {
 	const input = getByLabelText('Secret Label') as HTMLInputElement;
 	const toggleButton = getByRole('button');
 
+	// Act + Assert
 	// Initially, the input type should be 'password'
 	expect(input.type).toBe('password');
 

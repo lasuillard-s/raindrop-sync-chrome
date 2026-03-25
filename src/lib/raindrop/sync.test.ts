@@ -11,11 +11,16 @@ beforeEach(() => {
 
 describe('createTreeFromRaindrops', () => {
 	it('should create a tree structure from Raindrop.io collections', async () => {
-		const root = await createTreeFromRaindrops(raindropClient);
+		// Arrange
 		const paths: string[] = [];
+
+		// Act
+		const root = await createTreeFromRaindrops(raindropClient);
 		root.dfs((node) => {
 			paths.push(node.getFullPath().toString() || '');
 		});
+
+		// Assert
 		expect(paths).toEqual([
 			'/',
 			'/updateRaindrops',
