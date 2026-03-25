@@ -1,5 +1,7 @@
 import { SettingsStore } from '~/config';
 import {
+	ChromeAlarmScheduler,
+	type AlarmScheduler,
 	ChromeBookmarkNodeData,
 	ChromeBookmarkRepository,
 	createTreeFromChromeBookmarks
@@ -27,6 +29,7 @@ export class SyncManager {
 	settings: SettingsStore;
 	raindropClient: Raindrop;
 	repository: ChromeBookmarkRepository;
+	alarmScheduler: AlarmScheduler;
 
 	private listeners: SyncEventListener[] = [];
 
@@ -36,15 +39,18 @@ export class SyncManager {
 	 * @param opts.settings Settings store to get sync configuration and update sync state.
 	 * @param opts.repository Repository for browser bookmarks.
 	 * @param opts.raindropClient Raindrop.io client.
+	 * @param opts.alarmScheduler Alarm scheduler abstraction for auto-sync timing.
 	 */
 	constructor(opts?: {
 		settings?: SettingsStore;
 		repository?: ChromeBookmarkRepository;
 		raindropClient?: Raindrop;
+		alarmScheduler?: AlarmScheduler;
 	}) {
 		this.settings = opts?.settings ?? SettingsStore.getOrCreate();
 		this.repository = opts?.repository ?? new ChromeBookmarkRepository();
 		this.raindropClient = opts?.raindropClient ?? getClient();
+		this.alarmScheduler = opts?.alarmScheduler ?? new ChromeAlarmScheduler();
 	}
 
 	addListener(listener: SyncEventListener) {
@@ -353,7 +359,7 @@ export class SyncManager {
 	async scheduleAutoSync() {
 		console.debug('Scheduling auto-sync alarms');
 		const settingsSnapshot = await this.settings.snapshotReady();
-		await chrome.alarms.clearAll();
+		await this.alarmScheduler.clearAll();
 
 		if (settingsSnapshot.autoSyncEnabled !== true) {
 			console.info('Auto-sync is disabled');
@@ -371,6 +377,9 @@ export class SyncManager {
 		const periodInMinutes = settingsSnapshot.autoSyncIntervalInMinutes;
 
 		console.debug(`Scheduling alarms with delay: ${delayInMinutes}, period: ${periodInMinutes}`);
-		await chrome.alarms.create(SYNC_BOOKMARKS_ALARM_NAME, { delayInMinutes, periodInMinutes });
+		await this.alarmScheduler.create(SYNC_BOOKMARKS_ALARM_NAME, {
+			delayInMinutes,
+			periodInMinutes
+		});
 	}
 }

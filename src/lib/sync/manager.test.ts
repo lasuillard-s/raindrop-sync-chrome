@@ -1,6 +1,6 @@
 import { describe, expect, it, vi } from 'vitest';
 import type { SettingsStore } from '~/config';
-import type { ChromeBookmarkRepository } from '~/lib/browser/chrome';
+import type { AlarmScheduler, ChromeBookmarkRepository } from '~/lib/browser/chrome';
 import type { Raindrop } from '~/lib/raindrop/client';
 import { SYNC_BOOKMARKS_ALARM_NAME } from './constants';
 import type { SyncDiff } from './diff';
@@ -58,9 +58,13 @@ const createManager = (args?: {
 	const raindropClient = {
 		user: { getCurrentUser }
 	} as unknown as Raindrop;
+	const alarmScheduler = {
+		clearAll: vi.fn(async () => undefined),
+		create: vi.fn(async () => undefined)
+	} as AlarmScheduler;
 
-	const manager = new SyncManager({ settings, repository, raindropClient });
-	return { manager, settings, getCurrentUser };
+	const manager = new SyncManager({ settings, repository, raindropClient, alarmScheduler });
+	return { manager, settings, getCurrentUser, alarmScheduler };
 };
 
 describe('SyncManager.startSync', () => {
@@ -209,46 +213,30 @@ describe('SyncManager.shouldSync', () => {
 describe('SyncManager.scheduleAutoSync', () => {
 	it('clears alarms and does not create one when auto sync is disabled', async () => {
 		// Arrange
-		const { manager } = createManager({ autoSyncEnabled: false });
-		const clearAll = vi.fn(async () => undefined);
-		const create = vi.fn(async () => undefined);
-		Object.assign(chrome, {
-			alarms: {
-				clearAll,
-				create
-			}
-		});
+		const { manager, alarmScheduler } = createManager({ autoSyncEnabled: false });
 
 		// Act
 		await manager.scheduleAutoSync();
 
 		// Assert
-		expect(clearAll).toHaveBeenCalledTimes(1);
-		expect(create).not.toHaveBeenCalled();
+		expect(alarmScheduler.clearAll).toHaveBeenCalledTimes(1);
+		expect(alarmScheduler.create).not.toHaveBeenCalled();
 	});
 
 	it('creates recurring alarm with startup delay when enabled and execOnStartup is true', async () => {
 		// Arrange
-		const { manager } = createManager({
+		const { manager, alarmScheduler } = createManager({
 			autoSyncEnabled: true,
 			autoSyncExecOnStartup: true,
 			autoSyncIntervalInMinutes: 15
-		});
-		const clearAll = vi.fn(async () => undefined);
-		const create = vi.fn(async () => undefined);
-		Object.assign(chrome, {
-			alarms: {
-				clearAll,
-				create
-			}
 		});
 
 		// Act
 		await manager.scheduleAutoSync();
 
 		// Assert
-		expect(clearAll).toHaveBeenCalledTimes(1);
-		expect(create).toHaveBeenCalledWith(SYNC_BOOKMARKS_ALARM_NAME, {
+		expect(alarmScheduler.clearAll).toHaveBeenCalledTimes(1);
+		expect(alarmScheduler.create).toHaveBeenCalledWith(SYNC_BOOKMARKS_ALARM_NAME, {
 			delayInMinutes: 0,
 			periodInMinutes: 15
 		});
@@ -256,26 +244,18 @@ describe('SyncManager.scheduleAutoSync', () => {
 
 	it('creates recurring alarm without startup delay when enabled and execOnStartup is false', async () => {
 		// Arrange
-		const { manager } = createManager({
+		const { manager, alarmScheduler } = createManager({
 			autoSyncEnabled: true,
 			autoSyncExecOnStartup: false,
 			autoSyncIntervalInMinutes: 10
-		});
-		const clearAll = vi.fn(async () => undefined);
-		const create = vi.fn(async () => undefined);
-		Object.assign(chrome, {
-			alarms: {
-				clearAll,
-				create
-			}
 		});
 
 		// Act
 		await manager.scheduleAutoSync();
 
 		// Assert
-		expect(clearAll).toHaveBeenCalledTimes(1);
-		expect(create).toHaveBeenCalledWith(SYNC_BOOKMARKS_ALARM_NAME, {
+		expect(alarmScheduler.clearAll).toHaveBeenCalledTimes(1);
+		expect(alarmScheduler.create).toHaveBeenCalledWith(SYNC_BOOKMARKS_ALARM_NAME, {
 			delayInMinutes: undefined,
 			periodInMinutes: 10
 		});
