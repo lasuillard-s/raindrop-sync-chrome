@@ -7,6 +7,71 @@ afterEach(() => {
 	vi.clearAllMocks();
 });
 
+describe('Migration.shouldMigrate', () => {
+	it('returns false when unified settings already exist', async () => {
+		// Arrange
+		const get = vi.fn(async (keyOrKeys: string | string[]) => {
+			const key = Array.isArray(keyOrKeys) ? keyOrKeys[0] : keyOrKeys;
+			if (key === SettingsRepository.STORAGE_KEY) {
+				return {
+					[key]: JSON.stringify({ autoSyncEnabled: true })
+				};
+			}
+			return { [key]: undefined };
+		});
+
+		vi.stubGlobal('chrome', {
+			storage: {
+				sync: {
+					get,
+					set: vi.fn()
+				}
+			}
+		});
+
+		const migration = new Migration();
+
+		// Act
+		const shouldMigrate = await migration.shouldMigrate({
+			previousVersion: '0.5.0',
+			installedVersion: '0.6.1'
+		});
+
+		// Assert
+		expect(shouldMigrate).toBe(false);
+		expect(get).toHaveBeenCalledWith([SettingsRepository.STORAGE_KEY]);
+	});
+
+	it('returns true when unified settings do not exist yet', async () => {
+		// Arrange
+		const get = vi.fn(async (keyOrKeys: string | string[]) => {
+			const key = Array.isArray(keyOrKeys) ? keyOrKeys[0] : keyOrKeys;
+			return { [key]: undefined };
+		});
+
+		vi.stubGlobal('chrome', {
+			storage: {
+				sync: {
+					get,
+					set: vi.fn()
+				}
+			}
+		});
+
+		const migration = new Migration();
+
+		// Act
+		const shouldMigrate = await migration.shouldMigrate({
+			previousVersion: '0.5.0',
+			installedVersion: '0.6.1'
+		});
+
+		// Assert
+		expect(shouldMigrate).toBe(true);
+		expect(get).toHaveBeenCalledWith([SettingsRepository.STORAGE_KEY]);
+	});
+});
+
 describe('Migration.run', () => {
 	it('collects legacy keys and saves a normalized settings object', async () => {
 		// Arrange

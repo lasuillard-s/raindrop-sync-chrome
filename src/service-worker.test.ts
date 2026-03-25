@@ -124,6 +124,25 @@ describe('service worker installation flow', () => {
 		expect(scheduleAutoSync).toHaveBeenCalledTimes(1);
 	});
 
+	it('uses 0.0.0 as previousVersion when update event omits it', async () => {
+		// Arrange
+		const { installedListener, doMigrate, managementGetSelf } = await loadServiceWorker({
+			installedVersion: '0.6.1'
+		});
+
+		// Act
+		await installedListener({
+			reason: chrome.runtime.OnInstalledReason.UPDATE
+		});
+
+		// Assert
+		expect(managementGetSelf).toHaveBeenCalledTimes(1);
+		expect(doMigrate).toHaveBeenCalledWith({
+			previousVersion: '0.0.0',
+			installedVersion: '0.6.1'
+		});
+	});
+
 	it('skips migrations on install but still schedules auto sync', async () => {
 		// Arrange
 		const { installedListener, doMigrate, scheduleAutoSync, managementGetSelf } =

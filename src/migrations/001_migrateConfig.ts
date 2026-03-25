@@ -13,7 +13,7 @@ export class Migration extends MigrationBase {
 			return false;
 		}
 
-		return false;
+		return true;
 	}
 
 	// eslint-disable-next-line @typescript-eslint/no-unused-vars
