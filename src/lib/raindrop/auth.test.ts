@@ -23,11 +23,13 @@ describe(launchWebAuthFlow, () => {
 	});
 
 	it('conforms to OAuth 2.0 Authorization Code Flow', async () => {
+		// Arrange
 		vi.spyOn(rd.auth, 'exchangeToken').mockReturnValueOnce({
 			// @ts-expect-error Enough for mocking
 			data: tokenResponse
 		});
 
+		// Act
 		const result = await launchWebAuthFlow(
 			{
 				clientID: 'client-id',
@@ -35,6 +37,8 @@ describe(launchWebAuthFlow, () => {
 			},
 			rd
 		);
+
+		// Assert
 		expect(result).toEqual({
 			accessToken: '<ACCESS_TOKEN>',
 			refreshToken: '<REFRESH_TOKEN>',
@@ -44,10 +48,12 @@ describe(launchWebAuthFlow, () => {
 	});
 
 	it('throws an error if `responseURL` not provided', async () => {
+		// Arrange
 		vi.mocked(chrome.identity.launchWebAuthFlow).mockImplementationOnce(async () => {
 			return undefined;
 		});
 
+		// Act + Assert
 		await expect(
 			launchWebAuthFlow({
 				clientID: 'client-id',
@@ -57,10 +63,12 @@ describe(launchWebAuthFlow, () => {
 	});
 
 	it('throws an error if `code` not provided', async () => {
+		// Arrange
 		vi.mocked(chrome.identity.launchWebAuthFlow).mockImplementationOnce(async () => {
 			return 'https://extension-id.chromiumapp.org/?_code=authorization-code';
 		});
 
+		// Act + Assert
 		await expect(
 			launchWebAuthFlow({
 				clientID: 'client-id',

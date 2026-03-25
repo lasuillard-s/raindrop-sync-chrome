@@ -268,8 +268,13 @@ describe('updateBookmark', () => {
 
 describe('clearAllBookmarksInFolder', () => {
 	it('should clear all bookmarks in the specified folder', async () => {
-		await repository.clearAllBookmarksInFolder(await repository.getFolderById('1')); // 'Bookmarks bar' folder
+		// Arrange
+		const folder = await repository.getFolderById('1');
 
+		// Act
+		await repository.clearAllBookmarksInFolder(folder); // 'Bookmarks bar' folder
+
+		// Assert
 		// Verify that chrome.bookmarks.removeTree was called for each bookmark in the folder
 		expect(chrome.bookmarks.removeTree).toHaveBeenCalledTimes(4); // 4 bookmarks in 'Bookmarks bar'
 		expect(chrome.bookmarks.removeTree).toHaveBeenCalledWith('5');
@@ -281,6 +286,7 @@ describe('clearAllBookmarksInFolder', () => {
 
 describe('createBookmarksRecursively', () => {
 	it('should create bookmarks and necessary parent folders recursively', async () => {
+		// Arrange
 		const baseFolder = await repository.getFolderById('1');
 		const raindropClient = getClient();
 		const mockedRaindropClient = vi.mockObject(raindropClient);
@@ -523,11 +529,14 @@ describe('createBookmarksRecursively', () => {
 			}
 		]);
 
+		// Act
 		await repository.createBookmarksRecursively({
 			baseFolder,
 			tree: await mockedRaindropClient.collection.getCollectionTree(),
 			raindropClient: mockedRaindropClient
 		});
+
+		// Assert
 		expect(chrome.bookmarks.create).toHaveBeenCalledTimes(6);
 		expect(chrome.bookmarks.create).toHaveBeenCalledWith({
 			parentId: '1',

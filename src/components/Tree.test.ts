@@ -68,6 +68,7 @@ beforeEach(() => {
 });
 
 it('should render tree with children nodes recursively', async () => {
+	// Arrange
 	const { queryByTestId } = render(Tree, {
 		props: {
 			treeNode: tree,
@@ -76,6 +77,8 @@ it('should render tree with children nodes recursively', async () => {
 			}
 		}
 	});
+
+	// Assert
 	expect(queryByTestId('/')).toBeTruthy();
 	expect(queryByTestId('/Folder 1')).toBeTruthy();
 	expect(queryByTestId('/Folder 1/Bookmark 1-1')).toBeTruthy();
@@ -85,6 +88,7 @@ it('should render tree with children nodes recursively', async () => {
 });
 
 it('should render bookmark nodes with links and folders without links', () => {
+	// Arrange
 	const { getByTestId, queryByTestId } = render(Tree, {
 		props: {
 			treeNode: tree,
@@ -94,6 +98,7 @@ it('should render bookmark nodes with links and folders without links', () => {
 		}
 	});
 
+	// Assert
 	const rootLink = queryByTestId('/::link');
 	expect(rootLink).toBeNull();
 
@@ -114,6 +119,7 @@ it('should render bookmark nodes with links and folders without links', () => {
 });
 
 it('should display node title from nodeTitleOverride or treeNode.getName()', () => {
+	// Arrange
 	const { getByTestId } = render(Tree, {
 		props: {
 			treeNode: tree,
@@ -122,6 +128,7 @@ it('should display node title from nodeTitleOverride or treeNode.getName()', () 
 		}
 	});
 
+	// Assert
 	// Root node with overridden title
 	const rootNode = getByTestId('/');
 	expect(rootNode.textContent).toContain('Custom Root Title');
@@ -133,6 +140,7 @@ it('should display node title from nodeTitleOverride or treeNode.getName()', () 
 });
 
 it('should show/hide children with collapse toggle', async () => {
+	// Arrange
 	const user = userEvent.setup();
 	const { getByTestId, queryByTestId } = render(Tree, {
 		props: {
@@ -143,6 +151,7 @@ it('should show/hide children with collapse toggle', async () => {
 	});
 	const rootToggleButton = getByTestId('/::toggle');
 
+	// Act + Assert
 	// Initially, root is collapsed, so Folder 1 and Bookmark 2 should not be visible
 	expect(queryByTestId('/Folder 1')).toBeNull();
 	expect(queryByTestId('/Bookmark 2')).toBeNull();

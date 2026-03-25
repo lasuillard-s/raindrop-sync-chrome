@@ -5,6 +5,7 @@ import { TestNodeData } from '@test-helpers/tree';
 
 describe('NodeData', () => {
 	it('should return correct properties', () => {
+		// Arrange
 		const node = new TestNodeData({
 			id: 'test-id',
 			parentId: 'parent-id',
@@ -13,6 +14,7 @@ describe('NodeData', () => {
 			isFolder: true
 		});
 
+		// Assert
 		expect(node.getId()).toBe('test-id');
 		expect(node.getParentId()).toBe('parent-id');
 		expect(node.getName()).toBe('Test Node');
@@ -84,7 +86,10 @@ describe('TreeNode', () => {
 	});
 
 	it('should create tree with correct children structure', () => {
+		// Arrange
 		expect(tree).toBeDefined();
+
+		// Assert
 		expect(tree.getId()).toBe('root');
 		expect(tree.getName()).toBe('/');
 		expect(tree.getUrl()).toBe(null);
@@ -164,6 +169,7 @@ describe('TreeNode', () => {
 	});
 
 	it('ignore dangling nodes without valid parents', () => {
+		// Arrange
 		const danglingNode = new TestNodeData({
 			id: 'dangling',
 			parentId: 'non-existent',
@@ -171,14 +177,21 @@ describe('TreeNode', () => {
 			url: null,
 			isFolder: true
 		});
+
+		// Act + Assert
 		expect(() => TreeNode.createTree(rootData, [...exampleData, danglingNode])).not.toThrowError();
 	});
 
 	it('dfs() should traverse all nodes in depth-first order', () => {
+		// Arrange
 		const names: string[] = [];
+
+		// Act
 		tree.dfs((node) => {
 			names.push(node.getName() || '');
 		});
+
+		// Assert
 		expect(names).toEqual([
 			'/',
 			'Folder 1',
@@ -190,7 +203,10 @@ describe('TreeNode', () => {
 	});
 
 	it('toMap() should return correct path map', () => {
+		// Act
 		const pathMap = tree.toMap();
+
+		// Assert
 		expect(pathMap.size).toBe(6);
 		expect(Array.from(pathMap.keys()).map((path) => path.toString())).toEqual([
 			'/',
@@ -203,7 +219,10 @@ describe('TreeNode', () => {
 	});
 
 	it('toMap() with onlyTerminal=true should return path map with only terminal nodes', () => {
+		// Act
 		const pathMap = tree.toMap({ onlyTerminal: true });
+
+		// Assert
 		expect(pathMap.size).toBe(3);
 
 		const bookmark121Path = new Path({ pathString: '/Folder 1/Folder 1-2/Bookmark 1-2-1' });
@@ -223,6 +242,7 @@ describe('TreeNode', () => {
 	});
 
 	it('toMap() should throw PathConflictError if conflicting paths given', () => {
+		// Arrange
 		const tree = TreeNode.createTree(rootData, [
 			new TestNodeData({
 				id: '1',
@@ -239,6 +259,8 @@ describe('TreeNode', () => {
 				isFolder: true
 			})
 		]);
+
+		// Act + Assert
 		expect(() => {
 			tree.toMap();
 		}).toThrowError(PathConflictError);

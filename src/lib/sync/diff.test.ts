@@ -327,8 +327,13 @@ describe('SyncDiff', () => {
 	});
 
 	it('calculates differences between two tree structures', () => {
-		const diff = SyncDiff.calculateDiff(leftTree, rightTree);
+		// Arrange
 		const nodeToString = (node: TreeNode<NodeData>) => node.getFullPath().toString();
+
+		// Act
+		const diff = SyncDiff.calculateDiff(leftTree, rightTree);
+
+		// Assert
 		expect(diff.onlyInLeft.map(nodeToString)).toEqual(['/getAllHighlights']);
 		expect(diff.onlyInRight.map(nodeToString)).toEqual(['/Bookmarks bar/deleteMe']);
 		expect(
