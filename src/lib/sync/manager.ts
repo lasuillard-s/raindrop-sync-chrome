@@ -69,7 +69,7 @@ export class SyncManager {
 	 */
 	async validateBeforeSync() {
 		console.debug('Validating synchronization settings and prerequisites');
-		const settingsSnapshot = this.settings.snapshot;
+		const settingsSnapshot = await this.settings.snapshotReady();
 
 		// Verify that access token is set
 		if (!settingsSnapshot.accessToken) {
@@ -108,6 +108,7 @@ export class SyncManager {
 		console.debug(
 			'Checking if synchronization is needed based on last sync time and server updates'
 		);
+		await this.settings.ready();
 
 		// Case 1: Check if the last sync was successful
 		const now = new Date();
@@ -144,7 +145,8 @@ export class SyncManager {
 	 * @returns The current bookmark tree.
 	 */
 	async getCurrentBookmarkTree(): Promise<TreeNode<ChromeBookmarkNodeData>> {
-		const syncLocationId = this.settings.snapshot.syncLocation;
+		const settingsSnapshot = await this.settings.snapshotReady();
+		const syncLocationId = settingsSnapshot.syncLocation;
 		const syncLocation = await this.repository.getFolderById(syncLocationId);
 		return createTreeFromChromeBookmarks(syncLocation);
 	}
@@ -177,7 +179,8 @@ export class SyncManager {
 	 * @returns The generated SyncPlan object.
 	 */
 	async generateSyncPlan(diff: SyncDiff<RaindropNodeData, ChromeBookmarkNodeData>) {
-		const syncFolderId = this.settings.snapshot.syncLocation;
+		const settingsSnapshot = await this.settings.snapshotReady();
+		const syncFolderId = settingsSnapshot.syncLocation;
 		const syncFolder = await this.repository.getFolderById(syncFolderId);
 		console.debug(
 			`Sync folder found: ${syncFolder.title} (${syncFolder.id}); ${diff.right.getFullPathSegments()}`
@@ -232,7 +235,8 @@ export class SyncManager {
 		const treeNode = await this.raindropClient.collection.getCollectionTree();
 
 		// Get the sync folder
-		const syncFolderId = this.settings.snapshot.syncLocation;
+		const settingsSnapshot = await this.settings.snapshotReady();
+		const syncFolderId = settingsSnapshot.syncLocation;
 		const syncFolder = await this.repository.getFolderById(syncFolderId);
 		console.debug(`Sync folder found: ${syncFolder.title} (${syncFolder.id})`);
 
@@ -348,8 +352,7 @@ export class SyncManager {
 	 */
 	async scheduleAutoSync() {
 		console.debug('Scheduling auto-sync alarms');
-		await this.settings.ready();
-		const settingsSnapshot = this.settings.snapshot;
+		const settingsSnapshot = await this.settings.snapshotReady();
 		await chrome.alarms.clearAll();
 
 		if (settingsSnapshot.autoSyncEnabled !== true) {
