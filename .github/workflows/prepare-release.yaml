@@ -36,7 +36,7 @@ jobs:
           yarn version --new-version "$tag_no_v" --no-git-tag-version
 
       - name: Generate GitHub App token
-        uses: actions/create-github-app-token@v2
+        uses: actions/create-github-app-token@v3
         id: generate-token
         with:
           app-id: ${{ vars.GH_APP_ID }}
