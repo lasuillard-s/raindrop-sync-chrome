@@ -3,6 +3,7 @@ coverage/
 playwright-report/
 test-results/
 chrome-dev-profile/
+renovate.json
 
 .DS_Store
 node_modules
