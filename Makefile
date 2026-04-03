@@ -73,7 +73,7 @@ fix:  ## Autofix issues
 lint:  ## Run all linters
 	yarn run fmt:check
 	yarn run lint
-	yarn run typecheck
+	yarn run check
 .PHONY: lint
 
 test:  ## Run tests
