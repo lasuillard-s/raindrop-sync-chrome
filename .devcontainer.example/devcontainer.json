@@ -15,8 +15,8 @@
 	},
 	"overrideCommand": true,
 	"onCreateCommand": "./.devcontainer/onCreateCommand.sh",
-	"updateContentCommand": "./.devcontainer/updateContentCommand.sh",
 	"postStartCommand": "./.devcontainer/postStartCommand.sh",
+	"updateContentCommand": "./.devcontainer/updateContentCommand.sh",
 	"customizations": {
 		"vscode": {
 			"extensions": [
