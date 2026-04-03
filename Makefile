@@ -24,7 +24,6 @@ install:  ## Install deps and tools
 
 init:  ## Initialize the project workspace
 	pre-commit install --install-hooks
-	cp --no-clobber .env.example .env
 .PHONY: init
 
 update:  ## Update deps and tools
@@ -65,8 +64,11 @@ ci: lint test e2e  ## Run CI tasks
 
 fmt:  ## Run autoformatters
 	yarn run prettier --list-different --write .
-	yarn run eslint --fix .
 .PHONY: fmt
+
+fix:  ## Autofix issues
+	yarn run eslint --fix .
+.PHONY: fix
 
 lint:  ## Run all linters
 	yarn run prettier --check .

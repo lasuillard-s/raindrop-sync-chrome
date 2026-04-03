@@ -11,6 +11,8 @@ dummy-non-existing-folder/
 release/
 chrome-dev-profile/
 .envrc
+.devcontainer/
+.vscode/
 
 # User hook scripts for VSC devcontainer lifecycle
 .devcontainer/initializeCommand/
