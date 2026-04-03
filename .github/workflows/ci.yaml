@@ -23,13 +23,13 @@ jobs:
         run: yarn install --frozen-lockfile
 
       - name: Check code formatting
-        run: yarn run prettier --check .
+        run: yarn run fmt:check
 
       - name: Lint code
-        run: yarn run eslint .
+        run: yarn run lint
 
       - name: Run type checks
-        run: yarn run tsc --noEmit
+        run: yarn run typecheck
 
   test:
     runs-on: ubuntu-latest

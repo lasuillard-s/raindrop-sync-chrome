@@ -63,17 +63,17 @@ ci: lint test e2e  ## Run CI tasks
 .PHONY: ci
 
 fmt:  ## Run autoformatters
-	yarn run prettier --list-different --write .
+	yarn run fmt
 .PHONY: fmt
 
 fix:  ## Autofix issues
-	yarn run eslint --fix .
+	yarn run lint:fix
 .PHONY: fix
 
 lint:  ## Run all linters
-	yarn run prettier --check .
-	yarn run eslint .
-	yarn run tsc --noEmit
+	yarn run fmt:check
+	yarn run lint
+	yarn run typecheck
 .PHONY: lint
 
 test:  ## Run tests
