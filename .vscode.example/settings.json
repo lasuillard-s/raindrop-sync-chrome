@@ -1,0 +1,7 @@
+{
+	"files.associations": {
+		"**/*.css": "tailwindcss"
+	},
+	"playwright.updateSnapshots": "changed",
+	"svelte.enable-ts-plugin": true
+}

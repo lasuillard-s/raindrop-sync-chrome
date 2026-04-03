@@ -9,7 +9,9 @@
 	"shutdownAction": "stopCompose",
 	"features": {
 		"ghcr.io/devcontainers-extra/features/pre-commit:2": {},
-		"ghcr.io/devcontainers/features/docker-in-docker:2": {}
+		"ghcr.io/devcontainers/features/docker-in-docker:2": {
+			"moby": false
+		}
 	},
 	"overrideCommand": true,
 	"onCreateCommand": "./.devcontainer/onCreateCommand.sh",
@@ -20,9 +22,6 @@
 			"extensions": [
 				"dbaeumer.vscode-eslint",
 				"esbenp.prettier-vscode",
-				"ldez.ignore-files",
-				"redhat.vscode-yaml",
-				"streetsidesoftware.code-spell-checker",
 				"editorconfig.editorconfig",
 				"svelte.svelte-vscode",
 				"bradlc.vscode-tailwindcss",

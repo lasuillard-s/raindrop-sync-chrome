@@ -2,9 +2,6 @@
 	"recommendations": [
 		"dbaeumer.vscode-eslint",
 		"esbenp.prettier-vscode",
-		"ldez.ignore-files",
-		"redhat.vscode-yaml",
-		"streetsidesoftware.code-spell-checker",
 		"editorconfig.editorconfig",
 		"svelte.svelte-vscode",
 		"bradlc.vscode-tailwindcss",
