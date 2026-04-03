@@ -2,7 +2,7 @@ services:
   workspace:
     build:
       context: .
-      dockerfile: ./.devcontainer/Dockerfile
+      dockerfile: ./Dockerfile
     volumes:
       - google-chrome:/home/node/.config/google-chrome/Default
     environment:

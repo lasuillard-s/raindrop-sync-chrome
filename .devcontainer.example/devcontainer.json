@@ -1,6 +1,6 @@
 {
 	"name": "lasuillard-s/raindrop-sync-chrome",
-	"dockerComposeFile": ["../docker-compose.yaml", "./docker-compose.devcontainer.yaml"],
+	"dockerComposeFile": ["./docker-compose.devcontainer.yaml"],
 	"service": "workspace",
 	"mounts": [
 		"source=${localWorkspaceFolder},target=/workspaces/${localWorkspaceFolderBasename},type=bind,consistency=cached"
