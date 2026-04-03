@@ -12,7 +12,7 @@
 		"dev": "vite dev",
 		"build": "vite build",
 		"build:watch": "vite build --watch",
-		"fmt": "prettier --check --write .",
+		"fmt": "prettier --write .",
 		"fmt:check": "prettier --check .",
 		"lint": "eslint .",
 		"lint:fix": "eslint . --fix",
