@@ -33,7 +33,7 @@ export class ChromeStorageAdapter implements StorageAdapter {
 		if (stored === undefined) {
 			return undefined;
 		}
-		return JSON.parse(stored);
+		return JSON.parse(stored as string);
 	}
 
 	async set(key: string, value: unknown): Promise<void> {
