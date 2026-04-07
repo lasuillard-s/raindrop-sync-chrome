@@ -193,7 +193,7 @@ async function tryRefreshAccessToken(client: Raindrop, settings: SettingsStore):
 	} catch (err) {
 		console.debug('Failed to refresh access token, clearing tokens in settings');
 		await settings.update({ accessToken: '', refreshToken: '' });
-		throw new Error(`Failed to refresh access token: ${err}`);
+		throw new Error(`Failed to refresh access token: ${err}`, { cause: err });
 	}
 }
 
