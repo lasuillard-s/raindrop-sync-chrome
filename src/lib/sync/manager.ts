@@ -95,7 +95,9 @@ export class SyncManager {
 			} = await this.raindropClient.user.getCurrentUser();
 			console.debug('Verified access token for user:', user.email);
 		} catch (err) {
-			throw new Error(`Access token is invalid. Please re-authenticate with Raindrop.io: ${err}`);
+			throw new Error(`Access token is invalid. Please re-authenticate with Raindrop.io: ${err}`, {
+				cause: err
+			});
 		}
 	}
 

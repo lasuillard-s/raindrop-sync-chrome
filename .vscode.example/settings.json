@@ -1,0 +1,11 @@
+{
+	"editor.defaultFormatter": "esbenp.prettier-vscode",
+	"[json][jsonc][yaml][dockercompose]": {
+		"editor.defaultFormatter": "esbenp.prettier-vscode"
+	},
+	"files.associations": {
+		"**/*.css": "tailwindcss"
+	},
+	"playwright.updateSnapshots": "changed",
+	"svelte.enable-ts-plugin": true
+}

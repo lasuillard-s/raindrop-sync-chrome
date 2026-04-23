@@ -13,8 +13,8 @@ jobs:
     permissions:
       contents: read
     steps:
-      - uses: actions/checkout@v6
-      - uses: actions/setup-node@v6
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
+      - uses: actions/setup-node@53b83947a5a98c8d113130e565377fae1a50d02f # v6
         with:
           node-version-file: .node-version
           cache: yarn
@@ -23,13 +23,13 @@ jobs:
         run: yarn install --frozen-lockfile
 
       - name: Check code formatting
-        run: yarn run prettier --check .
+        run: yarn run fmt:check
 
       - name: Lint code
-        run: yarn run eslint .
+        run: yarn run lint
 
-      - name: Run type checks
-        run: yarn run tsc --noEmit
+      - name: Run check
+        run: yarn run check
 
   test:
     runs-on: ubuntu-latest
@@ -38,8 +38,8 @@ jobs:
       contents: read
       id-token: write
     steps:
-      - uses: actions/checkout@v6
-      - uses: actions/setup-node@v6
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
+      - uses: actions/setup-node@53b83947a5a98c8d113130e565377fae1a50d02f # v6
         with:
           node-version-file: .node-version
           cache: yarn
@@ -51,7 +51,7 @@ jobs:
         run: yarn run test
 
       - name: Upload test results to codecov
-        uses: codecov/codecov-action@v5
+        uses: codecov/codecov-action@57e3a136b779b570ffcdbf80b3bdc90e7fab3de2 # v6
         with:
           use_oidc: true
           fail_ci_if_error: false
@@ -60,7 +60,7 @@ jobs:
           flags: unit
 
       - name: Upload coverage report
-        uses: codecov/codecov-action@v5
+        uses: codecov/codecov-action@57e3a136b779b570ffcdbf80b3bdc90e7fab3de2 # v6
         with:
           use_oidc: true
           fail_ci_if_error: false
@@ -76,16 +76,16 @@ jobs:
       pull-requests: write
     steps:
       - name: Checkout
-        uses: actions/checkout@v6
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
 
       - name: Configure AWS credentials
-        uses: aws-actions/configure-aws-credentials@v6
+        uses: aws-actions/configure-aws-credentials@ec61189d14ec14c8efccab744f656cffd0e33f37 # v6
         with:
           aws-region: ${{ vars.AWS_REGION }}
           role-to-assume: ${{ secrets.AWS_ROLE_TO_ASSUME }}
 
       - name: Set up Node
-        uses: actions/setup-node@v6
+        uses: actions/setup-node@53b83947a5a98c8d113130e565377fae1a50d02f # v6
         with:
           node-version-file: .node-version
           cache: yarn
@@ -100,7 +100,7 @@ jobs:
         run: yarn run e2e-docker
 
       - name: Upload Playwright report to GitHub
-        uses: actions/upload-artifact@v7
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
         if: always()
         with:
           name: playwright-artifacts
@@ -126,7 +126,7 @@ jobs:
           EOF
 
       - name: Comment on PR
-        uses: thollander/actions-comment-pull-request@v3.0.1
+        uses: thollander/actions-comment-pull-request@24bffb9b452ba05a4f3f77933840a6a841d1b32b # v3.0.1
         if: always() && steps.upload-playwright-report-s3.outcome == 'success' && github.event_name == 'pull_request'
         with:
           comment-tag: playwright-report

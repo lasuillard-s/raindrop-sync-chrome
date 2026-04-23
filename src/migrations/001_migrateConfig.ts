@@ -41,7 +41,7 @@ export class Migration extends MigrationBase {
 			const value = (await chrome.storage.sync.get(oldKeyToUse))[oldKeyToUse];
 			if (value !== undefined) {
 				try {
-					newObj[key] = JSON.parse(value);
+					newObj[key] = JSON.parse(value as string);
 				} catch {
 					console.warn(`Failed to parse value for key "${oldKeyToUse}", using raw string value`);
 					newObj[key] = value;

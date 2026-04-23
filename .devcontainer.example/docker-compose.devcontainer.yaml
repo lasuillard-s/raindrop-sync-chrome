@@ -2,9 +2,8 @@ services:
   workspace:
     build:
       context: .
-      dockerfile: ./.devcontainer/Dockerfile
+      dockerfile: ./Dockerfile
     volumes:
-      - ..:/workspaces/raindrop-sync-chrome
       - google-chrome:/home/node/.config/google-chrome/Default
     environment:
       CONTAINER: 1
@@ -16,7 +15,7 @@ services:
     shm_size: 2gb
 
   novnc:
-    image: theasp/novnc@sha256:baef5751fdf8416f4729c5cb09ff565b6eabf6079e1919e9aab71eecf1824eac
+    image: theasp/novnc@sha256:49a5f119fe356d32dbcf21c037f174275a69067e890fb067c995a245833a2fee
     profiles:
       - novnc
     environment:
