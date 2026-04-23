@@ -1,4 +1,4 @@
-import { expect, test } from '^/e2e/fixtures';
+import { expect, test } from '../fixtures';
 
 test('page title should be extension name', async ({ page, extensionId }) => {
 	await page.goto(`chrome-extension://${extensionId}/src/popup/index.html`);

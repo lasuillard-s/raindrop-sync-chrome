@@ -1,4 +1,4 @@
-import { expect, test } from '^/e2e/fixtures';
+import { expect, test } from './fixtures';
 
 test.describe('manifest', async () => {
 	test('exposes expected manifest fields in extension context', async ({ page, extensionId }) => {

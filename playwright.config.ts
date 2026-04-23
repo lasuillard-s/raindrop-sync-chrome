@@ -1,8 +1,8 @@
-import type { PlaywrightTestConfig } from '@playwright/test';
+import { defineConfig } from '@playwright/test';
 
 const isCI = !!process.env.CI;
 
-export default {
+export default defineConfig({
 	use: {
 		screenshot: isCI ? 'on' : 'only-on-failure',
 		video: isCI ? 'on' : 'retain-on-failure',
@@ -30,4 +30,4 @@ export default {
 			// ? Perhaps `fullPage` option is not supported here?
 		}
 	}
-} satisfies PlaywrightTestConfig;
+});

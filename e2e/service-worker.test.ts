@@ -1,4 +1,4 @@
-import { expect, test } from '^/e2e/fixtures';
+import { expect, test } from './fixtures';
 
 test.describe('service worker', async () => {
 	test('registers extension service worker', async ({ context, extensionId }) => {
