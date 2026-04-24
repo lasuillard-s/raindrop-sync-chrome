@@ -5,6 +5,10 @@ import { createRawSnippet } from 'svelte';
 import { expect, it } from 'vitest';
 import SecretInput from '~/components/SecretInput.svelte';
 
+const labelSnippet = createRawSnippet(() => ({
+	render: () => '<span>Secret Label</span>'
+}));
+
 it('renders SecretInput component without any properties', () => {
 	const { container } = render(SecretInput);
 	expect(container).toBeTruthy();
@@ -13,11 +17,7 @@ it('renders SecretInput component without any properties', () => {
 it('renders SecretInput component with a label property', () => {
 	const { getByText } = render(SecretInput, {
 		props: {
-			children: createRawSnippet(() => {
-				return {
-					render: () => 'Secret Label'
-				};
-			})
+			children: labelSnippet
 		}
 	});
 	expect(getByText('Secret Label')).toBeTruthy();
@@ -28,11 +28,7 @@ it('renders SecretInput component with a value property', async () => {
 	const user = userEvent.setup();
 	const { getByLabelText } = render(SecretInput, {
 		props: {
-			children: createRawSnippet(() => {
-				return {
-					render: () => 'Secret Label'
-				};
-			}),
+			children: labelSnippet,
 			value: 'my-secret-value'
 		}
 	});
@@ -56,11 +52,7 @@ it('toggles secret visibility when button is clicked', async () => {
 	const user = userEvent.setup();
 	const { getByLabelText, getByRole } = render(SecretInput, {
 		props: {
-			children: createRawSnippet(() => {
-				return {
-					render: () => 'Secret Label'
-				};
-			}),
+			children: labelSnippet,
 			value: 'my-secret-value'
 		}
 	});

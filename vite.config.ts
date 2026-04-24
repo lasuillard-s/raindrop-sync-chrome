@@ -13,7 +13,8 @@ export default defineConfig(({ mode }) => {
 		tailwindcss(),
 		svelte({
 			compilerOptions: {
-				dev: mode === 'development'
+				dev: mode === 'development',
+				runes: true
 			}
 		})
 	] as any[];
