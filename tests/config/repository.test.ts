@@ -1,7 +1,7 @@
 import { describe, expect, it, vi } from 'vitest';
-import type { StorageAdapter } from './adapter';
-import { SettingsRepository } from './repository';
-import { DEFAULT_SETTINGS } from './settings';
+import type { StorageAdapter } from '~/config/adapter';
+import { SettingsRepository } from '~/config/repository';
+import { DEFAULT_SETTINGS } from '~/config/settings';
 
 type AdapterDouble = {
 	adapter: StorageAdapter;

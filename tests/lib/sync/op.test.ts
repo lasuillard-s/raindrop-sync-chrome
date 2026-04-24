@@ -1,7 +1,7 @@
 import { describe, expect, it, vi } from 'vitest';
 import type { ChromeBookmarkRepository } from '~/lib/browser';
 import { Path } from '~/lib/util/path';
-import { SyncOpAdd, SyncOpDelete, SyncOpNoop, SyncOpUpdate } from './op';
+import { SyncOpAdd, SyncOpDelete, SyncOpNoop, SyncOpUpdate } from '~/lib/sync/op';
 
 /**
  * Creates a minimal repository double for sync operation tests.

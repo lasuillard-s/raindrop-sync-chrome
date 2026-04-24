@@ -1,6 +1,6 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { launchWebAuthFlow } from './auth';
-import { Raindrop } from './client';
+import { launchWebAuthFlow } from '~/lib/raindrop/auth';
+import { Raindrop } from '~/lib/raindrop/client';
 
 const tokenResponse = {
 	access_token: '<ACCESS_TOKEN>',

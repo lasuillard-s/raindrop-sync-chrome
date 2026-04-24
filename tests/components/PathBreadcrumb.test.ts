@@ -1,7 +1,7 @@
 // @vitest-environment happy-dom
 import { render } from '@testing-library/svelte';
 import { expect, it } from 'vitest';
-import PathBreadcrumb from './PathBreadcrumb.svelte';
+import PathBreadcrumb from '~/components/PathBreadcrumb.svelte';
 
 it('renders component with pathSegments', async () => {
 	const { getByTestId, queryByTestId } = render(PathBreadcrumb, {

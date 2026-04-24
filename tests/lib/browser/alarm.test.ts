@@ -1,5 +1,5 @@
 import { afterEach, describe, expect, it, vi } from 'vitest';
-import { ChromeAlarmScheduler } from './alarm';
+import { ChromeAlarmScheduler } from '~/lib/browser/alarm';
 
 afterEach(() => {
 	vi.unstubAllGlobals();

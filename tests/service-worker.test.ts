@@ -78,7 +78,7 @@ async function loadServiceWorker(args?: {
 		}
 	});
 
-	await import('./service-worker');
+	await import('~/service-worker');
 
 	return {
 		installedListener: installedListeners[0],

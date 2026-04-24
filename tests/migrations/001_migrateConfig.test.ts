@@ -1,6 +1,6 @@
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { SettingsRepository } from '~/config';
-import { Migration } from './001_migrateConfig';
+import { Migration } from '~/migrations/001_migrateConfig';
 
 afterEach(() => {
 	vi.unstubAllGlobals();

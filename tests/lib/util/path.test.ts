@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { Path, PathMap } from './path';
+import { Path, PathMap } from '~/lib/util/path';
 
 describe('Path', () => {
 	it('constructs from segments correctly', () => {

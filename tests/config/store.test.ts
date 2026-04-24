@@ -1,7 +1,7 @@
 import { describe, expect, it, vi } from 'vitest';
-import type { SettingsRepository } from './repository';
-import { DEFAULT_SETTINGS, type Settings } from './settings';
-import { SettingsStore } from './store';
+import type { SettingsRepository } from '~/config/repository';
+import { DEFAULT_SETTINGS, type Settings } from '~/config/settings';
+import { SettingsStore } from '~/config/store';
 
 describe('SettingsStore', () => {
 	it('snapshotReady loads settings and returns loaded snapshot', async () => {

@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { isUrlSafeHref, normalizeUrl } from './string';
+import { isUrlSafeHref, normalizeUrl } from '~/lib/util/string';
 
 describe('normalizeUrl', () => {
 	it('trims whitespace from the URL', () => {

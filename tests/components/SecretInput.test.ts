@@ -3,7 +3,7 @@ import { render } from '@testing-library/svelte';
 import userEvent from '@testing-library/user-event';
 import { createRawSnippet } from 'svelte';
 import { expect, it } from 'vitest';
-import SecretInput from './SecretInput.svelte';
+import SecretInput from '~/components/SecretInput.svelte';
 
 it('renders SecretInput component without any properties', () => {
 	const { container } = render(SecretInput);

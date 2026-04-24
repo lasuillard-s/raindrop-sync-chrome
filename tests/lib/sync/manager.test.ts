@@ -2,10 +2,10 @@ import { describe, expect, it, vi } from 'vitest';
 import type { SettingsStore } from '~/config';
 import type { AlarmScheduler, ChromeBookmarkRepository } from '~/lib/browser';
 import type { Raindrop } from '~/lib/raindrop/client';
-import { SYNC_BOOKMARKS_ALARM_NAME } from './constants';
-import type { SyncDiff } from './diff';
-import type { SyncEvent, SyncEventListener } from './event-listener';
-import { SyncManager } from './manager';
+import { SYNC_BOOKMARKS_ALARM_NAME } from '~/lib/sync/constants';
+import type { SyncDiff } from '~/lib/sync/diff';
+import type { SyncEvent, SyncEventListener } from '~/lib/sync/event-listener';
+import { SyncManager } from '~/lib/sync/manager';
 
 class CapturingListener implements SyncEventListener {
 	events: SyncEvent[] = [];

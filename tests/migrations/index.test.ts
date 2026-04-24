@@ -1,10 +1,10 @@
 import { afterEach, describe, expect, it, vi } from 'vitest';
-import type { MigrationContext } from './types';
+import type { MigrationContext } from '~/migrations/types';
 
 afterEach(() => {
 	vi.resetModules();
 	vi.clearAllMocks();
-	vi.doUnmock('./001_migrateConfig');
+	vi.doUnmock('~/migrations/001_migrateConfig');
 });
 
 /**
@@ -17,7 +17,7 @@ async function loadDoMigrate(args?: { shouldMigrate?: boolean }) {
 	const shouldMigrate = vi.fn(async () => args?.shouldMigrate ?? true);
 	const run = vi.fn(async () => undefined);
 
-	vi.doMock('./001_migrateConfig', () => ({
+	vi.doMock('~/migrations/001_migrateConfig', () => ({
 		Migration: class {
 			name = '001 - Migrate Config';
 			description = 'Migrate configuration from individual keys to a single settings object';
@@ -26,7 +26,7 @@ async function loadDoMigrate(args?: { shouldMigrate?: boolean }) {
 		}
 	}));
 
-	const module = await import('./index');
+	const module = await import('~/migrations/index');
 
 	return {
 		doMigrate: module.doMigrate,

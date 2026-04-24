@@ -1,7 +1,11 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { getClient } from '~/lib/raindrop/client';
 import { Path } from '~/lib/util/path';
-import { BookmarkNotFoundError, ChromeBookmarkRepository, FolderNotFoundError } from './repository';
+import {
+	BookmarkNotFoundError,
+	ChromeBookmarkRepository,
+	FolderNotFoundError
+} from '~/lib/browser/repository';
 
 let repository: ChromeBookmarkRepository;
 

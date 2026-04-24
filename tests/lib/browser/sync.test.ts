@@ -1,6 +1,6 @@
 import { beforeEach, describe, expect, it } from 'vitest';
-import { ChromeBookmarkRepository } from './repository';
-import { createTreeFromChromeBookmarks } from './sync';
+import { ChromeBookmarkRepository } from '~/lib/browser/repository';
+import { createTreeFromChromeBookmarks } from '~/lib/browser/sync';
 
 let repository: ChromeBookmarkRepository;
 
