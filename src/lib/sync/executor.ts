@@ -1,4 +1,4 @@
-import type { ChromeBookmarkRepository } from '~/lib/browser/chrome';
+import type { ChromeBookmarkRepository } from '~/lib/browser';
 import type { SyncPlan } from './plan';
 
 export class SyncExecutor {

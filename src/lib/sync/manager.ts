@@ -1,14 +1,15 @@
 import { SettingsStore } from '~/config';
 import {
 	ChromeAlarmScheduler,
-	type AlarmScheduler,
 	ChromeBookmarkNodeData,
 	ChromeBookmarkRepository,
-	createTreeFromChromeBookmarks
-} from '~/lib/browser/chrome';
+	createTreeFromChromeBookmarks,
+	type AlarmScheduler
+} from '~/lib/browser';
 import { createTreeFromRaindrops, getClient, type RaindropNodeData } from '~/lib/raindrop';
 import type { Raindrop } from '~/lib/raindrop/client';
 import { Path } from '~/lib/util/path';
+import { SYNC_BOOKMARKS_ALARM_NAME } from './constants';
 import { SyncDiff } from './diff';
 import type { SyncEvent, SyncEventListener } from './event-listener';
 import {
@@ -17,7 +18,6 @@ import {
 	SyncEventProgress,
 	SyncEventStart
 } from './event-listener';
-import { SYNC_BOOKMARKS_ALARM_NAME } from './constants';
 import { SyncExecutor } from './executor';
 import { SyncPlan } from './plan';
 import { TreeNode } from './tree';

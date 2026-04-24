@@ -1,6 +1,6 @@
 import { describe, expect, it, vi } from 'vitest';
 import type { SettingsStore } from '~/config';
-import type { AlarmScheduler, ChromeBookmarkRepository } from '~/lib/browser/chrome';
+import type { AlarmScheduler, ChromeBookmarkRepository } from '~/lib/browser';
 import type { Raindrop } from '~/lib/raindrop/client';
 import { SYNC_BOOKMARKS_ALARM_NAME } from './constants';
 import type { SyncDiff } from './diff';

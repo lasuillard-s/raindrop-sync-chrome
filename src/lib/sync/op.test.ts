@@ -1,5 +1,5 @@
 import { describe, expect, it, vi } from 'vitest';
-import type { ChromeBookmarkRepository } from '~/lib/browser/chrome';
+import type { ChromeBookmarkRepository } from '~/lib/browser';
 import { Path } from '~/lib/util/path';
 import { SyncOpAdd, SyncOpDelete, SyncOpNoop, SyncOpUpdate } from './op';
 

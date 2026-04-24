@@ -1,4 +1,4 @@
-import type { ChromeBookmarkRepository } from '~/lib/browser/chrome';
+import type { ChromeBookmarkRepository } from '~/lib/browser';
 import { Path } from '~/lib/util/path';
 
 export abstract class SyncOp {

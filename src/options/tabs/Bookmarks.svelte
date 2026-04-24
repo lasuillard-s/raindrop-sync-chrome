@@ -18,7 +18,7 @@
 	import PathBreadcrumb from '~/components/PathBreadcrumb.svelte';
 	import Tree from '~/components/Tree.svelte';
 	import { SettingsStore } from '~/config';
-	import type { ChromeBookmarkNodeData } from '~/lib/browser/chrome';
+	import type { ChromeBookmarkNodeData } from '~/lib/browser';
 	import { putMessage } from '~/lib/messages';
 	import { RaindropNodeData } from '~/lib/raindrop';
 	import type { SyncEvent, SyncEventListener, TreeNode } from '~/lib/sync';

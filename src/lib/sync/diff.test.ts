@@ -1,5 +1,5 @@
 import { beforeEach, describe, expect, it } from 'vitest';
-import { ChromeBookmarkNodeData } from '~/lib/browser/chrome';
+import { ChromeBookmarkNodeData } from '~/lib/browser';
 import { RaindropNodeData } from '~/lib/raindrop';
 import { NodeData, TreeNode } from '~/lib/sync/tree';
 import { SyncDiff } from './diff';
