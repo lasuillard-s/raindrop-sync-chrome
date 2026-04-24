@@ -1,4 +1,5 @@
 import { generated } from '@lasuillard/raindrop-client';
+import { buildTreeFromSource, type TreeSourceAdapter } from '~/lib/bookmark/source';
 import { NodeData, TreeNode } from '~/lib/sync/tree'; // Be careful for recursive import
 import { normalizeUrl } from '~/lib/util/string';
 import type { Raindrop } from './client';
@@ -65,6 +66,32 @@ export class RaindropNodeData extends NodeData {
 	}
 }
 
+const createRaindropTreeSource = (
+	raindropClient: Raindrop
+): TreeSourceAdapter<RaindropNodeData> => ({
+	async loadNodes() {
+		const [{ data: groups }, { data: collections }, raindrops] = await Promise.all([
+			raindropClient.collection.getRootCollections(),
+			raindropClient.collection.getChildCollections(),
+			raindropClient.getAllRaindrops(0 /* ALL */)
+		]);
+
+		const groupNodes = groups.items.map((group) => new RaindropNodeData(group));
+		const collectionNodes = collections.items.map((collection) => new RaindropNodeData(collection));
+		const raindropNodes = raindrops.map((raindrop) => new RaindropNodeData({ ...raindrop }));
+
+		// Merge all nodes
+		return [...groupNodes, ...collectionNodes, ...raindropNodes];
+	},
+	postProcess(nodes) {
+		// Deduplicate items
+		// ? Need to check and update the API client to avoid duplicates in the first place
+		return nodes.filter(
+			(left, index, self) => index === self.findIndex((right) => right.getId() === left.getId())
+		);
+	}
+});
+
 /**
  * Creates a tree structure from Raindrop.io collections.
  * @param raindropClient Raindrop.io client
@@ -73,27 +100,10 @@ export class RaindropNodeData extends NodeData {
 export async function createTreeFromRaindrops(
 	raindropClient: Raindrop
 ): Promise<TreeNode<RaindropNodeData>> {
-	const [{ data: groups }, { data: collections }, raindrops] = await Promise.all([
-		raindropClient.collection.getRootCollections(),
-		raindropClient.collection.getChildCollections(),
-		raindropClient.getAllRaindrops(0 /* ALL */)
-	]);
-
-	const groupNodes = groups.items.map((group) => new RaindropNodeData(group));
-	const collectionNodes = collections.items.map((collection) => new RaindropNodeData(collection));
-	const raindropNodes = raindrops.map((raindrop) => new RaindropNodeData({ ...raindrop }));
-
-	// Merge all nodes
-	const allNodes = [...groupNodes, ...collectionNodes, ...raindropNodes];
-
-	// Deduplicate items
-	// ? Need to check and update the API client to avoid duplicates in the first place
-	const uniqueNodes = allNodes.filter(
-		(left, index, self) => index === self.findIndex((right) => right.getId() === left.getId())
-	);
-
 	// TODO(#165): Sort nodes as same in raindrop.io; pending for check & review
 	// allNodes.sort((a, b) => a.rawData.sort.toString().localeCompare(b.rawData.sort.toString()));
 
-	return TreeNode.createTree(null, uniqueNodes);
+	return await buildTreeFromSource(createRaindropTreeSource(raindropClient), {
+		unwrapRoot: false
+	});
 }

@@ -1,4 +1,5 @@
 import { ChromeStorageAdapter, Settings, SettingsRepository } from '~/config';
+import { defaultBrowserProxy } from '~/lib/browser';
 import { MigrationBase, type MigrationContext } from './types';
 
 export class Migration extends MigrationBase {
@@ -38,7 +39,7 @@ export class Migration extends MigrationBase {
 		for (const [key, oldKey] of keysToMigrate) {
 			const oldKeyToUse = oldKey ?? key;
 			console.debug(`Migrating setting "${key}" from old key "${oldKeyToUse}"`);
-			const value = (await chrome.storage.sync.get(oldKeyToUse))[oldKeyToUse];
+			const value = await defaultBrowserProxy.storage.getSyncRaw(oldKeyToUse);
 			if (value !== undefined) {
 				try {
 					newObj[key] = JSON.parse(value as string);

@@ -1,3 +1,4 @@
+import { buildTreeFromSource, type TreeSourceAdapter } from '~/lib/bookmark/source';
 import { NodeData, TreeNode } from '~/lib/sync/tree';
 import { normalizeUrl } from '~/lib/util/string';
 
@@ -42,6 +43,27 @@ export class ChromeBookmarkNodeData extends NodeData {
 	}
 }
 
+const chromeBookmarkTreeSource: TreeSourceAdapter<ChromeBookmarkNodeData> = {
+	async loadNodes() {
+		const tree = await chrome.bookmarks.getTree();
+		const root = tree[0];
+
+		const dataList = [];
+		const queue = [root];
+		while (queue.length > 0) {
+			const node = queue.shift()!;
+			dataList.push(new ChromeBookmarkNodeData(node));
+			if (node.children) {
+				for (const child of node.children) {
+					queue.push(child);
+				}
+			}
+		}
+
+		return dataList;
+	}
+};
+
 /**
  * Creates a tree structure from Chrome bookmarks.
  * @param base Optional base node to start from
@@ -50,38 +72,13 @@ export class ChromeBookmarkNodeData extends NodeData {
 export async function createTreeFromChromeBookmarks(
 	base?: chrome.bookmarks.BookmarkTreeNode
 ): Promise<TreeNode<ChromeBookmarkNodeData>> {
-	const tree = await chrome.bookmarks.getTree();
-	const root = tree[0];
+	const missingBaseMessage = base
+		? `Failed to locate the base node (${base.id}) in the created tree`
+		: undefined;
 
-	// Perform BFS to flatten the tree
-	const dataList = [];
-	const queue = [root];
-	while (queue.length > 0) {
-		const node = queue.shift()!;
-		dataList.push(new ChromeBookmarkNodeData(node));
-		if (node.children) {
-			for (const child of node.children) {
-				queue.push(child);
-			}
-		}
-	}
-
-	// Unwrap redundant root wrapper added during tree creation
-	const rootWrapper = TreeNode.createTree(null, dataList);
-	if (!base) {
-		const innerRoot = rootWrapper.children[0];
-		return innerRoot;
-	}
-
-	// Locate the base node in the created tree
-	let baseNode: TreeNode<ChromeBookmarkNodeData> | undefined;
-	rootWrapper.dfs((node) => {
-		if (node.getId() === base?.id && !baseNode) {
-			baseNode = node;
-		}
+	return await buildTreeFromSource(chromeBookmarkTreeSource, {
+		baseNodeId: base?.id,
+		unwrapRoot: true,
+		missingBaseMessage
 	});
-	if (baseNode === undefined) {
-		throw new Error(`Failed to locate the base node (${base.id}) in the created tree`);
-	}
-	return baseNode;
 }

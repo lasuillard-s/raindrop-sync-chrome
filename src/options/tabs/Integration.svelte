@@ -4,14 +4,15 @@
 	import imgCNA2 from '~/assets/raindrop-create-new-app-2.png';
 	import SecretInput from '~/components/SecretInput.svelte';
 	import { SettingsStore } from '~/config';
+	import { defaultBrowserProxy } from '~/lib/browser';
 	import { putMessage } from '~/lib/messages';
 	import { launchWebAuthFlow as _launchWebAuthFlow } from '~/lib/raindrop/auth';
 
 	const settings = SettingsStore.getOrCreate();
 	const settingsSnapshot = settings.snapshot;
 
-	const extensionId = chrome.runtime.id;
-	const extensionDescription = chrome.runtime.getManifest().description;
+	const extensionId = defaultBrowserProxy.runtime.getId();
+	const extensionDescription = defaultBrowserProxy.runtime.getManifest().description;
 
 	// Create reactive bindings from unified settings store
 	let clientId = $state(settingsSnapshot.clientId);

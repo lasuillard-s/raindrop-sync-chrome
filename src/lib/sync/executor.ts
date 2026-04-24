@@ -1,11 +1,11 @@
-import type { ChromeBookmarkRepository } from '~/lib/browser';
+import type { WritableBookmarkRepository } from '~/lib/browser';
 import type { SyncPlan } from './plan';
 
 export class SyncExecutor {
-	repository: ChromeBookmarkRepository;
+	repository: WritableBookmarkRepository;
 	plan: SyncPlan;
 
-	constructor(opts: { repository: ChromeBookmarkRepository; plan: SyncPlan }) {
+	constructor(opts: { repository: WritableBookmarkRepository; plan: SyncPlan }) {
 		this.repository = opts.repository;
 		this.plan = opts.plan;
 	}

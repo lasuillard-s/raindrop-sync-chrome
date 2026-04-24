@@ -18,7 +18,7 @@
 	import PathBreadcrumb from '~/components/PathBreadcrumb.svelte';
 	import Tree from '~/components/Tree.svelte';
 	import { SettingsStore } from '~/config';
-	import type { ChromeBookmarkNodeData } from '~/lib/browser';
+	import { defaultBrowserProxy, type ChromeBookmarkNodeData } from '~/lib/browser';
 	import { putMessage } from '~/lib/messages';
 	import { RaindropNodeData } from '~/lib/raindrop';
 	import type { SyncEvent, SyncEventListener, TreeNode } from '~/lib/sync';
@@ -173,7 +173,7 @@
 		void (async () => {
 			// Load bookmark folders for sync location selection.
 			await settings.init();
-			const bookmarksTree = (await chrome.bookmarks.getTree()) || [];
+			const bookmarksTree = (await defaultBrowserProxy.bookmarks.getTree()) || [];
 			if (!bookmarksTree[0]?.children) {
 				putMessage({ type: 'error', message: 'No bookmark folders found.' });
 				console.error('No bookmark folders found.');

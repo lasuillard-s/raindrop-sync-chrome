@@ -1,8 +1,8 @@
-import type { ChromeBookmarkRepository } from '~/lib/browser';
+import type { WritableBookmarkRepository } from '~/lib/browser';
 import { Path } from '~/lib/util/path';
 
 export abstract class SyncOp {
-	abstract apply(repository: ChromeBookmarkRepository): Promise<void>;
+	abstract apply(repository: WritableBookmarkRepository): Promise<void>;
 }
 
 export class SyncOpNoop extends SyncOp {
@@ -16,7 +16,7 @@ export class SyncOpNoop extends SyncOp {
 	}
 
 	// eslint-disable-next-line @typescript-eslint/no-unused-vars
-	async apply(repository: ChromeBookmarkRepository) {
+	async apply(repository: WritableBookmarkRepository) {
 		// No operation needed for noop
 		console.debug('Applying SyncOpNoop for path:', this.args.path);
 	}
@@ -34,7 +34,7 @@ export class SyncOpAdd extends SyncOp {
 		this.args = args;
 	}
 
-	async apply(repository: ChromeBookmarkRepository) {
+	async apply(repository: WritableBookmarkRepository) {
 		console.debug('Applying SyncOpAdd for path:', this.args.path);
 		await repository.createBookmark(
 			this.args.path,
@@ -61,7 +61,7 @@ export class SyncOpUpdate extends SyncOp {
 		this.args = args;
 	}
 
-	async apply(repository: ChromeBookmarkRepository) {
+	async apply(repository: WritableBookmarkRepository) {
 		console.debug('Applying SyncOpUpdate for path:', this.args.path);
 		await repository.updateBookmark(this.args.path, {
 			title: this.args.title,
@@ -80,7 +80,7 @@ export class SyncOpDelete extends SyncOp {
 		this.args = args;
 	}
 
-	async apply(repository: ChromeBookmarkRepository) {
+	async apply(repository: WritableBookmarkRepository) {
 		console.debug('Applying SyncOpDelete for path:', this.args.path);
 		await repository.deleteBookmark(this.args.path);
 	}

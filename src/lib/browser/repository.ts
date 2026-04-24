@@ -1,6 +1,7 @@
 import type { generated, utils } from '@lasuillard/raindrop-client';
 import type { Raindrop } from '~/lib/raindrop/client';
 import { Path } from '~/lib/util/path';
+import { defaultBrowserProxy, type BookmarkService, type BrowserProxy } from './proxy';
 
 export class FolderNotFoundError extends Error {
 	constructor(message: string) {
@@ -18,12 +19,57 @@ export class BookmarkNotFoundError extends Error {
 	}
 }
 
+export interface ReadableBookmarkRepository {
+	getFolderById(id: string): Promise<chrome.bookmarks.BookmarkTreeNode>;
+	findFolderById(id: string): Promise<chrome.bookmarks.BookmarkTreeNode | null>;
+	getBookmarkByPath(path: Path): Promise<chrome.bookmarks.BookmarkTreeNode>;
+	findBookmarkByPath(path: Path): Promise<chrome.bookmarks.BookmarkTreeNode | null>;
+	isBookmarkFolder(node: chrome.bookmarks.BookmarkTreeNode): boolean;
+}
+
+export interface WritableBookmarkRepository {
+	createFolder(
+		path: Path,
+		options?: { createParentIfNotExists?: boolean }
+	): Promise<chrome.bookmarks.BookmarkTreeNode>;
+	createBookmark(
+		path: Path,
+		args: {
+			title: string;
+			url: string;
+		},
+		options?: {
+			createParentIfNotExists?: boolean;
+		}
+	): Promise<chrome.bookmarks.BookmarkTreeNode>;
+	deleteBookmark(path: Path): Promise<void>;
+	updateBookmark(
+		path: Path,
+		args: {
+			title?: string;
+			url?: string;
+		}
+	): Promise<chrome.bookmarks.BookmarkTreeNode>;
+	clearAllBookmarksInFolder(folder: chrome.bookmarks.BookmarkTreeNode): Promise<void>;
+	createBookmarksRecursively(opts: {
+		baseFolder: chrome.bookmarks.BookmarkTreeNode;
+		tree: utils.tree.TreeNode<generated.Collection | null>;
+		raindropClient: Raindrop;
+	}): Promise<void>;
+}
+
 // TODO(lasuillard): Current implementation does not check for type of bookmark nodes (folder vs bookmark).
 //                   This should be handled properly in future implementations to avoid potential issues.
 /**
- * Repository for Chrome bookmarks.
+ * Read-only repository for Chrome bookmarks.
  */
-export class ChromeBookmarkRepository {
+export class ChromeReadableBookmarkRepository implements ReadableBookmarkRepository {
+	protected readonly bookmarks: BookmarkService;
+
+	constructor(browserProxy: BrowserProxy = defaultBrowserProxy) {
+		this.bookmarks = browserProxy.bookmarks;
+	}
+
 	/**
 	 * Get a folder by its ID.
 	 * @param id Folder ID.
@@ -32,7 +78,7 @@ export class ChromeBookmarkRepository {
 	 */
 	async getFolderById(id: string): Promise<chrome.bookmarks.BookmarkTreeNode> {
 		try {
-			return (await chrome.bookmarks.getSubTree(id))[0];
+			return (await this.bookmarks.getSubTree(id))[0];
 		} catch (err) {
 			throw new FolderNotFoundError(`Folder with ID ${id} not found: ${err}`);
 		}
@@ -58,7 +104,7 @@ export class ChromeBookmarkRepository {
 	 * @returns The bookmark node.
 	 */
 	async getBookmarkByPath(path: Path): Promise<chrome.bookmarks.BookmarkTreeNode> {
-		const tree = await chrome.bookmarks.getTree();
+		const tree = await this.bookmarks.getTree();
 		const root = tree[0];
 
 		const segments = path.getSegments();
@@ -107,7 +153,15 @@ export class ChromeBookmarkRepository {
 	isBookmarkFolder(node: chrome.bookmarks.BookmarkTreeNode): boolean {
 		return node.url === undefined;
 	}
+}
 
+/**
+ * Writable repository for Chrome bookmarks.
+ */
+export class ChromeWritableBookmarkRepository
+	extends ChromeReadableBookmarkRepository
+	implements WritableBookmarkRepository
+{
 	/**
 	 * Create a folder by its path.
 	 * @param path The path of the folder.
@@ -120,7 +174,7 @@ export class ChromeBookmarkRepository {
 		options?: { createParentIfNotExists?: boolean }
 	): Promise<chrome.bookmarks.BookmarkTreeNode> {
 		const createParentIfNotExists = options?.createParentIfNotExists ?? false;
-		const tree = await chrome.bookmarks.getTree();
+		const tree = await this.bookmarks.getTree();
 		let current = tree[0];
 		for (const segment of path.getSegments()) {
 			if (!this.isBookmarkFolder(current)) {
@@ -131,7 +185,7 @@ export class ChromeBookmarkRepository {
 			const children = current.children || [];
 			let nextNode = children.find((node) => node.title === segment);
 			if (!nextNode && createParentIfNotExists) {
-				nextNode = await chrome.bookmarks.create({
+				nextNode = await this.bookmarks.create({
 					parentId: current.id,
 					title: segment
 				});
@@ -171,7 +225,7 @@ export class ChromeBookmarkRepository {
 		} else {
 			parentFolder = await this.getBookmarkByPath(parent);
 		}
-		return await chrome.bookmarks.create({
+		return await this.bookmarks.create({
 			parentId: parentFolder.id,
 			title: args.title,
 			url: args.url
@@ -185,7 +239,7 @@ export class ChromeBookmarkRepository {
 	 */
 	async deleteBookmark(path: Path) {
 		const bookmark = await this.getBookmarkByPath(path);
-		await chrome.bookmarks.remove(bookmark.id);
+		await this.bookmarks.remove(bookmark.id);
 	}
 
 	/**
@@ -204,7 +258,7 @@ export class ChromeBookmarkRepository {
 		}
 	): Promise<chrome.bookmarks.BookmarkTreeNode> {
 		const bookmark = await this.getBookmarkByPath(path);
-		return await chrome.bookmarks.update(bookmark.id, {
+		return await this.bookmarks.update(bookmark.id, {
 			...args
 		});
 	}
@@ -217,7 +271,7 @@ export class ChromeBookmarkRepository {
 	async clearAllBookmarksInFolder(folder: chrome.bookmarks.BookmarkTreeNode) {
 		const promises = [];
 		for (const child of folder.children ?? []) {
-			promises.push(chrome.bookmarks.removeTree(child.id));
+			promises.push(this.bookmarks.removeTree(child.id));
 		}
 		await Promise.all(promises);
 	}
@@ -239,7 +293,7 @@ export class ChromeBookmarkRepository {
 		const raindrops = await opts.raindropClient.raindrop.getAllRaindrops(collectionId);
 		await Promise.all(
 			raindrops.map((rd) =>
-				chrome.bookmarks.create({
+				this.bookmarks.create({
 					parentId: opts.baseFolder.id,
 					title: rd.title,
 					url: rd.link
@@ -248,19 +302,21 @@ export class ChromeBookmarkRepository {
 		);
 		await Promise.all(
 			opts.tree.children.map(async (collection) => {
-				chrome.bookmarks.create(
-					{
-						parentId: opts.baseFolder.id,
-						title: collection.data?.title || 'No Title'
-					},
-					async (result) =>
-						await this.createBookmarksRecursively({
-							...opts,
-							baseFolder: result,
-							tree: collection
-						})
-				);
+				const folder = await this.bookmarks.create({
+					parentId: opts.baseFolder.id,
+					title: collection.data?.title || 'No Title'
+				});
+				await this.createBookmarksRecursively({
+					...opts,
+					baseFolder: folder,
+					tree: collection
+				});
 			})
 		);
 	}
 }
+
+/**
+ * Backward-compatible repository composed of readable and writable operations.
+ */
+export class ChromeBookmarkRepository extends ChromeWritableBookmarkRepository {}

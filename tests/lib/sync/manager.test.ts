@@ -1,6 +1,10 @@
 import { describe, expect, it, vi } from 'vitest';
 import type { SettingsStore } from '~/config';
-import type { AlarmScheduler, ChromeBookmarkRepository } from '~/lib/browser';
+import type {
+	AlarmScheduler,
+	ReadableBookmarkRepository,
+	WritableBookmarkRepository
+} from '~/lib/browser';
 import type { Raindrop } from '~/lib/raindrop/client';
 import { SYNC_BOOKMARKS_ALARM_NAME } from '~/lib/sync/constants';
 import type { SyncDiff } from '~/lib/sync/diff';
@@ -46,10 +50,18 @@ const createManager = (args?: {
 		update: vi.fn(async () => undefined)
 	} as unknown as SettingsStore;
 
-	const repository = {
+	const readableRepository = {
 		findFolderById: vi.fn(async () => ({ id: 'folder-id', title: 'folder' })),
 		getFolderById: vi.fn(async () => ({ id: 'folder-id', title: 'folder' }))
-	} as unknown as ChromeBookmarkRepository;
+	} as unknown as ReadableBookmarkRepository;
+
+	const writableRepository = {
+		createBookmark: vi.fn(async () => ({ id: 'bookmark-id' })),
+		updateBookmark: vi.fn(async () => ({ id: 'bookmark-id' })),
+		deleteBookmark: vi.fn(async () => undefined),
+		clearAllBookmarksInFolder: vi.fn(async () => undefined),
+		createBookmarksRecursively: vi.fn(async () => undefined)
+	} as unknown as WritableBookmarkRepository;
 
 	const getCurrentUser = vi.fn(async () => ({
 		data: { user: { email: 'a@example.com', lastUpdate: serverLastUpdate } }
@@ -63,7 +75,13 @@ const createManager = (args?: {
 		create: vi.fn(async () => undefined)
 	} as AlarmScheduler;
 
-	const manager = new SyncManager({ settings, repository, raindropClient, alarmScheduler });
+	const manager = new SyncManager({
+		settings,
+		readableRepository,
+		writableRepository,
+		raindropClient,
+		alarmScheduler
+	});
 	return { manager, settings, getCurrentUser, alarmScheduler };
 };
 

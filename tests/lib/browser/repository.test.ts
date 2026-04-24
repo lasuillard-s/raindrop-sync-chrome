@@ -1,11 +1,11 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { getClient } from '~/lib/raindrop/client';
-import { Path } from '~/lib/util/path';
 import {
 	BookmarkNotFoundError,
 	ChromeBookmarkRepository,
 	FolderNotFoundError
 } from '~/lib/browser/repository';
+import { getClient } from '~/lib/raindrop/client';
+import { Path } from '~/lib/util/path';
 
 let repository: ChromeBookmarkRepository;
 
@@ -541,7 +541,7 @@ describe('createBookmarksRecursively', () => {
 		});
 
 		// Assert
-		expect(chrome.bookmarks.create).toHaveBeenCalledTimes(6);
+		expect(chrome.bookmarks.create).toHaveBeenCalledTimes(15);
 		expect(chrome.bookmarks.create).toHaveBeenCalledWith({
 			parentId: '1',
 			title: 'GitHub · Change is constant. GitHub keeps you ahead.',
@@ -557,26 +557,98 @@ describe('createBookmarksRecursively', () => {
 			title: 'getAllHighlights',
 			url: 'https://raindrop.io'
 		});
-		expect(chrome.bookmarks.create).toHaveBeenCalledWith(
+		expect(chrome.bookmarks.create).toHaveBeenCalledWith({
+			parentId: '1',
+			title: 'getHighlightsInCollection'
+		});
+		expect(chrome.bookmarks.create).toHaveBeenCalledWith({
+			parentId: '1',
+			title: 'shareCollection'
+		});
+		expect(chrome.bookmarks.create).toHaveBeenCalledWith({
+			parentId: '1',
+			title: 'updateRaindrops'
+		});
+	});
+
+	it('waits for nested folder creation before resolving', async () => {
+		// Arrange
+		const baseFolder = await repository.getFolderById('1');
+		const childRaindrops = [
 			{
-				parentId: '1',
-				title: 'getHighlightsInCollection'
-			},
-			expect.any(Function) // Callback function
-		);
-		expect(chrome.bookmarks.create).toHaveBeenCalledWith(
-			{
-				parentId: '1',
-				title: 'shareCollection'
-			},
-			expect.any(Function) // Callback function
-		);
-		expect(chrome.bookmarks.create).toHaveBeenCalledWith(
-			{
-				parentId: '1',
-				title: 'updateRaindrops'
-			},
-			expect.any(Function) // Callback function
-		);
+				title: 'Nested bookmark',
+				link: 'https://example.com'
+			}
+		];
+		let resolveNestedRaindrops: ((value: typeof childRaindrops) => void) | undefined;
+		const nestedRaindrops = new Promise<typeof childRaindrops>((resolve) => {
+			resolveNestedRaindrops = resolve;
+		});
+		const createMock = vi.mocked(chrome.bookmarks.create);
+		createMock.mockImplementation(async ({ parentId, title, url }) => ({
+			dateAdded: Date.now(),
+			id: title === 'Nested folder' ? 'nested-folder-id' : `${title}-id`,
+			parentId: parentId ?? '1',
+			syncing: false,
+			title: title ?? '',
+			url,
+			children: url ? undefined : []
+		}));
+
+		const tree = {
+			children: [
+				{
+					children: [],
+					data: {
+						_id: 42,
+						title: 'Nested folder'
+					}
+				}
+			],
+			data: null
+		};
+		const raindropClient = {
+			raindrop: {
+				getAllRaindrops: vi.fn(async (collectionId: number) => {
+					if (collectionId === -1) {
+						return [];
+					}
+					return await nestedRaindrops;
+				})
+			}
+		};
+
+		let resolved = false;
+		const createBookmarksPromise = repository
+			.createBookmarksRecursively({
+				baseFolder,
+				// @ts-expect-error Minimal tree shape for targeted async regression coverage.
+				tree,
+				// @ts-expect-error Minimal client shape for targeted async regression coverage.
+				raindropClient
+			})
+			.then(() => {
+				resolved = true;
+			});
+
+		// Act
+		await Promise.resolve();
+		await Promise.resolve();
+
+		// Assert
+		expect(resolved).toBe(false);
+		expect(createMock).toHaveBeenCalledWith({
+			parentId: '1',
+			title: 'Nested folder'
+		});
+
+		resolveNestedRaindrops?.(childRaindrops);
+		await createBookmarksPromise;
+
+		expect(createMock).toHaveBeenCalledWith({
+			parentId: 'nested-folder-id',
+			title: 'Nested bookmark',
+			url: 'https://example.com'
+		});
 	});
 });

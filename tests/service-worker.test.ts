@@ -173,11 +173,13 @@ describe('service worker alarm flow', () => {
 		// Assert
 		expect(getOrCreate).toHaveBeenCalledTimes(1);
 		expect(ready).toHaveBeenCalledTimes(1);
-		expect(SyncManager).toHaveBeenCalledWith({
-			settings: expect.objectContaining({
-				snapshot: expect.objectContaining({ useLegacySyncMechanism: true })
+		expect(SyncManager).toHaveBeenCalledWith(
+			expect.objectContaining({
+				settings: expect.objectContaining({
+					snapshot: expect.objectContaining({ useLegacySyncMechanism: true })
+				})
 			})
-		});
+		);
 		expect(startSync).toHaveBeenCalledWith({ useLegacy: true });
 	});
 

@@ -3,6 +3,7 @@
 	import { A, Toggle } from 'flowbite-svelte';
 	import { RefreshOutline } from 'flowbite-svelte-icons';
 	import { SettingsStore } from '~/config';
+	import { defaultBrowserProxy } from '~/lib/browser';
 	import { SyncManager, type SyncEvent, type SyncEventListener } from '~/lib/sync';
 
 	const settings = SettingsStore.getOrCreate();
@@ -85,7 +86,7 @@
 		}
 	};
 
-	const openOptionsPage = () => chrome.runtime.openOptionsPage();
+	const openOptionsPage = () => defaultBrowserProxy.runtime.openOptionsPage();
 </script>
 
 <main class="flex w-72 flex-col bg-white">
