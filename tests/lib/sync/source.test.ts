@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
-import { buildTreeFromSource, type TreeSourceAdapter } from '~/lib/sync/source';
-import { NodeData } from '~/lib/sync/tree';
+import { buildTreeFromSource, TreeBuilder, type TreeSourceAdapter } from '~/lib/sync/source';
+import { NodeData, TreeNode } from '~/lib/sync/tree';
 
 class TestNodeData extends NodeData {
 	private readonly id: string;
@@ -47,7 +47,49 @@ const createAdapter = (nodes: TestNodeData[]): TreeSourceAdapter<TestNodeData> =
 	}
 });
 
+class RecordingTreeBuilder extends TreeBuilder<TestNodeData[], TestNodeData> {
+	readonly stages: string[] = [];
+	private readonly nodes: TestNodeData[];
+
+	constructor(nodes: TestNodeData[]) {
+		super();
+		this.nodes = nodes;
+	}
+
+	protected async fetchSources(): Promise<TestNodeData[]> {
+		this.stages.push('fetch');
+		return this.nodes;
+	}
+
+	protected preprocess(sources: TestNodeData[]): TestNodeData[] {
+		this.stages.push('preprocess');
+		return sources;
+	}
+
+	protected override buildTree(nodes: TestNodeData[]): TreeNode<TestNodeData> {
+		this.stages.push('build');
+		return super.buildTree(nodes);
+	}
+
+	protected override postprocess(
+		tree: TreeNode<TestNodeData>,
+		options: Readonly<{ unwrapRoot: boolean; baseNodeId?: string; missingBaseMessage?: string }>
+	): TreeNode<TestNodeData> {
+		this.stages.push('postprocess');
+		return super.postprocess(tree, options);
+	}
+}
+
 describe('buildTreeFromSource', () => {
+	it('runs pipeline stages in order', async () => {
+		const nodes = [new TestNodeData({ id: 'folder', parentId: null, name: 'Folder' })];
+		const builder = new RecordingTreeBuilder(nodes);
+
+		await builder.build();
+
+		expect(builder.stages).toEqual(['fetch', 'preprocess', 'build', 'postprocess']);
+	});
+
 	it('returns inner root when unwrapRoot is true (default)', async () => {
 		const nodes = [
 			new TestNodeData({ id: 'folder', parentId: null, name: 'Folder' }),

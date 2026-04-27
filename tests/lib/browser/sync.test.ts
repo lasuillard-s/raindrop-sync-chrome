@@ -1,6 +1,6 @@
 import { beforeEach, describe, expect, it } from 'vitest';
 import { ChromeBookmarkRepository } from '~/lib/browser/repository';
-import { createTreeFromChromeBookmarks } from '~/lib/browser/sync';
+import { ChromeBookmarkTreeBuilder } from '~/lib/browser/sync';
 
 let repository: ChromeBookmarkRepository;
 
@@ -8,13 +8,14 @@ beforeEach(() => {
 	repository = new ChromeBookmarkRepository();
 });
 
-describe('createTreeFromChromeBookmarks', () => {
+describe('ChromeBookmarkTreeBuilder', () => {
 	it('should create a tree structure from Chrome bookmarks', async () => {
 		// Arrange
 		const paths: string[] = [];
+		const builder = new ChromeBookmarkTreeBuilder();
 
 		// Act
-		const root = await createTreeFromChromeBookmarks();
+		const root = await builder.build();
 		root.dfs((node) => {
 			paths.push(node.getFullPath().toString() || '');
 		});
@@ -36,9 +37,13 @@ describe('createTreeFromChromeBookmarks', () => {
 		// Arrange
 		const baseNode = await repository.getFolderById('5'); // 'updateRaindrops' folder
 		const paths: string[] = [];
+		const builder = new ChromeBookmarkTreeBuilder();
 
 		// Act
-		const base = await createTreeFromChromeBookmarks(baseNode);
+		const base = await builder.build({
+			baseNodeId: baseNode.id,
+			missingBaseMessage: `Failed to locate the base node (${baseNode.id}) in the created tree`
+		});
 		base.dfs((node) => {
 			paths.push(node.getFullPath().toString() || '');
 		});

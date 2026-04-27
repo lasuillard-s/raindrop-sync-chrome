@@ -2,10 +2,13 @@ import { describe, expect, it, vi } from 'vitest';
 import type { SettingsStore } from '~/config';
 import type {
 	AlarmScheduler,
+	ChromeBookmarkNodeData,
 	ReadableBookmarkRepository,
 	WritableBookmarkRepository
 } from '~/lib/browser';
+import type { RaindropNodeData } from '~/lib/raindrop';
 import type { Raindrop } from '~/lib/raindrop/client';
+import type { TreeBuilder } from '~/lib/sync/builder';
 import { SYNC_BOOKMARKS_ALARM_NAME } from '~/lib/sync/constants';
 import type { SyncDiff } from '~/lib/sync/diff';
 import type { SyncEvent, SyncEventListener } from '~/lib/sync/event-listener';
@@ -74,15 +77,30 @@ const createManager = (args?: {
 		clearAll: vi.fn(async () => undefined),
 		create: vi.fn(async () => undefined)
 	} as AlarmScheduler;
+	const currentBookmarkTreeBuilder = {
+		build: vi.fn(async () => ({ getFullPathSegments: () => ['/'] }))
+	} as unknown as TreeBuilder<unknown, ChromeBookmarkNodeData>;
+	const expectedBookmarkTreeBuilder = {
+		build: vi.fn(async () => ({ getFullPathSegments: () => ['/'] }))
+	} as unknown as TreeBuilder<unknown, RaindropNodeData>;
 
 	const manager = new SyncManager({
 		settings,
 		readableRepository,
 		writableRepository,
 		raindropClient,
-		alarmScheduler
+		alarmScheduler,
+		currentBookmarkTreeBuilder,
+		expectedBookmarkTreeBuilder
 	});
-	return { manager, settings, getCurrentUser, alarmScheduler };
+	return {
+		manager,
+		settings,
+		getCurrentUser,
+		alarmScheduler,
+		currentBookmarkTreeBuilder,
+		expectedBookmarkTreeBuilder
+	};
 };
 
 describe('SyncManager.startSync', () => {
@@ -225,6 +243,27 @@ describe('SyncManager.shouldSync', () => {
 		// Assert
 		expect(result).toBe(false);
 		expect(getCurrentUser).toHaveBeenCalledTimes(1);
+	});
+});
+
+describe('SyncManager tree builders', () => {
+	it('delegates current tree creation to the injected builder with the sync location as base', async () => {
+		const { manager, currentBookmarkTreeBuilder } = createManager();
+
+		await manager.getCurrentBookmarkTree();
+
+		expect(currentBookmarkTreeBuilder.build).toHaveBeenCalledWith({
+			baseNodeId: 'folder-id',
+			missingBaseMessage: 'Failed to locate the base node (folder-id) in the created tree'
+		});
+	});
+
+	it('delegates expected tree creation to the injected builder', async () => {
+		const { manager, expectedBookmarkTreeBuilder } = createManager();
+
+		await manager.getExpectedBookmarkTree();
+
+		expect(expectedBookmarkTreeBuilder.build).toHaveBeenCalledWith();
 	});
 });
 

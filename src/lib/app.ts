@@ -1,11 +1,13 @@
 import { SettingsStore } from '~/config';
 import {
 	ChromeAlarmScheduler,
+	ChromeBookmarkTreeBuilder,
 	ChromeReadableBookmarkRepository,
 	ChromeWritableBookmarkRepository,
 	defaultBrowserProxy,
 	type BrowserProxy
 } from '~/lib/browser';
+import { RaindropTreeBuilder } from '~/lib/raindrop';
 import type { Raindrop } from '~/lib/raindrop/client';
 import { SyncManager } from '~/lib/sync';
 
@@ -37,15 +39,17 @@ export class App {
 	}
 
 	createSyncManager(opts?: { settings?: SettingsStore; raindropClient?: Raindrop }): SyncManager {
-		const syncManagerOptions: ConstructorParameters<typeof SyncManager>[0] = {
+		const syncManagerOptions: NonNullable<ConstructorParameters<typeof SyncManager>[0]> = {
 			settings: opts?.settings,
 			readableRepository: new ChromeReadableBookmarkRepository(this.browserProxy),
 			writableRepository: new ChromeWritableBookmarkRepository(this.browserProxy),
-			alarmScheduler: new ChromeAlarmScheduler(this.browserProxy)
+			alarmScheduler: new ChromeAlarmScheduler(this.browserProxy),
+			currentBookmarkTreeBuilder: new ChromeBookmarkTreeBuilder(this.browserProxy)
 		};
 
 		if (opts?.raindropClient) {
 			syncManagerOptions.raindropClient = opts.raindropClient;
+			syncManagerOptions.expectedBookmarkTreeBuilder = new RaindropTreeBuilder(opts.raindropClient);
 		}
 
 		return new SyncManager(syncManagerOptions);

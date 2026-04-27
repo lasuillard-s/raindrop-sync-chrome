@@ -17,4 +17,8 @@ export {
 	type ReadableBookmarkRepository,
 	type WritableBookmarkRepository
 } from './repository';
-export { ChromeBookmarkNodeData, createTreeFromChromeBookmarks } from './sync';
+export {
+	ChromeBookmarkNodeData,
+	ChromeBookmarkTreeBuilder,
+	createTreeFromChromeBookmarks
+} from './sync';

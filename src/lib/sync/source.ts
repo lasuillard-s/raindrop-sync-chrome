@@ -1,5 +1,6 @@
 export {
 	buildTreeFromSource,
-	type BuildTreeFromSourceOptions,
+	TreeBuilder,
+	type TreeBuildOptions as BuildTreeFromSourceOptions,
 	type TreeSourceAdapter
-} from '~/lib/bookmark/source';
+} from './builder';

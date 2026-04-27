@@ -2,16 +2,17 @@ import { SettingsStore } from '~/config';
 import {
 	ChromeAlarmScheduler,
 	ChromeBookmarkNodeData,
+	ChromeBookmarkTreeBuilder,
 	ChromeReadableBookmarkRepository,
 	ChromeWritableBookmarkRepository,
-	createTreeFromChromeBookmarks,
 	type AlarmScheduler,
 	type ReadableBookmarkRepository,
 	type WritableBookmarkRepository
 } from '~/lib/browser';
-import { createTreeFromRaindrops, getClient, type RaindropNodeData } from '~/lib/raindrop';
+import { getClient, RaindropTreeBuilder, type RaindropNodeData } from '~/lib/raindrop';
 import type { Raindrop } from '~/lib/raindrop/client';
 import { Path } from '~/lib/util/path';
+import type { TreeBuilder } from './builder';
 import { SYNC_BOOKMARKS_ALARM_NAME } from './constants';
 import { SyncDiff } from './diff';
 import type { SyncEvent, SyncEventListener } from './event-listener';
@@ -34,6 +35,8 @@ export class SyncManager {
 	readableRepository: ReadableBookmarkRepository;
 	writableRepository: WritableBookmarkRepository;
 	alarmScheduler: AlarmScheduler;
+	currentBookmarkTreeBuilder: TreeBuilder<unknown, ChromeBookmarkNodeData>;
+	expectedBookmarkTreeBuilder: TreeBuilder<unknown, RaindropNodeData>;
 
 	private listeners: SyncEventListener[] = [];
 
@@ -45,6 +48,8 @@ export class SyncManager {
 	 * @param opts.writableRepository Writable repository for browser bookmarks.
 	 * @param opts.raindropClient Raindrop.io client.
 	 * @param opts.alarmScheduler Alarm scheduler abstraction for auto-sync timing.
+	 * @param opts.currentBookmarkTreeBuilder Builder for current bookmark tree snapshots.
+	 * @param opts.expectedBookmarkTreeBuilder Builder for expected tree snapshots.
 	 */
 	constructor(opts?: {
 		settings?: SettingsStore;
@@ -52,12 +57,20 @@ export class SyncManager {
 		writableRepository?: WritableBookmarkRepository;
 		raindropClient?: Raindrop;
 		alarmScheduler?: AlarmScheduler;
+		currentBookmarkTreeBuilder?: TreeBuilder<unknown, ChromeBookmarkNodeData>;
+		expectedBookmarkTreeBuilder?: TreeBuilder<unknown, RaindropNodeData>;
 	}) {
+		const raindropClient = opts?.raindropClient ?? getClient();
+
 		this.settings = opts?.settings ?? SettingsStore.getOrCreate();
 		this.readableRepository = opts?.readableRepository ?? new ChromeReadableBookmarkRepository();
 		this.writableRepository = opts?.writableRepository ?? new ChromeWritableBookmarkRepository();
-		this.raindropClient = opts?.raindropClient ?? getClient();
+		this.raindropClient = raindropClient;
 		this.alarmScheduler = opts?.alarmScheduler ?? new ChromeAlarmScheduler();
+		this.currentBookmarkTreeBuilder =
+			opts?.currentBookmarkTreeBuilder ?? new ChromeBookmarkTreeBuilder();
+		this.expectedBookmarkTreeBuilder =
+			opts?.expectedBookmarkTreeBuilder ?? new RaindropTreeBuilder(raindropClient);
 	}
 
 	addListener(listener: SyncEventListener) {
@@ -164,8 +177,10 @@ export class SyncManager {
 	async getCurrentBookmarkTree(): Promise<TreeNode<ChromeBookmarkNodeData>> {
 		const settingsSnapshot = await this.settings.snapshotReady();
 		const syncLocationId = settingsSnapshot.syncLocation;
-		const syncLocation = await this.readableRepository.getFolderById(syncLocationId);
-		return createTreeFromChromeBookmarks(syncLocation);
+		return await this.currentBookmarkTreeBuilder.build({
+			baseNodeId: syncLocationId,
+			missingBaseMessage: `Failed to locate the base node (${syncLocationId}) in the created tree`
+		});
 	}
 
 	/**
@@ -174,7 +189,7 @@ export class SyncManager {
 	 */
 	async getExpectedBookmarkTree(): Promise<TreeNode<RaindropNodeData>> {
 		// TODO(#31): Extend implementation for customizable expected tree
-		return createTreeFromRaindrops(this.raindropClient);
+		return await this.expectedBookmarkTreeBuilder.build();
 	}
 
 	/**

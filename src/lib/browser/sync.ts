@@ -1,6 +1,7 @@
-import { buildTreeFromSource, type TreeSourceAdapter } from '~/lib/bookmark/source';
+import { TreeBuilder, type TreeBuildOptions } from '~/lib/sync/builder';
 import { NodeData, TreeNode } from '~/lib/sync/tree';
 import { normalizeUrl } from '~/lib/util/string';
+import { defaultBrowserProxy, type BrowserProxy } from './proxy';
 
 export class ChromeBookmarkNodeData extends NodeData {
 	rawData: chrome.bookmarks.BookmarkTreeNode;
@@ -43,13 +44,27 @@ export class ChromeBookmarkNodeData extends NodeData {
 	}
 }
 
-const chromeBookmarkTreeSource: TreeSourceAdapter<ChromeBookmarkNodeData> = {
-	async loadNodes() {
-		const tree = await chrome.bookmarks.getTree();
-		const root = tree[0];
+/**
+ * Builds a bookmark tree from the browser bookmark service.
+ */
+export class ChromeBookmarkTreeBuilder extends TreeBuilder<
+	chrome.bookmarks.BookmarkTreeNode[],
+	ChromeBookmarkNodeData
+> {
+	private readonly browserProxy: BrowserProxy;
 
-		const dataList = [];
-		const queue = [root];
+	constructor(browserProxy: BrowserProxy = defaultBrowserProxy) {
+		super();
+		this.browserProxy = browserProxy;
+	}
+
+	protected async fetchSources(): Promise<chrome.bookmarks.BookmarkTreeNode[]> {
+		return await this.browserProxy.bookmarks.getTree();
+	}
+
+	protected preprocess(nodes: chrome.bookmarks.BookmarkTreeNode[]): ChromeBookmarkNodeData[] {
+		const dataList: ChromeBookmarkNodeData[] = [];
+		const queue = [...nodes];
 		while (queue.length > 0) {
 			const node = queue.shift()!;
 			dataList.push(new ChromeBookmarkNodeData(node));
@@ -62,23 +77,28 @@ const chromeBookmarkTreeSource: TreeSourceAdapter<ChromeBookmarkNodeData> = {
 
 		return dataList;
 	}
-};
+
+	protected override getDefaultBuildOptions(): Required<Pick<TreeBuildOptions, 'unwrapRoot'>> {
+		return { unwrapRoot: true };
+	}
+}
 
 /**
  * Creates a tree structure from Chrome bookmarks.
  * @param base Optional base node to start from
+ * @param builder Tree builder instance to use for construction.
  * @returns Root node of the tree
  */
 export async function createTreeFromChromeBookmarks(
-	base?: chrome.bookmarks.BookmarkTreeNode
+	base?: chrome.bookmarks.BookmarkTreeNode,
+	builder: ChromeBookmarkTreeBuilder = new ChromeBookmarkTreeBuilder()
 ): Promise<TreeNode<ChromeBookmarkNodeData>> {
 	const missingBaseMessage = base
 		? `Failed to locate the base node (${base.id}) in the created tree`
 		: undefined;
 
-	return await buildTreeFromSource(chromeBookmarkTreeSource, {
+	return await builder.build({
 		baseNodeId: base?.id,
-		unwrapRoot: true,
 		missingBaseMessage
 	});
 }

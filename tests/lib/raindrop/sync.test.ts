@@ -1,7 +1,7 @@
 import { mockRaindropClient } from '@test-helpers/raindrop';
 import { beforeEach, describe, expect, it } from 'vitest';
 import { getClient, type Raindrop } from '~/lib/raindrop/client';
-import { createTreeFromRaindrops } from '~/lib/raindrop/sync';
+import { RaindropTreeBuilder } from '~/lib/raindrop/sync';
 
 let raindropClient: Raindrop;
 
@@ -9,13 +9,14 @@ beforeEach(() => {
 	raindropClient = mockRaindropClient(getClient());
 });
 
-describe('createTreeFromRaindrops', () => {
+describe('RaindropTreeBuilder', () => {
 	it('should create a tree structure from Raindrop.io collections', async () => {
 		// Arrange
 		const paths: string[] = [];
+		const builder = new RaindropTreeBuilder(raindropClient);
 
 		// Act
-		const root = await createTreeFromRaindrops(raindropClient);
+		const root = await builder.build();
 		root.dfs((node) => {
 			paths.push(node.getFullPath().toString() || '');
 		});
