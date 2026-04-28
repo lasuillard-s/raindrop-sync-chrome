@@ -3,12 +3,13 @@
 	import imgCNA1 from '~/assets/raindrop-create-new-app-1.png';
 	import imgCNA2 from '~/assets/raindrop-create-new-app-2.png';
 	import SecretInput from '~/components/SecretInput.svelte';
-	import { SettingsStore } from '~/config';
+	import { App } from '~/lib/app';
 	import { defaultBrowserProxy } from '~/lib/browser';
 	import { putMessage } from '~/lib/messages';
 	import { launchWebAuthFlow as _launchWebAuthFlow } from '~/lib/raindrop/auth';
 
-	const settings = SettingsStore.getOrCreate();
+	const app = App.getInstance();
+	const settings = app.getSettingsStore();
 	const settingsSnapshot = settings.snapshot;
 
 	const extensionId = defaultBrowserProxy.runtime.getId();

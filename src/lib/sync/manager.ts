@@ -32,8 +32,8 @@ import { SyncPlan } from './plan';
 export class SyncManager {
 	settings: SettingsStore;
 	raindropClient: Raindrop;
-	readableRepository: ReadableBookmarkRepository;
-	writableRepository: WritableBookmarkRepository;
+	sourceRepo: ReadableBookmarkRepository;
+	targetRepo: WritableBookmarkRepository;
 	alarmScheduler: AlarmScheduler;
 	currentBookmarkTreeBuilder: TreeBuilder<unknown, ChromeBookmarkNodeData>;
 	expectedBookmarkTreeBuilder: TreeBuilder<unknown, RaindropNodeData>;
@@ -44,17 +44,17 @@ export class SyncManager {
 	 * Create a new SyncManager.
 	 * @param opts Options for the SyncManager.
 	 * @param opts.settings Settings store to get sync configuration and update sync state.
-	 * @param opts.readableRepository Read-only repository for browser bookmarks.
-	 * @param opts.writableRepository Writable repository for browser bookmarks.
+	 * @param opts.sourceRepo Readable repository for fetching current bookmarks.
+	 * @param opts.targetRepo Writable repository for applying sync changes to.
 	 * @param opts.raindropClient Raindrop.io client.
 	 * @param opts.alarmScheduler Alarm scheduler abstraction for auto-sync timing.
 	 * @param opts.currentBookmarkTreeBuilder Builder for current bookmark tree snapshots.
 	 * @param opts.expectedBookmarkTreeBuilder Builder for expected tree snapshots.
 	 */
-	constructor(opts?: {
-		settings?: SettingsStore;
-		readableRepository?: ReadableBookmarkRepository;
-		writableRepository?: WritableBookmarkRepository;
+	constructor(opts: {
+		settings: SettingsStore;
+		sourceRepo?: ReadableBookmarkRepository;
+		targetRepo?: WritableBookmarkRepository;
 		raindropClient?: Raindrop;
 		alarmScheduler?: AlarmScheduler;
 		currentBookmarkTreeBuilder?: TreeBuilder<unknown, ChromeBookmarkNodeData>;
@@ -62,15 +62,15 @@ export class SyncManager {
 	}) {
 		const raindropClient = opts?.raindropClient ?? getClient();
 
-		this.settings = opts?.settings ?? SettingsStore.getOrCreate();
-		this.readableRepository = opts?.readableRepository ?? new ChromeReadableBookmarkRepository();
-		this.writableRepository = opts?.writableRepository ?? new ChromeWritableBookmarkRepository();
+		this.settings = opts.settings;
+		this.sourceRepo = opts.sourceRepo ?? new ChromeReadableBookmarkRepository();
+		this.targetRepo = opts.targetRepo ?? new ChromeWritableBookmarkRepository();
 		this.raindropClient = raindropClient;
-		this.alarmScheduler = opts?.alarmScheduler ?? new ChromeAlarmScheduler();
+		this.alarmScheduler = opts.alarmScheduler ?? new ChromeAlarmScheduler();
 		this.currentBookmarkTreeBuilder =
-			opts?.currentBookmarkTreeBuilder ?? new ChromeBookmarkTreeBuilder();
+			opts.currentBookmarkTreeBuilder ?? new ChromeBookmarkTreeBuilder();
 		this.expectedBookmarkTreeBuilder =
-			opts?.expectedBookmarkTreeBuilder ?? new RaindropTreeBuilder(raindropClient);
+			opts.expectedBookmarkTreeBuilder ?? new RaindropTreeBuilder(raindropClient);
 	}
 
 	addListener(listener: SyncEventListener) {
@@ -103,9 +103,7 @@ export class SyncManager {
 		}
 
 		// Verify that the target folder exists
-		const targetFolder = await this.readableRepository.findFolderById(
-			settingsSnapshot.syncLocation
-		);
+		const targetFolder = await this.sourceRepo.findFolderById(settingsSnapshot.syncLocation);
 		if (!targetFolder) {
 			throw new Error(`Target folder with ID "${settingsSnapshot.syncLocation}" not found.`);
 		}
@@ -213,7 +211,7 @@ export class SyncManager {
 	async generateSyncPlan(diff: SyncDiff<RaindropNodeData, ChromeBookmarkNodeData>) {
 		const settingsSnapshot = await this.settings.snapshotReady();
 		const syncFolderId = settingsSnapshot.syncLocation;
-		const syncFolder = await this.readableRepository.getFolderById(syncFolderId);
+		const syncFolder = await this.sourceRepo.getFolderById(syncFolderId);
 		console.debug(
 			`Sync folder found: ${syncFolder.title} (${syncFolder.id}); ${diff.right.getFullPathSegments()}`
 		);
@@ -238,7 +236,7 @@ export class SyncManager {
 
 		// Create sync executor
 		const executor = new SyncExecutor({
-			repository: this.writableRepository,
+			repository: this.targetRepo,
 			plan
 		});
 
@@ -269,18 +267,18 @@ export class SyncManager {
 		// Get the sync folder
 		const settingsSnapshot = await this.settings.snapshotReady();
 		const syncFolderId = settingsSnapshot.syncLocation;
-		const syncFolder = await this.readableRepository.getFolderById(syncFolderId);
+		const syncFolder = await this.sourceRepo.getFolderById(syncFolderId);
 		console.debug(`Sync folder found: ${syncFolder.title} (${syncFolder.id})`);
 
 		// Clear existing bookmarks in the sync folder
 		console.debug('Clearing existing bookmarks in sync folder');
 		this.emitEvent(new SyncEventProgress('clearing-bookmarks'));
-		await this.writableRepository.clearAllBookmarksInFolder(syncFolder);
+		await this.targetRepo.clearAllBookmarksInFolder(syncFolder);
 
 		// Create bookmarks recursively based on the Raindrop.io collection tree
 		console.debug('Creating bookmarks from Raindrop.io collections');
 		this.emitEvent(new SyncEventProgress('creating-bookmarks'));
-		await this.writableRepository.createBookmarksRecursively({
+		await this.targetRepo.createBookmarksRecursively({
 			baseFolder: syncFolder,
 			tree: treeNode,
 			raindropClient: this.raindropClient

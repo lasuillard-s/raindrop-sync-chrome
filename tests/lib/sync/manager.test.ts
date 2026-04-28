@@ -51,12 +51,12 @@ const createManager = (args?: {
 		update: vi.fn(async () => undefined)
 	} as unknown as SettingsStore;
 
-	const readableRepository = {
+	const sourceRepo = {
 		findFolderById: vi.fn(async () => ({ id: 'folder-id', title: 'folder' })),
 		getFolderById: vi.fn(async () => ({ id: 'folder-id', title: 'folder' }))
 	} as unknown as ReadableBookmarkRepository;
 
-	const writableRepository = {
+	const targetRepo = {
 		createBookmark: vi.fn(async () => ({ id: 'bookmark-id' })),
 		updateBookmark: vi.fn(async () => ({ id: 'bookmark-id' })),
 		deleteBookmark: vi.fn(async () => undefined),
@@ -84,8 +84,8 @@ const createManager = (args?: {
 
 	const manager = new SyncManager({
 		settings,
-		readableRepository,
-		writableRepository,
+		sourceRepo,
+		targetRepo,
 		raindropClient,
 		alarmScheduler,
 		currentBookmarkTreeBuilder,

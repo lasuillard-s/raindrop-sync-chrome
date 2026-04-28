@@ -17,17 +17,18 @@
 	} from 'flowbite-svelte-icons';
 	import PathBreadcrumb from '~/components/PathBreadcrumb.svelte';
 	import Tree from '~/components/Tree.svelte';
-	import { SettingsStore } from '~/config';
+	import { App } from '~/lib/app';
 	import type { TreeNode } from '~/lib/bookmark';
 	import { defaultBrowserProxy, type ChromeBookmarkNodeData } from '~/lib/browser';
 	import { putMessage } from '~/lib/messages';
 	import { RaindropNodeData } from '~/lib/raindrop';
 	import type { SyncEvent, SyncEventListener } from '~/lib/sync';
-	import { SyncDiff, SyncManager } from '~/lib/sync';
+	import { SyncDiff } from '~/lib/sync';
 
-	const settings = SettingsStore.getOrCreate();
+	const app = App.getInstance();
+	const settings = app.getSettingsStore();
 	const settingsSnapshot = settings.snapshot;
-	const syncManager = new SyncManager({ settings });
+	const syncManager = app.createSyncManager();
 
 	let latestSyncEvent: SyncEvent | null = $state(null);
 

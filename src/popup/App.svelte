@@ -2,12 +2,13 @@
 	import { format, formatDistanceToNow } from 'date-fns';
 	import { A, Toggle } from 'flowbite-svelte';
 	import { RefreshOutline } from 'flowbite-svelte-icons';
-	import { SettingsStore } from '~/config';
+	import { App } from '~/lib/app';
 	import { defaultBrowserProxy } from '~/lib/browser';
-	import { SyncManager, type SyncEvent, type SyncEventListener } from '~/lib/sync';
+	import { type SyncEvent, type SyncEventListener } from '~/lib/sync';
 
-	const settings = SettingsStore.getOrCreate();
-	const syncManager = new SyncManager({ settings });
+	const app = App.getInstance();
+	const settings = app.getSettingsStore();
+	const syncManager = app.createSyncManager();
 
 	let isSyncing = $state(false);
 	let forceSync = $state(false);

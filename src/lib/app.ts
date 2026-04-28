@@ -40,9 +40,9 @@ export class App {
 
 	createSyncManager(opts?: { settings?: SettingsStore; raindropClient?: Raindrop }): SyncManager {
 		const syncManagerOptions: NonNullable<ConstructorParameters<typeof SyncManager>[0]> = {
-			settings: opts?.settings,
-			readableRepository: new ChromeReadableBookmarkRepository(this.browserProxy),
-			writableRepository: new ChromeWritableBookmarkRepository(this.browserProxy),
+			settings: opts?.settings ?? this.getSettingsStore(),
+			sourceRepo: new ChromeReadableBookmarkRepository(this.browserProxy),
+			targetRepo: new ChromeWritableBookmarkRepository(this.browserProxy),
 			alarmScheduler: new ChromeAlarmScheduler(this.browserProxy),
 			currentBookmarkTreeBuilder: new ChromeBookmarkTreeBuilder(this.browserProxy)
 		};
