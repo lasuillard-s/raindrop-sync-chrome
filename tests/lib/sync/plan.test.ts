@@ -1,10 +1,8 @@
 import { TestNodeData } from '@test-helpers/tree';
 import { describe, expect, it } from 'vitest';
+import { TreeNode } from '~/lib/bookmark';
+import { SyncDiff, SyncOpAdd, SyncOpDelete, SyncOpNoop, SyncOpUpdate, SyncPlan } from '~/lib/sync';
 import { Path } from '~/lib/util/path';
-import { SyncDiff } from '~/lib/sync/diff';
-import { SyncOpAdd, SyncOpDelete, SyncOpNoop, SyncOpUpdate } from '~/lib/sync/op';
-import { SyncPlan } from '~/lib/sync/plan';
-import { TreeNode } from '~/lib/sync/tree';
 
 /**
  * Creates a tree node for diff/plan test fixtures.

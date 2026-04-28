@@ -1,5 +1,6 @@
 import { describe, expect, it, vi } from 'vitest';
 import type { SettingsStore } from '~/config';
+import type { TreeBuilder } from '~/lib/bookmark';
 import type {
 	AlarmScheduler,
 	ChromeBookmarkNodeData,
@@ -8,11 +9,8 @@ import type {
 } from '~/lib/browser';
 import type { RaindropNodeData } from '~/lib/raindrop';
 import type { Raindrop } from '~/lib/raindrop/client';
-import type { TreeBuilder } from '~/lib/sync/builder';
-import { SYNC_BOOKMARKS_ALARM_NAME } from '~/lib/sync/constants';
-import type { SyncDiff } from '~/lib/sync/diff';
-import type { SyncEvent, SyncEventListener } from '~/lib/sync/event-listener';
-import { SyncManager } from '~/lib/sync/manager';
+import type { SyncEvent, SyncEventListener } from '~/lib/sync';
+import { SYNC_BOOKMARKS_ALARM_NAME, SyncManager, type SyncDiff } from '~/lib/sync';
 
 class CapturingListener implements SyncEventListener {
 	events: SyncEvent[] = [];

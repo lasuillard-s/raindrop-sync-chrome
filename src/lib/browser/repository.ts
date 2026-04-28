@@ -1,23 +1,8 @@
 import type { generated, utils } from '@lasuillard/raindrop-client';
 import type { Raindrop } from '~/lib/raindrop/client';
 import { Path } from '~/lib/util/path';
+import { BookmarkNotFoundError, FolderNotFoundError } from './errors';
 import { defaultBrowserProxy, type BookmarkService, type BrowserProxy } from './proxy';
-
-export class FolderNotFoundError extends Error {
-	constructor(message: string) {
-		super(message);
-		Object.setPrototypeOf(this, FolderNotFoundError.prototype);
-		this.name = 'FolderNotFoundError';
-	}
-}
-
-export class BookmarkNotFoundError extends Error {
-	constructor(message: string) {
-		super(message);
-		Object.setPrototypeOf(this, BookmarkNotFoundError.prototype);
-		this.name = 'BookmarkNotFoundError';
-	}
-}
 
 export interface ReadableBookmarkRepository {
 	getFolderById(id: string): Promise<chrome.bookmarks.BookmarkTreeNode>;

@@ -1,4 +1,4 @@
-import type { NodeData, TreeNode } from './tree';
+import type { NodeData, TreeNode } from '~/lib/bookmark';
 
 export class SyncDiff<L extends NodeData, R extends NodeData> {
 	left: TreeNode<L>;

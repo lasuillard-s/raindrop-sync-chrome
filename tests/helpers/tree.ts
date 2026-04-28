@@ -1,5 +1,5 @@
-import { NodeData } from '~/lib/sync/tree';
 import { faker } from '@faker-js/faker';
+import { NodeData } from '~/lib/bookmark';
 
 // NodeData implementation for testing
 export class TestNodeData extends NodeData {

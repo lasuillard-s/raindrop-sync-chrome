@@ -1,8 +1,6 @@
 import { describe, expect, it, vi } from 'vitest';
 import type { ChromeBookmarkRepository } from '~/lib/browser';
-import { SyncExecutor } from '~/lib/sync/executor';
-import { SyncOp } from '~/lib/sync/op';
-import { SyncPlan } from '~/lib/sync/plan';
+import { SyncExecutor, SyncOp, SyncPlan } from '~/lib/sync';
 
 class RecordingOp extends SyncOp {
 	constructor(

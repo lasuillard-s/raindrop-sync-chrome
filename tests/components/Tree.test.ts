@@ -3,8 +3,8 @@ import { TestNodeData } from '@test-helpers/tree';
 import { render } from '@testing-library/svelte';
 import userEvent from '@testing-library/user-event';
 import { beforeEach, expect, it } from 'vitest';
-import { NodeData, TreeNode } from '~/lib/sync/tree';
 import Tree from '~/components/Tree.svelte';
+import { NodeData, TreeNode } from '~/lib/bookmark';
 
 let rootData: NodeData;
 let exampleData: NodeData[];

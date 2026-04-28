@@ -1,8 +1,7 @@
 import { generated } from '@lasuillard/raindrop-client';
-import { TreeBuilder, type TreeBuildOptions } from '~/lib/sync/builder';
-import { NodeData, TreeNode } from '~/lib/sync/tree'; // Be careful for recursive import
+import { NodeData, TreeBuilder, TreeNode, type TreeBuildOptions } from '~/lib/bookmark';
 import { normalizeUrl } from '~/lib/util/string';
-import type { Raindrop, RaindropItem as ClientRaindropItem } from './client';
+import type { RaindropItem as ClientRaindropItem, Raindrop } from './client';
 
 type GetRootCollectionsResponseItem = generated.GetRootCollectionsResponse['items'][0];
 type GetChildCollectionsResponseItem = generated.GetChildCollectionsResponse['items'][0];

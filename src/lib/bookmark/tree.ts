@@ -1,12 +1,5 @@
 import { Path, PathMap } from '~/lib/util/path';
-
-export class PathConflictError extends Error {
-	constructor(message: string) {
-		super(message);
-		Object.setPrototypeOf(this, PathConflictError.prototype);
-		this.name = 'PathConflictError';
-	}
-}
+import { PathConflictError } from './errors';
 
 /** Abstraction for required functionality of raw source data types. */
 export abstract class NodeData {

@@ -18,10 +18,11 @@
 	import PathBreadcrumb from '~/components/PathBreadcrumb.svelte';
 	import Tree from '~/components/Tree.svelte';
 	import { SettingsStore } from '~/config';
+	import type { TreeNode } from '~/lib/bookmark';
 	import { defaultBrowserProxy, type ChromeBookmarkNodeData } from '~/lib/browser';
 	import { putMessage } from '~/lib/messages';
 	import { RaindropNodeData } from '~/lib/raindrop';
-	import type { SyncEvent, SyncEventListener, TreeNode } from '~/lib/sync';
+	import type { SyncEvent, SyncEventListener } from '~/lib/sync';
 	import { SyncDiff, SyncManager } from '~/lib/sync';
 
 	const settings = SettingsStore.getOrCreate();

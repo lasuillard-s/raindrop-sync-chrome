@@ -1,6 +1,6 @@
 <script lang="ts" generics="T extends NodeData">
 	import { ChevronDownOutline, ChevronRightOutline } from 'flowbite-svelte-icons';
-	import type { NodeData, TreeNode } from '~/lib/sync';
+	import type { NodeData, TreeNode } from '~/lib/bookmark';
 	import { isUrlSafeHref } from '~/lib/util/string';
 	import Self from './Tree.svelte';
 

@@ -1,6 +1,11 @@
 import { describe, expect, it } from 'vitest';
-import { buildTreeFromSource, TreeBuilder, type TreeSourceAdapter } from '~/lib/sync/source';
-import { NodeData, TreeNode } from '~/lib/sync/tree';
+import {
+	NodeData,
+	TreeBuilder,
+	TreeNode,
+	type TreeSourceAdapter,
+	buildTreeFromSource
+} from '~/lib/bookmark';
 
 class TestNodeData extends NodeData {
 	private readonly id: string;

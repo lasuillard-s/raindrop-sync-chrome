@@ -9,6 +9,7 @@ export type {
 	RuntimeService,
 	StorageService
 } from './contracts';
+export { BookmarkNotFoundError, FolderNotFoundError } from './errors';
 export { defaultBrowserProxy, WebExtensionProxy } from './proxy';
 export {
 	ChromeBookmarkRepository,

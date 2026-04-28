@@ -1,5 +1,4 @@
-import { TreeBuilder, type TreeBuildOptions } from '~/lib/sync/builder';
-import { NodeData, TreeNode } from '~/lib/sync/tree';
+import { NodeData, TreeBuilder, TreeNode, type TreeBuildOptions } from '~/lib/bookmark';
 import { normalizeUrl } from '~/lib/util/string';
 import { defaultBrowserProxy, type BrowserProxy } from './proxy';
 

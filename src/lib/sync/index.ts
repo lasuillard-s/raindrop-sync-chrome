@@ -1,3 +1,4 @@
+export { SYNC_BOOKMARKS_ALARM_NAME } from './constants';
 export { SyncDiff } from './diff';
 export {
 	SyncEvent,
@@ -7,12 +8,7 @@ export {
 	SyncEventStart
 } from './event-listener';
 export type { SyncEventListener, SyncEventProgressKind } from './event-listener';
-export { SYNC_BOOKMARKS_ALARM_NAME } from './constants';
+export { SyncExecutor } from './executor';
 export { SyncManager } from './manager';
-export {
-	buildTreeFromSource,
-	TreeBuilder,
-	type TreeBuildOptions,
-	type TreeSourceAdapter
-} from './builder';
-export { NodeData, TreeNode } from './tree';
+export { SyncOp, SyncOpAdd, SyncOpDelete, SyncOpNoop, SyncOpUpdate } from './op';
+export { SyncPlan } from './plan';

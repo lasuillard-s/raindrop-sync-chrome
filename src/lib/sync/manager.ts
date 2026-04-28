@@ -1,4 +1,6 @@
 import { SettingsStore } from '~/config';
+import type { TreeBuilder } from '~/lib/bookmark';
+import { TreeNode } from '~/lib/bookmark';
 import {
 	ChromeAlarmScheduler,
 	ChromeBookmarkNodeData,
@@ -12,7 +14,6 @@ import {
 import { getClient, RaindropTreeBuilder, type RaindropNodeData } from '~/lib/raindrop';
 import type { Raindrop } from '~/lib/raindrop/client';
 import { Path } from '~/lib/util/path';
-import type { TreeBuilder } from './builder';
 import { SYNC_BOOKMARKS_ALARM_NAME } from './constants';
 import { SyncDiff } from './diff';
 import type { SyncEvent, SyncEventListener } from './event-listener';
@@ -24,7 +25,6 @@ import {
 } from './event-listener';
 import { SyncExecutor } from './executor';
 import { SyncPlan } from './plan';
-import { TreeNode } from './tree';
 
 /**
  * Manages synchronization between Raindrop.io and browser bookmarks.

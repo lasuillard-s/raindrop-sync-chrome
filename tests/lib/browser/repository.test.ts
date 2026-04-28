@@ -3,7 +3,7 @@ import {
 	BookmarkNotFoundError,
 	ChromeBookmarkRepository,
 	FolderNotFoundError
-} from '~/lib/browser/repository';
+} from '~/lib/browser';
 import { getClient } from '~/lib/raindrop/client';
 import { Path } from '~/lib/util/path';
 

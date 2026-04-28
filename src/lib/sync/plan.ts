@@ -1,7 +1,7 @@
+import type { NodeData } from '~/lib/bookmark';
 import { Path } from '~/lib/util/path';
 import type { SyncDiff } from './diff';
 import { SyncOp, SyncOpAdd, SyncOpDelete, SyncOpNoop, SyncOpUpdate } from './op';
-import type { NodeData } from './tree';
 
 export class SyncPlan {
 	readonly operations: SyncOp[] = [];
