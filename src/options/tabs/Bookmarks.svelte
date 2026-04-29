@@ -15,20 +15,18 @@
 		CirclePlusSolid,
 		ExclamationCircleSolid
 	} from 'flowbite-svelte-icons';
+	import { App } from '~/app';
 	import PathBreadcrumb from '~/components/PathBreadcrumb.svelte';
 	import Tree from '~/components/Tree.svelte';
-	import { App } from '~/lib/app';
-	import type { TreeNode } from '~/lib/bookmark';
 	import { defaultBrowserProxy, type ChromeBookmarkNodeData } from '~/lib/browser';
 	import { putMessage } from '~/lib/messages';
 	import { RaindropNodeData } from '~/lib/raindrop';
-	import type { SyncEvent, SyncEventListener } from '~/lib/sync';
+	import type { SyncEvent, SyncEventListener, TreeNode } from '~/lib/sync';
 	import { SyncDiff } from '~/lib/sync';
 
 	const app = App.getInstance();
-	const settings = app.getSettingsStore();
+	const settings = app.settings;
 	const settingsSnapshot = settings.snapshot;
-	const syncManager = app.createSyncManager();
 
 	let latestSyncEvent: SyncEvent | null = $state(null);
 
@@ -46,7 +44,7 @@
 	const fetchExpectedBookmarkTree = async () => {
 		isFetchingRaindrops = true;
 		try {
-			expectedBookmarkTree = await syncManager.getExpectedBookmarkTree();
+			expectedBookmarkTree = await app.sync.getExpectedBookmarkTree();
 		} catch (err) {
 			putMessage({ type: 'error', message: `Failed to fetch Raindrop.io bookmarks: ${err}` });
 		} finally {
@@ -61,7 +59,7 @@
 	const fetchCurrentBookmarkTree = async () => {
 		isFetchingChrome = true;
 		try {
-			currentBookmarkTree = await syncManager.getCurrentBookmarkTree();
+			currentBookmarkTree = await app.sync.getCurrentBookmarkTree();
 			syncLocationFullPath = currentBookmarkTree.getFullPathSegments().join(' / ') + ' /';
 		} catch (err) {
 			putMessage({ type: 'error', message: `Failed to fetch Chrome bookmarks: ${err}` });
@@ -84,7 +82,7 @@
 		}
 		isCalculatingDiff = true;
 		try {
-			syncDiff = await syncManager.calculateSyncDiff(expectedBookmarkTree, currentBookmarkTree);
+			syncDiff = await app.sync.calculateSyncDiff(expectedBookmarkTree, currentBookmarkTree);
 			console.debug('Calculated difference between current and expected tree: ', syncDiff);
 
 			const getCircularReplacer = () => {

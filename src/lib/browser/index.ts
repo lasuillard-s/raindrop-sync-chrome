@@ -9,17 +9,5 @@ export type {
 	RuntimeService,
 	StorageService
 } from './contracts';
-export { BookmarkNotFoundError, FolderNotFoundError } from './errors';
+export { AssertionError, InvalidSearchQueryError, NodeNotFoundError } from './errors';
 export { defaultBrowserProxy, WebExtensionProxy } from './proxy';
-export {
-	ChromeBookmarkRepository,
-	ChromeReadableBookmarkRepository,
-	ChromeWritableBookmarkRepository,
-	type ReadableBookmarkRepository,
-	type WritableBookmarkRepository
-} from './repository';
-export {
-	ChromeBookmarkNodeData,
-	ChromeBookmarkTreeBuilder,
-	createTreeFromChromeBookmarks
-} from './sync';

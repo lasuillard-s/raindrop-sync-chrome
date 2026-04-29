@@ -1,62 +1,101 @@
 import { describe, expect, it, vi } from 'vitest';
-import type { ChromeBookmarkRepository } from '~/lib/browser';
-import { SyncExecutor, SyncOp, SyncPlan } from '~/lib/sync';
+import {
+	SyncActionCreateBookmark,
+	SyncActionDelete,
+	SyncActionUpdateBookmark,
+	SyncExecutor,
+	SyncPlan,
+	WritableAdapter,
+	type SyncAction,
+	type TreeNode
+} from '~/lib/sync';
+import { Path } from '~/lib/util/path';
 
-class RecordingOp extends SyncOp {
-	constructor(
-		private readonly label: string,
-		private readonly log: string[],
-		private readonly repositoryRefs: ChromeBookmarkRepository[],
-		private readonly fail = false
-	) {
+class RecordingWritableAdapter extends WritableAdapter {
+	readonly applied: SyncAction[] = [];
+	readonly shouldFailAt: number | null;
+
+	constructor(shouldFailAt: number | null = null) {
 		super();
+		this.shouldFailAt = shouldFailAt;
 	}
 
-	async apply(repository: ChromeBookmarkRepository) {
-		this.repositoryRefs.push(repository);
-		this.log.push(this.label);
+	protected resolveBaseNodeId(baseNodeId?: string): string {
+		return baseNodeId ?? 'root';
+	}
 
-		if (this.fail) {
-			throw new Error(`failed:${this.label}`);
+	protected async fetchNodes(): Promise<TreeNode[]> {
+		return [];
+	}
+
+	protected buildTree(): TreeNode {
+		throw new Error('not used in this test');
+	}
+
+	async applyAction(action: SyncAction): Promise<void> {
+		this.applied.push(action);
+		if (this.shouldFailAt !== null && this.applied.length === this.shouldFailAt) {
+			throw new Error(`boom-${this.applied.length}`);
 		}
 	}
 }
 
 describe('SyncExecutor', () => {
-	it('executes plan operations in order against the provided repository', async () => {
-		// Arrange
-		const repository = {} as ChromeBookmarkRepository;
-		const executionLog: string[] = [];
-		const repositoryRefs: ChromeBookmarkRepository[] = [];
+	it('applies actions and returns aggregate report', async () => {
 		const plan = new SyncPlan();
-		plan.addOp(new RecordingOp('first', executionLog, repositoryRefs));
-		plan.addOp(new RecordingOp('second', executionLog, repositoryRefs));
-		plan.addOp(new RecordingOp('third', executionLog, repositoryRefs));
+		plan.addAction(
+			new SyncActionCreateBookmark({
+				path: new Path({ pathString: '/Synced/Created' }),
+				url: 'https://created.example'
+			})
+		);
+		plan.addAction(
+			new SyncActionUpdateBookmark({
+				id: 'updated-id',
+				title: 'Updated',
+				url: 'https://updated.example'
+			})
+		);
+		plan.addAction(new SyncActionDelete({ id: 'deleted-id' }));
 
-		// Act
-		await new SyncExecutor({ repository, plan }).execute();
+		const target = new RecordingWritableAdapter();
+		const report = await new SyncExecutor().execute(plan, target);
 
-		// Assert
-		expect(executionLog).toEqual(['first', 'second', 'third']);
-		expect(repositoryRefs).toEqual([repository, repository, repository]);
+		expect(target.applied).toHaveLength(3);
+		expect(report.created).toBe(1);
+		expect(report.updated).toBe(1);
+		expect(report.deleted).toBe(1);
+		expect(report.errors).toEqual([]);
 	});
 
-	it('stops executing once an operation throws', async () => {
-		// Arrange
-		const repository = {} as ChromeBookmarkRepository;
-		const executionLog: string[] = [];
-		const repositoryRefs: ChromeBookmarkRepository[] = [];
+	it('continues execution and captures errors when applying action fails', async () => {
+		const errorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
 		const plan = new SyncPlan();
-		plan.addOp(new RecordingOp('first', executionLog, repositoryRefs));
-		plan.addOp(new RecordingOp('second', executionLog, repositoryRefs, true));
-		plan.addOp(new RecordingOp('third', executionLog, repositoryRefs));
+		plan.addAction(
+			new SyncActionCreateBookmark({
+				path: new Path({ pathString: '/Synced/First' }),
+				url: 'https://first.example'
+			})
+		);
+		plan.addAction(
+			new SyncActionUpdateBookmark({
+				id: 'update-id',
+				title: 'Updated',
+				url: 'https://updated.example'
+			})
+		);
+		plan.addAction(new SyncActionDelete({ id: 'delete-id' }));
 
-		// Act
-		const execute = vi.fn(async () => await new SyncExecutor({ repository, plan }).execute());
+		const target = new RecordingWritableAdapter(2);
+		const report = await new SyncExecutor().execute(plan, target);
 
-		// Assert
-		await expect(execute()).rejects.toThrow('failed:second');
-		expect(executionLog).toEqual(['first', 'second']);
-		expect(repositoryRefs).toEqual([repository, repository]);
+		expect(target.applied).toHaveLength(3);
+		expect(report.created).toBe(1);
+		expect(report.updated).toBe(0);
+		expect(report.deleted).toBe(1);
+		expect(report.errors).toHaveLength(1);
+		expect(report.errors[0].message).toBe('boom-2');
+
+		errorSpy.mockRestore();
 	});
 });

@@ -8,7 +8,7 @@ describe('App', () => {
 
 	it('returns the same singleton instance from App.getInstance', async () => {
 		// Arrange
-		const { App } = await import('~/lib/app');
+		const { App } = await import('~/app');
 
 		// Act
 		const first = App.getInstance();
@@ -20,7 +20,7 @@ describe('App', () => {
 
 	it('preserves constructor-based dependency injection', async () => {
 		// Arrange
-		const { App } = await import('~/lib/app');
+		const { App } = await import('~/app');
 		const browserProxy = {} as BrowserProxy;
 
 		// Act

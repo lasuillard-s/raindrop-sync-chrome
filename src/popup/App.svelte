@@ -2,13 +2,12 @@
 	import { format, formatDistanceToNow } from 'date-fns';
 	import { A, Toggle } from 'flowbite-svelte';
 	import { RefreshOutline } from 'flowbite-svelte-icons';
-	import { App } from '~/lib/app';
+	import { App } from '~/app';
 	import { defaultBrowserProxy } from '~/lib/browser';
-	import { type SyncEvent, type SyncEventListener } from '~/lib/sync';
+	import { type SyncEvent, type SyncEventListener } from '~/services/sync';
 
 	const app = App.getInstance();
-	const settings = app.getSettingsStore();
-	const syncManager = app.createSyncManager();
+	const settings = app.settings;
 
 	let isSyncing = $state(false);
 	let forceSync = $state(false);
@@ -32,12 +31,12 @@
 
 	$effect(() => {
 		const listener = new SyncEventListenerImpl();
-		syncManager.addListener(listener);
+		app.sync.addEventListener(listener);
 
 		void settings.ready();
 
 		return () => {
-			syncManager.removeListener(listener);
+			app.sync.removeEventListener(listener);
 		};
 	});
 
@@ -73,7 +72,7 @@
 		isSyncing = true;
 		startRotation();
 		try {
-			await syncManager.startSync({ force: forceSync });
+			await app.sync.runFullSync({ force: forceSync });
 		} catch (error) {
 			console.error('Sync error:', error);
 		} finally {

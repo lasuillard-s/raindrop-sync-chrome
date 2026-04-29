@@ -1,14 +1,20 @@
-export { SYNC_BOOKMARKS_ALARM_NAME } from './constants';
-export { SyncDiff } from './diff';
 export {
-	SyncEvent,
-	SyncEventComplete,
-	SyncEventError,
-	SyncEventProgress,
-	SyncEventStart
-} from './event-listener';
-export type { SyncEventListener, SyncEventProgressKind } from './event-listener';
-export { SyncExecutor } from './executor';
-export { SyncManager } from './manager';
-export { SyncOp, SyncOpAdd, SyncOpDelete, SyncOpNoop, SyncOpUpdate } from './op';
-export { SyncPlan } from './plan';
+	SyncActionCreateBookmark,
+	SyncActionCreateFolder,
+	SyncActionDelete,
+	SyncActionType,
+	SyncActionUpdateBookmark,
+	SyncActionUpdateFolder,
+	type SyncAction,
+	type SyncActionCreateBookmarkArgs,
+	type SyncActionCreateFolderArgs,
+	type SyncActionDeleteArgs,
+	type SyncActionUpdateBookmarkArgs,
+	type SyncActionUpdateFolderArgs
+} from './action';
+export { ReadableAdapter, WritableAdapter } from './adapter';
+export { SyncDiff, SyncDiffAnalyzer } from './diff';
+export { BookmarkIsNotAFolderError } from './errors';
+export { SyncExecutor, SyncReport } from './executor';
+export { SyncPlan, SyncPlanner, SyncPlanOptimizer } from './plan';
+export { TreeNode } from './tree';

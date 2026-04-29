@@ -1,10 +1,11 @@
-import { App } from '~/lib/app';
-import { SYNC_BOOKMARKS_ALARM_NAME } from '~/lib/sync';
+import { App } from '~/app';
 import { doMigrate } from '~/migrations';
 import type { MigrationContext } from '~/migrations/types';
+import { SYNC_BOOKMARKS_ALARM_NAME } from '~/services/sync';
+import { defaultBrowserProxy } from './lib/browser';
 
 const app = App.getInstance();
-const browserProxy = app.browserProxy;
+const browserProxy = defaultBrowserProxy;
 
 browserProxy.runtime.onInstalledAddListener(async (details) => {
 	const installedReason = browserProxy.runtime.getOnInstalledReason();
@@ -28,7 +29,7 @@ browserProxy.runtime.onInstalledAddListener(async (details) => {
 		}
 	}
 
-	await app.createSyncManager().scheduleAutoSync();
+	await app.sync.scheduleAutoSync();
 });
 
 browserProxy.alarms.onAlarmAddListener(async (alarm) => {
@@ -36,10 +37,9 @@ browserProxy.alarms.onAlarmAddListener(async (alarm) => {
 	switch (alarm.name) {
 		case SYNC_BOOKMARKS_ALARM_NAME: {
 			console.debug('Syncing bookmarks');
-			const settings = app.getSettingsStore();
+			const settings = app.settings;
 			await settings.ready();
-			const useLegacySyncMechanism = settings.snapshot.useLegacySyncMechanism;
-			await app.createSyncManager({ settings }).startSync({ useLegacy: useLegacySyncMechanism });
+			await app.sync.runFullSync();
 			break;
 		}
 	}

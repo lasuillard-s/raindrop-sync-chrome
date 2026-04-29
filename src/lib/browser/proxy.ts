@@ -92,6 +92,13 @@ class WebExtensionBookmarkService implements BookmarkService {
 	): Promise<chrome.bookmarks.BookmarkTreeNode> {
 		return await chrome.bookmarks.update(id, changes);
 	}
+
+	async move(
+		id: string,
+		changes: chrome.bookmarks.MoveDestination
+	): Promise<chrome.bookmarks.BookmarkTreeNode> {
+		return await chrome.bookmarks.move(id, changes);
+	}
 }
 
 class WebExtensionIdentityService implements IdentityService {

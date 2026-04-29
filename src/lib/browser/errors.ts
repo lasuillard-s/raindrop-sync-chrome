@@ -1,15 +1,23 @@
-export class FolderNotFoundError extends Error {
-	constructor(message: string) {
-		super(message);
-		Object.setPrototypeOf(this, FolderNotFoundError.prototype);
-		this.name = 'FolderNotFoundError';
+export class NodeNotFoundError extends Error {
+	constructor(message: string, options?: ErrorOptions) {
+		super(message, options);
+		Object.setPrototypeOf(this, NodeNotFoundError.prototype);
+		this.name = 'NodeNotFoundError';
 	}
 }
 
-export class BookmarkNotFoundError extends Error {
-	constructor(message: string) {
-		super(message);
-		Object.setPrototypeOf(this, BookmarkNotFoundError.prototype);
-		this.name = 'BookmarkNotFoundError';
+export class InvalidSearchQueryError extends Error {
+	constructor(message: string, options?: ErrorOptions) {
+		super(message, options);
+		Object.setPrototypeOf(this, InvalidSearchQueryError.prototype);
+		this.name = 'InvalidSearchQueryError';
+	}
+}
+
+export class AssertionError extends Error {
+	constructor(message: string, options?: ErrorOptions) {
+		super(message, options);
+		Object.setPrototypeOf(this, AssertionError.prototype);
+		this.name = 'AssertionError';
 	}
 }

@@ -3,6 +3,7 @@
 	import {
 		BookmarkOutline,
 		LinkOutline,
+		PlayOutline,
 		QuestionCircleOutline,
 		SearchOutline
 	} from 'flowbite-svelte-icons';
@@ -12,6 +13,7 @@
 	import About from './tabs/About.svelte';
 	import Bookmarks from './tabs/Bookmarks.svelte';
 	import Integration from './tabs/Integration.svelte';
+	import NewSyncTest from './tabs/NewSyncTest.svelte';
 	import TryIt from './tabs/TryIt.svelte';
 </script>
 
@@ -25,6 +27,15 @@
 				</div>
 			{/snippet}
 			<Bookmarks />
+		</TabItem>
+		<TabItem>
+			{#snippet titleSlot()}
+				<div class="flex items-center gap-2">
+					<PlayOutline size="sm" class="focus:outline-hidden" />
+					New Sync (Test)
+				</div>
+			{/snippet}
+			<NewSyncTest />
 		</TabItem>
 		<TabItem>
 			{#snippet titleSlot()}

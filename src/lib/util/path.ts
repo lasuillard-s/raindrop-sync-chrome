@@ -63,9 +63,29 @@ export class Path {
 	 * @param segments The segments to join.
 	 * @returns A new Path with the joined segments.
 	 */
-	joinPath(...segments: string[]): Path {
+	join(...segments: string[]): Path {
 		const newSegments = [...this.pathSegments, ...segments];
 		return new Path({ segments: newSegments });
+	}
+
+	/**
+	 * Join another Path to the current path.
+	 * @param other The Path to join.
+	 * @returns A new Path with the joined segments.
+	 */
+	joinPath(other: Path): Path {
+		return this.join(...other.getSegments());
+	}
+
+	/**
+	 * Get the basename of the path (the last segment).
+	 * @returns The basename of the path, or an empty string if the path is empty.
+	 */
+	basename(): string {
+		if (this.pathSegments.length === 0) {
+			return '';
+		}
+		return this.pathSegments[this.pathSegments.length - 1];
 	}
 }
 

@@ -28,6 +28,10 @@ export interface BookmarkService {
 		id: string,
 		changes: chrome.bookmarks.UpdateChanges
 	): Promise<chrome.bookmarks.BookmarkTreeNode>;
+	move(
+		id: string,
+		changes: chrome.bookmarks.MoveDestination
+	): Promise<chrome.bookmarks.BookmarkTreeNode>;
 }
 
 export interface IdentityService {

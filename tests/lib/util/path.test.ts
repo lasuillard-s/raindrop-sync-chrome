@@ -57,9 +57,9 @@ describe('Path', () => {
 		expect(parentPath.toString()).toBe('/');
 	});
 
-	it('joinPath() should join segments correctly', () => {
+	it('join() should join segments correctly', () => {
 		const path = new Path({ pathString: '/folder' });
-		const newPath = path.joinPath('subfolder', 'file.txt');
+		const newPath = path.join('subfolder', 'file.txt');
 		expect(newPath.getSegments()).toEqual(['folder', 'subfolder', 'file.txt']);
 		expect(newPath.toString()).toBe('/folder/subfolder/file.txt');
 	});

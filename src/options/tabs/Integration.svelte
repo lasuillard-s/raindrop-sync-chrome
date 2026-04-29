@@ -1,15 +1,15 @@
 <script lang="ts">
 	import { Accordion, AccordionItem, Button, Heading, P } from 'flowbite-svelte';
+	import { App } from '~/app';
 	import imgCNA1 from '~/assets/raindrop-create-new-app-1.png';
 	import imgCNA2 from '~/assets/raindrop-create-new-app-2.png';
 	import SecretInput from '~/components/SecretInput.svelte';
-	import { App } from '~/lib/app';
 	import { defaultBrowserProxy } from '~/lib/browser';
 	import { putMessage } from '~/lib/messages';
 	import { launchWebAuthFlow as _launchWebAuthFlow } from '~/lib/raindrop/auth';
 
 	const app = App.getInstance();
-	const settings = app.getSettingsStore();
+	const settings = app.settings;
 	const settingsSnapshot = settings.snapshot;
 
 	const extensionId = defaultBrowserProxy.runtime.getId();
