@@ -1,12 +1,17 @@
 import { test as base, chromium, type BrowserContext, type Worker } from '@playwright/test';
-import path from 'path';
+import path from 'node:path';
+import { fileURLToPath } from 'node:url';
+import { BookmarkFixture, ExtensionPagesFixture, ExtensionStorageFixture } from './helpers/browser';
 
-const __dirname = path.dirname(new URL(import.meta.url).pathname);
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 export const test = base.extend<{
 	context: BrowserContext;
 	serviceWorker: Worker;
 	extensionId: string;
+	extensionPages: ExtensionPagesFixture;
+	extensionStorage: ExtensionStorageFixture;
+	bookmarks: BookmarkFixture;
 }>({
 	// eslint-disable-next-line no-empty-pattern
 	context: async ({}, use) => {
@@ -29,6 +34,15 @@ export const test = base.extend<{
 	extensionId: async ({ serviceWorker }, use) => {
 		const extensionId = serviceWorker.url().split('/')[2];
 		await use(extensionId);
+	},
+	extensionPages: async ({ extensionId }, use) => {
+		await use(new ExtensionPagesFixture(extensionId));
+	},
+	extensionStorage: async ({ serviceWorker }, use) => {
+		await use(new ExtensionStorageFixture(serviceWorker));
+	},
+	bookmarks: async ({ serviceWorker }, use) => {
+		await use(new BookmarkFixture(serviceWorker));
 	}
 });
 

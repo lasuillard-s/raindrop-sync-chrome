@@ -1,8 +1,11 @@
 import { expect, test } from './fixtures';
 
 test.describe('manifest', async () => {
-	test('exposes expected manifest fields in extension context', async ({ page, extensionId }) => {
-		await page.goto(`chrome-extension://${extensionId}/src/options/index.html`);
+	test('exposes expected manifest fields in extension context', async ({
+		page,
+		extensionPages
+	}) => {
+		await extensionPages.gotoOptionsPage(page);
 
 		const manifest = await page.evaluate(() => chrome.runtime.getManifest());
 
