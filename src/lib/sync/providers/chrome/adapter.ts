@@ -1,5 +1,5 @@
-import { SyncActionType, TreeNode, WritableAdapter, type SyncAction } from '~/lib/sync';
-import { normalizeUrl } from '~/lib/util/string';
+import { SyncActionType, TreeNode, WritableAdapter, type SyncAction } from '@lib/sync';
+import { normalizeUrl } from '@lib/util/string';
 import { ChromeBookmarkRepository } from './repository';
 
 export class ChromeBookmarkTreeNode extends TreeNode {

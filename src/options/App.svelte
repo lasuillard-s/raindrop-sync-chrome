@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { messageBox } from '@lib/messages';
 	import { TabItem, Tabs } from 'flowbite-svelte';
 	import {
 		BookmarkOutline,
@@ -9,7 +10,6 @@
 	} from 'flowbite-svelte-icons';
 	import '~/app.css';
 	import Message from '~/components/Message.svelte';
-	import { messageBox } from '~/lib/messages';
 	import About from './tabs/About.svelte';
 	import Bookmarks from './tabs/Bookmarks.svelte';
 	import Integration from './tabs/Integration.svelte';

@@ -1,6 +1,6 @@
 <script lang="ts">
+	import { getClient } from '@lib/raindrop';
 	import { A, Button, ButtonGroup, Heading, Input, Label, P, Textarea } from 'flowbite-svelte';
-	import { getClient } from '~/lib/raindrop';
 
 	let query = $state('');
 	let queryResult: unknown = $state(null);

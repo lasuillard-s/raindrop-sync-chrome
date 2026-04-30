@@ -1,4 +1,3 @@
-import { describe, expect, it, vi } from 'vitest';
 import {
 	SyncActionCreateBookmark,
 	SyncActionDelete,
@@ -8,8 +7,9 @@ import {
 	WritableAdapter,
 	type SyncAction,
 	type TreeNode
-} from '~/lib/sync';
-import { Path } from '~/lib/util/path';
+} from '@lib/sync';
+import { Path } from '@lib/util/path';
+import { describe, expect, it, vi } from 'vitest';
 
 class RecordingWritableAdapter extends WritableAdapter {
 	readonly applied: SyncAction[] = [];

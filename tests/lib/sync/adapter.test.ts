@@ -1,6 +1,6 @@
+import { ReadableAdapter } from '@lib/sync';
 import { TestTreeNode } from '@test-helpers/tree';
 import { describe, expect, it } from 'vitest';
-import { ReadableAdapter } from '~/lib/sync';
 
 class RecordingAdapter extends ReadableAdapter<TestTreeNode> {
 	readonly calls: string[] = [];

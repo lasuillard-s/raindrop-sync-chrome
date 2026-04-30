@@ -1,6 +1,6 @@
+import { launchWebAuthFlow } from '@lib/raindrop/auth';
+import { Raindrop } from '@lib/raindrop/client';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { launchWebAuthFlow } from '~/lib/raindrop/auth';
-import { Raindrop } from '~/lib/raindrop/client';
 
 const tokenResponse = {
 	access_token: '<ACCESS_TOKEN>',

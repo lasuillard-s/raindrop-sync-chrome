@@ -1,6 +1,6 @@
 <script lang="ts">
+	import { defaultBrowserProxy } from '@lib/browser';
 	import { A, Heading, P } from 'flowbite-svelte';
-	import { defaultBrowserProxy } from '~/lib/browser';
 
 	const getSelf = () => defaultBrowserProxy.management.getSelf();
 </script>

@@ -1,8 +1,8 @@
-import { vi } from 'vitest';
 import getAllRaindrops from '@fixtures/raindrop/getAllRaindrops.json';
-import getRootCollections from '@fixtures/raindrop/getRootCollections.json';
 import getChildCollections from '@fixtures/raindrop/getChildCollections.json';
-import type { Raindrop } from '~/lib/raindrop/client';
+import getRootCollections from '@fixtures/raindrop/getRootCollections.json';
+import type { Raindrop } from '@lib/raindrop/client';
+import { vi } from 'vitest';
 
 export const mockRaindropClient = (raindropClient: Raindrop) => {
 	const mocked = vi.mockObject(raindropClient);

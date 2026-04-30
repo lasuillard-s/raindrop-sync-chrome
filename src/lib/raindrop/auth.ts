@@ -1,5 +1,5 @@
 import { generated } from '@lasuillard/raindrop-client';
-import { defaultBrowserProxy, type BrowserProxy } from '~/lib/browser';
+import { defaultBrowserProxy, type BrowserProxy } from '@lib/browser';
 import { Raindrop } from './client';
 
 export interface AuthFlowParams {

@@ -1,4 +1,4 @@
-import type { Path } from '~/lib/util/path';
+import type { Path } from '@lib/util/path';
 
 export enum SyncActionType {
 	CreateBookmark = 'create-bookmark',

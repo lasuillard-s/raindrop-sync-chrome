@@ -1,5 +1,5 @@
-import { Path } from '~/lib/util/path';
-import { normalizeUrl } from '~/lib/util/string';
+import { Path } from '@lib/util/path';
+import { normalizeUrl } from '@lib/util/string';
 import { BookmarkIsNotAFolderError } from './errors';
 
 export abstract class TreeNode {

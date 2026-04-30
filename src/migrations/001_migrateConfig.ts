@@ -1,5 +1,5 @@
+import { defaultBrowserProxy } from '@lib/browser';
 import { ChromeStorageAdapter, Settings, SettingsRepository } from '~/config';
-import { defaultBrowserProxy } from '~/lib/browser';
 import { MigrationBase, type MigrationContext } from './types';
 
 export class Migration extends MigrationBase {

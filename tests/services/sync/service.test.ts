@@ -1,7 +1,7 @@
+import { ChromeAlarmScheduler } from '@lib/browser';
+import { WritableAdapter, type SyncAction } from '@lib/sync';
 import { TestTreeNode } from '@test-helpers/tree';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { ChromeAlarmScheduler } from '~/lib/browser';
-import { WritableAdapter, type SyncAction } from '~/lib/sync';
 import { SYNC_BOOKMARKS_ALARM_NAME, SyncService } from '~/services/sync';
 
 const clearAll = vi.fn(async () => undefined);

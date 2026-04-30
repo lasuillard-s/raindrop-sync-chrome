@@ -1,6 +1,6 @@
+import { BookmarkIsNotAFolderError } from '@lib/sync';
 import { TestTreeNode } from '@test-helpers/tree';
 import { describe, expect, it } from 'vitest';
-import { BookmarkIsNotAFolderError } from '~/lib/sync';
 
 describe('TreeNode', () => {
 	it('builds path using parent links', () => {

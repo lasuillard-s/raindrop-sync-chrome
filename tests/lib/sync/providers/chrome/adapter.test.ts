@@ -1,13 +1,13 @@
-import { describe, expect, it, vi } from 'vitest';
 import {
 	SyncActionCreateBookmark,
 	SyncActionCreateFolder,
 	SyncActionDelete,
 	SyncActionUpdateBookmark,
 	SyncActionUpdateFolder
-} from '~/lib/sync';
-import { ChromeAdapter } from '~/lib/sync/providers/chrome';
-import { Path } from '~/lib/util/path';
+} from '@lib/sync';
+import { ChromeAdapter } from '@lib/sync/providers/chrome';
+import { Path } from '@lib/util/path';
+import { describe, expect, it, vi } from 'vitest';
 
 describe('ChromeAdapter', () => {
 	it('builds a tree from repository subtree and supports non-root base id', async () => {

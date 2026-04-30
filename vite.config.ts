@@ -42,6 +42,7 @@ export default defineConfig(({ mode }) => {
 			conditions: mode === 'test' ? ['browser'] : undefined,
 			alias: [
 				{ find: '~', replacement: path.resolve(__dirname, 'src') },
+				{ find: '@lib', replacement: path.resolve(__dirname, 'src/lib') },
 				{ find: '@fixtures', replacement: path.resolve(__dirname, 'tests/fixtures') },
 				{ find: '@test-helpers', replacement: path.resolve(__dirname, 'tests/helpers') }
 			]

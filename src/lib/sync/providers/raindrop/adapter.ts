@@ -1,7 +1,7 @@
 import { generated } from '@lasuillard/raindrop-client';
-import { getClient, type Raindrop } from '~/lib/raindrop';
-import { ReadableAdapter, TreeNode } from '~/lib/sync';
-import { normalizeUrl } from '~/lib/util/string';
+import { getClient, type Raindrop } from '@lib/raindrop';
+import { ReadableAdapter, TreeNode } from '@lib/sync';
+import { normalizeUrl } from '@lib/util/string';
 
 type GetRootCollectionsResponseItem = generated.GetRootCollectionsResponse['items'][0];
 type GetChildCollectionsResponseItem = generated.GetChildCollectionsResponse['items'][0];

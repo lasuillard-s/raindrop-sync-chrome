@@ -1,7 +1,7 @@
 <script lang="ts">
+	import type { TreeNode } from '@lib/sync/tree';
+	import { isUrlSafeHref } from '@lib/util/string';
 	import { ChevronDownOutline, ChevronRightOutline } from 'flowbite-svelte-icons';
-	import type { TreeNode } from '~/lib/sync/tree';
-	import { isUrlSafeHref } from '~/lib/util/string';
 	import Self from './Tree.svelte';
 
 	interface Props {

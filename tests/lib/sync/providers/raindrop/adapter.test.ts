@@ -1,5 +1,5 @@
+import { RaindropAdapter } from '@lib/sync/providers/raindrop';
 import { describe, expect, it, vi } from 'vitest';
-import { RaindropAdapter } from '~/lib/sync/providers/raindrop';
 
 describe('RaindropAdapter', () => {
 	it('loads root-level data and deduplicates nodes by id', async () => {

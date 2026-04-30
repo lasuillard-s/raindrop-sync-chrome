@@ -3,7 +3,7 @@
 	import { A, Toggle } from 'flowbite-svelte';
 	import { RefreshOutline } from 'flowbite-svelte-icons';
 	import { App } from '~/app';
-	import { defaultBrowserProxy } from '~/lib/browser';
+	import { defaultBrowserProxy } from '@lib/browser';
 	import { type SyncEvent, type SyncEventListener } from '~/services/sync';
 
 	const app = App.getInstance();

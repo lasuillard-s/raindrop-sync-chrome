@@ -1,12 +1,12 @@
-import { TestTreeNode } from '@test-helpers/tree';
-import { describe, expect, it } from 'vitest';
 import {
 	SyncActionCreateBookmark,
 	SyncActionDelete,
 	SyncActionUpdateBookmark,
 	SyncDiff,
 	SyncPlanner
-} from '~/lib/sync';
+} from '@lib/sync';
+import { TestTreeNode } from '@test-helpers/tree';
+import { describe, expect, it } from 'vitest';
 
 describe('SyncPlanner', () => {
 	it('generates create, update, and delete actions from a diff', () => {
