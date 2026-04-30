@@ -2,12 +2,12 @@
 	import { format, formatDistanceToNow } from 'date-fns';
 	import { A, Toggle } from 'flowbite-svelte';
 	import { RefreshOutline } from 'flowbite-svelte-icons';
-	import { onMount } from 'svelte';
-	import { SettingsStore } from '~/config';
-	import { SyncManager, type SyncEvent, type SyncEventListener } from '~/lib/sync';
+	import { App } from '~/app';
+	import { defaultBrowserProxy } from '@lib/browser';
+	import { type SyncEvent, type SyncEventListener } from '~/services/sync';
 
-	const settings = SettingsStore.getOrCreate();
-	const syncManager = new SyncManager({ settings });
+	const app = App.getInstance();
+	const settings = app.settings;
 
 	let isSyncing = $state(false);
 	let forceSync = $state(false);
@@ -29,16 +29,14 @@
 		}
 	}
 
-	onMount(() => {
+	$effect(() => {
 		const listener = new SyncEventListenerImpl();
-		syncManager.addListener(listener);
+		app.sync.addEventListener(listener);
 
-		(async () => {
-			await settings.ready();
-		})();
+		void settings.ready();
 
 		return () => {
-			syncManager.removeListener(listener);
+			app.sync.removeEventListener(listener);
 		};
 	});
 
@@ -74,7 +72,7 @@
 		isSyncing = true;
 		startRotation();
 		try {
-			await syncManager.startSync({ force: forceSync });
+			await app.sync.runFullSync({}, { force: forceSync });
 		} catch (error) {
 			console.error('Sync error:', error);
 		} finally {
@@ -88,7 +86,7 @@
 		}
 	};
 
-	const openOptionsPage = () => chrome.runtime.openOptionsPage();
+	const openOptionsPage = () => defaultBrowserProxy.runtime.openOptionsPage();
 </script>
 
 <main class="flex w-72 flex-col bg-white">

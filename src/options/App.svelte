@@ -1,14 +1,15 @@
 <script lang="ts">
+	import { messageBox } from '@lib/messages';
 	import { TabItem, Tabs } from 'flowbite-svelte';
 	import {
 		BookmarkOutline,
 		LinkOutline,
+		PlayOutline,
 		QuestionCircleOutline,
 		SearchOutline
 	} from 'flowbite-svelte-icons';
 	import '~/app.css';
 	import Message from '~/components/Message.svelte';
-	import { messageBox } from '~/lib/messages';
 	import About from './tabs/About.svelte';
 	import Bookmarks from './tabs/Bookmarks.svelte';
 	import Integration from './tabs/Integration.svelte';
@@ -25,6 +26,14 @@
 				</div>
 			{/snippet}
 			<Bookmarks />
+		</TabItem>
+		<TabItem>
+			{#snippet titleSlot()}
+				<div class="flex items-center gap-2">
+					<PlayOutline size="sm" class="focus:outline-hidden" />
+					New Sync (Test)
+				</div>
+			{/snippet}
 		</TabItem>
 		<TabItem>
 			{#snippet titleSlot()}

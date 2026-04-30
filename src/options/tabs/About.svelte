@@ -1,7 +1,8 @@
 <script lang="ts">
+	import { defaultBrowserProxy } from '@lib/browser';
 	import { A, Heading, P } from 'flowbite-svelte';
 
-	const getSelf = () => chrome.management.getSelf();
+	const getSelf = () => defaultBrowserProxy.management.getSelf();
 </script>
 
 <div>

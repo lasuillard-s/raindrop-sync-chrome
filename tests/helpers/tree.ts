@@ -1,45 +1,32 @@
-import { NodeData } from '~/lib/sync/tree';
 import { faker } from '@faker-js/faker';
+import { TreeNode } from '@lib/sync';
 
-// NodeData implementation for testing
-export class TestNodeData extends NodeData {
-	private _id: string;
-	private _parentId: string | null;
-	private _name: string;
-	private _url: string | null;
-	private _isFolder: boolean;
-
+export class TestTreeNode extends TreeNode {
 	constructor(props: {
 		id: string;
-		parentId?: string | null;
-		name?: string;
+		title?: string;
 		url?: string | null;
-		isFolder?: boolean;
+		type?: 'folder' | 'bookmark';
+		raw?: unknown;
+		parent?: TreeNode | null;
 	}) {
-		super();
-		this._id = props.id;
-		this._parentId = props.parentId ?? null;
-		this._name = props.name ?? faker.lorem.word();
-		this._url = props.url ?? null;
-		this._isFolder = props.isFolder ?? false;
+		super({
+			id: props.id,
+			parent: null, // Parent will be set when building the tree (.addChild())
+			title: props.title ?? faker.lorem.word(),
+			url: props.url ?? null,
+			type: props.type || 'bookmark',
+			raw: props.raw ?? null
+		});
+		if (props.parent) {
+			props.parent.addChild(this);
+		}
 	}
 
-	getId(): string {
-		return this._id;
-	}
-	getParentId(): string | null {
-		return this._parentId;
-	}
 	getHash(): string {
-		return this._id;
-	}
-	getName(): string {
-		return this._name;
-	}
-	getUrl(): string | null {
-		return this._url;
-	}
-	isFolder(): boolean {
-		return this._isFolder;
+		if (this.isFolder()) {
+			return this.getPath().toString();
+		}
+		return this.getPath().toString() + '|' + (this.url || '');
 	}
 }

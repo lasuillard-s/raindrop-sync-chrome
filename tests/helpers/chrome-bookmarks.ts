@@ -1,5 +1,5 @@
-import { vi } from 'vitest';
 import _getTree from '@fixtures/chrome/bookmarks/getTree.json';
+import { vi } from 'vitest';
 
 // @ts-expect-error Ignore type mismatch for mocks
 const getTree: chrome.bookmarks.BookmarkTreeNode[] = _getTree;
@@ -42,5 +42,6 @@ export const mocks = {
 	})),
 	remove: vi.fn(),
 	removeTree: vi.fn(),
-	update: vi.fn()
+	update: vi.fn(),
+	move: vi.fn()
 };

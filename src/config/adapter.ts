@@ -20,6 +20,7 @@ export class InMemoryStorageAdapter implements StorageAdapter {
 	}
 }
 
+// TODO: Bridge to browser proxy
 export class ChromeStorageAdapter implements StorageAdapter {
 	private storageArea: chrome.storage.StorageArea;
 

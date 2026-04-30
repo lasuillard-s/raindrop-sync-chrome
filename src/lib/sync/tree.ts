@@ -1,184 +1,142 @@
-import { Path, PathMap } from '~/lib/util/path';
+import { Path } from '@lib/util/path';
+import { normalizeUrl } from '@lib/util/string';
+import { BookmarkIsNotAFolderError } from './errors';
 
-export class PathConflictError extends Error {
-	constructor(message: string) {
-		super(message);
-		Object.setPrototypeOf(this, PathConflictError.prototype);
-		this.name = 'PathConflictError';
-	}
-}
+export abstract class TreeNode {
+	readonly id: string;
+	protected parent: TreeNode | null;
+	readonly title: string;
+	readonly url: string | null;
+	readonly type: 'folder' | 'bookmark';
+	readonly children?: TreeNode[];
+	protected readonly raw: unknown;
 
-/** Abstraction for required functionality of raw source data types. */
-export abstract class NodeData {
-	abstract getId(): string;
-	abstract getParentId(): string | null;
-
-	/**
-	 * Generate hash based on current node data for comparison with other node data types.
-	 *
-	 * If two different data type is equal, it should return same hash for equality comparison.
-	 * For empty data, it should generate random hash to avoid equality with any other data.
-	 */
-	abstract getHash(): string;
-
-	abstract getName(): string;
-	abstract getUrl(): string | null;
-	abstract isFolder(): boolean;
-}
-
-/** Callback function for tree traversal. */
-export type TraversalCallback<T> = (node: T) => void;
-
-/** Represents a node in a tree structure. */
-export class TreeNode<D extends NodeData> {
-	data: D | null; // Allow null for empty root nodes used for logical grouping
-
-	// Need this reverse reference for full path resolution
-	parent: TreeNode<D> | null; // null if root
-
-	children: TreeNode<D>[] = [];
-
-	constructor(args: { data: D | null; parent?: TreeNode<D> }) {
-		this.data = args.data;
-		this.parent = args.parent ?? null;
-	}
-
-	// This tree creation algorithm would be very inefficient for large data sets,
-	// but do it this way for simplicity for now.
-	private static _createTree<D extends NodeData>(
-		parent: TreeNode<D>,
-		parentId: string | null,
-		parentToChildren: Map<string | null, D[]>
-	) {
-		const children = parentToChildren.get(parentId) ?? [];
-		parentToChildren.delete(parentId); // Prevent re-processing
-		for (const child of children) {
-			const childNode = new TreeNode<D>({ data: child, parent: parent });
-			this._createTree(childNode, child.getId(), parentToChildren);
-			parent.addChild(childNode);
-		}
+	constructor(args: {
+		id: string;
+		parent: TreeNode | null;
+		title: string;
+		url: string | null;
+		type: 'folder' | 'bookmark';
+		raw: unknown;
+	}) {
+		this.id = args.id;
+		this.parent = args.parent;
+		this.title = args.title;
+		this.url = args.url;
+		this.type = args.type;
+		this.children = this.isFolder() ? [] : undefined;
+		this.raw = args.raw;
 	}
 
 	/**
-	 * Create a tree from a flat list of data
-	 * @param data Data for the root node
-	 * @param dataList Flat list of data to create the tree from
-	 * @returns Root node of the tree
+	 * Check if the node is the root node
+	 * @returns true if the node is the root node, false otherwise
 	 */
-	static createTree<D extends NodeData>(data: D | null, dataList: D[]): TreeNode<D> {
-		const rootNode = new TreeNode<D>({ data });
-
-		// Create map of parent ID to children for efficient searching
-		// (#165) It would preserve the ordering of original data list, but it's quite implicit behavior
-		//        If possible, should refactor this to function explicitly
-		const parentToChildren = new Map<string | null, D[]>();
-		for (const item of dataList) {
-			const parentId = item.getParentId();
-			if (!parentToChildren.has(parentId)) {
-				parentToChildren.set(parentId, []);
-			}
-			parentToChildren.get(parentId)!.push(item);
-		}
-		this._createTree(rootNode, null, parentToChildren);
-
-		// Warn about unprocessed nodes
-		if (parentToChildren.size > 0) {
-			console.warn(
-				`Some nodes were not attached to the tree because their parent IDs were not found: ${Array.from(
-					parentToChildren.keys()
-				).join(', ')}`
-			);
-		}
-
-		return rootNode;
-	}
-
-	getId(): string {
-		return this.data?.getId() ?? Math.random().toString();
-	}
-
-	getName(): string | null {
-		if (this.isRoot()) {
-			return '/';
-		}
-		return this.data?.getName() ?? null;
-	}
-
-	getUrl(): string | null {
-		return this.data?.getUrl() ?? null;
-	}
-
-	getFullPathSegments(relativeTo?: TreeNode<D>): string[] {
-		const segments: string[] = [];
-
-		// eslint-disable-next-line @typescript-eslint/no-this-alias
-		let currentNode: TreeNode<D> | null = this;
-
-		while (currentNode && !currentNode.isRoot() && currentNode !== relativeTo) {
-			segments.unshift(currentNode.getName() || '');
-			currentNode = currentNode.parent;
-		}
-
-		return segments;
-	}
-
-	getFullPath(relativeTo?: TreeNode<D>): Path {
-		const segments = this.getFullPathSegments(relativeTo);
-		return new Path({ segments });
-	}
-
 	isRoot(): boolean {
 		return this.parent === null;
 	}
 
+	/**
+	 * Check if the node is a folder
+	 * @returns true if the node is a folder, false otherwise
+	 */
 	isFolder(): boolean {
-		return this.data?.isFolder() || this.isRoot();
-	}
-
-	isTerminal(): boolean {
-		return !this.isFolder() && this.children.length === 0;
-	}
-
-	addChild(child: TreeNode<D>) {
-		child.parent = this;
-		this.children.push(child);
-	}
-
-	removeChild(child: TreeNode<D>) {
-		child.parent = null;
-		this.children = this.children.filter((c) => c !== child);
+		return this.type === 'folder';
 	}
 
 	/**
-	 * Depth-first traversal of the tree.
-	 * @param callback Callback function to execute on each node
+	 * Get the path of the node by traversing up to the root
+	 * @returns the path of the node
 	 */
-	dfs(callback: TraversalCallback<TreeNode<D>>) {
-		callback(this);
-		for (const child of this.children) {
-			child.dfs(callback);
+	getPath(): Path {
+		const segments: string[] = [];
+		// eslint-disable-next-line @typescript-eslint/no-this-alias
+		let currentNode: TreeNode | null = this;
+		while (currentNode) {
+			segments.unshift(currentNode.title);
+			currentNode = currentNode.parent;
+		}
+		return new Path({ segments });
+	}
+
+	/**
+	 * Get a hash string representing the node's identity and content for synchronization purposes.
+	 * @returns a hash string that uniquely identifies the node and its content
+	 */
+	abstract getHash(): string;
+
+	/**
+	 * Add a child node to this node. Only valid if this node is a folder.
+	 * @param child The child node to add
+	 */
+	addChild(child: TreeNode): void {
+		if (this.type !== 'folder') {
+			throw new BookmarkIsNotAFolderError(
+				`Node with id ${this.id} is not a folder and cannot have children`
+			);
+		}
+		this.children!.push(child);
+		child.parent = this;
+	}
+
+	/**
+	 * Depth-first traversal of the tree, applying the callback to each node.
+	 * @param callback The function to apply to each node. If the callback returns a truthy value, the traversal will stop.
+	 */
+	dfs(callback: (node: TreeNode) => any): void {
+		const stop = callback(this);
+		if (stop) {
+			return;
+		}
+		if (this.type === 'folder' && this.children) {
+			for (const child of this.children) {
+				child.dfs(callback);
+			}
 		}
 	}
 
 	/**
-	 * Convert the tree to a map of its children to their path.
-	 * @param opts Options
-	 * @param opts.onlyTerminal If true, only include terminal nodes in the map
-	 * @param opts.relativeTo If provided, paths will be relative to this node
-	 * @returns Map where keys are paths and values are Tree nodes
+	 * Breadth-first traversal of the tree, applying the callback to each node.
+	 * @param callback The function to apply to each node. If the callback returns a truthy value, the traversal will stop.
 	 */
-	toMap(opts?: { onlyTerminal?: boolean; relativeTo?: TreeNode<D> }): PathMap<TreeNode<D>> {
-		const onlyTerminal = opts?.onlyTerminal ?? false;
-		const map = new PathMap<TreeNode<D>>();
-		this.dfs((node) => {
-			const key = node.getFullPath(opts?.relativeTo);
-			if (map.has(key)) {
-				throw new PathConflictError(`Conflicting node found in tree map: ${key}`);
+	bfs(callback: (node: TreeNode) => any): void {
+		const queue: TreeNode[] = [this];
+		while (queue.length > 0) {
+			const currentNode = queue.shift()!;
+			const stop = callback(currentNode);
+			if (stop) {
+				return;
 			}
-			if (!onlyTerminal || (onlyTerminal && node.isTerminal())) {
-				map.set(key, node);
+			if (currentNode.type === 'folder' && currentNode.children) {
+				queue.push(...currentNode.children);
 			}
+		}
+	}
+}
+
+export class NeutralTreeNode extends TreeNode {
+	getHash(): string {
+		if (this.isFolder()) {
+			return this.getPath().toString();
+		}
+		return this.getPath().toString() + '|' + normalizeUrl(this.url || '');
+	}
+
+	static cloneFrom(node: TreeNode): NeutralTreeNode {
+		const root = new NeutralTreeNode({
+			id: node.id,
+			parent: null, // Parent will be set when building the tree (.addChild())
+			title: node.title,
+			url: node.url,
+			type: node.type,
+			raw: null
 		});
-		return map;
+
+		// Recursively clone children if it's a folder
+		for (const child of node.children ?? []) {
+			root.addChild(NeutralTreeNode.cloneFrom(child));
+		}
+
+		return root;
 	}
 }

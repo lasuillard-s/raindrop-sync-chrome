@@ -1,66 +1,71 @@
-import type { NodeData, TreeNode } from './tree';
+import type { TreeNode } from './tree';
 
-export class SyncDiff<L extends NodeData, R extends NodeData> {
-	left: TreeNode<L>;
-	right: TreeNode<R>;
+export class SyncDiff {
+	left: TreeNode;
+	right: TreeNode;
+	onlyInLeft: TreeNode[] = [];
+	inBothButDifferent: Array<{ left: TreeNode; right: TreeNode }> = [];
+	unchanged: Array<{ left: TreeNode; right: TreeNode }> = [];
+	onlyInRight: TreeNode[] = [];
 
-	onlyInLeft: TreeNode<L>[] = [];
-	inBothButDifferent: Array<{
-		left: TreeNode<L>;
-		right: TreeNode<R>;
-	}> = [];
-	unchanged: Array<{
-		left: TreeNode<L>;
-		right: TreeNode<R>;
-	}> = [];
-	onlyInRight: TreeNode<R>[] = [];
-
-	constructor(left: TreeNode<L>, right: TreeNode<R>) {
+	constructor(left: TreeNode, right: TreeNode) {
 		this.left = left;
 		this.right = right;
+		this.onlyInLeft = [];
+		this.inBothButDifferent = [];
+		this.unchanged = [];
+		this.onlyInRight = [];
 	}
+}
 
-	static calculateDiff<L extends NodeData, R extends NodeData>(
-		left: TreeNode<L>,
-		right: TreeNode<R>
-	): SyncDiff<L, R> {
-		const diff = new SyncDiff<L, R>(left, right);
+export class SyncDiffAnalyzer {
+	compare(source: TreeNode, target: TreeNode): SyncDiff {
+		const diff = new SyncDiff(source, target);
+		const sourceMap = toPathMap(source);
+		const targetMap = toPathMap(target);
+		for (const [path, sourceNode] of sourceMap.entries()) {
+			const targetNode = targetMap.get(path);
 
-		// Flatten both trees to maps of their terminal nodes for easier comparison
-		const leftMap = left.toMap({ onlyTerminal: true });
-		const rightMap = right.toMap({
-			onlyTerminal: true,
-			// Use itself as base to calculate path relative to the sync target location
-			relativeTo: right
-		});
-		console.debug('Calculating diff between trees:');
-		console.debug('Left map:', leftMap);
-		console.debug('Right map:', rightMap);
+			// New node in source that doesn't exist in target
+			if (!targetNode) {
+				console.debug(`Node with path "${path}" only in source:`, sourceNode);
+				diff.onlyInLeft.push(sourceNode);
+				continue;
+			}
 
-		// Compare left to right
-		for (const [path, leftNode] of leftMap.entries()) {
-			if (rightMap.has(path)) {
-				const rightNode = rightMap.get(path)!;
-
-				// ? Update below condition for more complex comparison logic if needed
-				if (leftNode.data?.getHash() === rightNode.data?.getHash()) {
-					diff.unchanged.push({ left: leftNode, right: rightNode });
-				} else {
-					diff.inBothButDifferent.push({ left: leftNode, right: rightNode });
-				}
-
-				// ... this makes easy to find nodes only in right later
-				rightMap.delete(path);
+			// Node exists in both, check if content or path has changed
+			const isContentChanged = sourceNode.getHash() !== targetNode.getHash();
+			const isMoved = sourceNode.getPath().toString() !== targetNode.getPath().toString();
+			if (isContentChanged || isMoved) {
+				console.debug(`Node with path "${path}" changed:`, { sourceNode, targetNode });
+				diff.inBothButDifferent.push({ left: sourceNode, right: targetNode });
 			} else {
-				diff.onlyInLeft.push(leftNode);
+				console.debug(`Node with path "${path}" unchanged:`, sourceNode);
+				diff.unchanged.push({ left: sourceNode, right: targetNode });
 			}
 		}
 
-		// Any remaining nodes in rightMap are only in right
-		for (const rightNode of rightMap.values()) {
-			diff.onlyInRight.push(rightNode);
+		// Nodes in target that don't exist in source (deleted in source or new in target)
+		for (const [path, targetNode] of targetMap.entries()) {
+			if (!sourceMap.has(path)) {
+				console.debug(`Node with path "${path}" only in target:`, targetNode);
+				diff.onlyInRight.push(targetNode);
+			}
 		}
 
 		return diff;
 	}
+}
+
+/**
+ * Helper function to create a map of nodes by their path for easy lookup during diffing.
+ * @param tree Root node of the tree to create the map from
+ * @returns Map where keys are node paths and values are the corresponding nodes
+ */
+function toPathMap(tree: TreeNode): Map<string, TreeNode> {
+	const pathMap = new Map<string, TreeNode>();
+	tree.dfs((node) => {
+		pathMap.set(node.getPath().toString(), node);
+	});
+	return pathMap;
 }

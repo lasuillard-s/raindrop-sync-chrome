@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { dismissMessage, type Message } from '@lib/messages';
 	import { Toast } from 'flowbite-svelte';
 	import {
 		CheckCircleSolid,
@@ -6,7 +7,6 @@
 		ExclamationCircleSolid
 	} from 'flowbite-svelte-icons';
 	import type { Component } from 'svelte';
-	import { dismissMessage, type Message } from '~/lib/messages';
 
 	const messageStyles: {
 		[type: string]: { icon: Component; color: 'blue' | 'green' | 'red' };

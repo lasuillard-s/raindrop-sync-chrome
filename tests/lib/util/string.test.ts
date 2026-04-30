@@ -1,0 +1,65 @@
+import { isUrlSafeHref, normalizeUrl } from '@lib/util/string';
+import { describe, expect, it } from 'vitest';
+
+describe('normalizeUrl', () => {
+	it('trims whitespace from the URL', () => {
+		const url = '   http://example.com/path/   ';
+		const normalized = normalizeUrl(url);
+		expect(normalized).toBe('http:\\/\\/example.com\\/path');
+	});
+
+	it('removes trailing slashes', () => {
+		const url = 'http://example.com/path/';
+		const normalized = normalizeUrl(url);
+		expect(normalized).toBe('http:\\/\\/example.com\\/path');
+	});
+
+	it('escapes backslashes', () => {
+		const url = 'http://example.com\\path\\to\\resource';
+		const normalized = normalizeUrl(url);
+		expect(normalized).toBe('http:\\/\\/example.com\\\\path\\\\to\\\\resource');
+	});
+
+	it('escapes slashes', () => {
+		const url = 'http://example.com/path/to/resource';
+		const normalized = normalizeUrl(url);
+		expect(normalized).toBe('http:\\/\\/example.com\\/path\\/to\\/resource');
+	});
+
+	it('handles complex URLs correctly', () => {
+		const url = '   http://example.com/path/to/resource/with\\backslashes/   ';
+		const normalized = normalizeUrl(url);
+		expect(normalized).toBe('http:\\/\\/example.com\\/path\\/to\\/resource\\/with\\\\backslashes');
+	});
+});
+
+describe('isUrlSafeHref', () => {
+	it('returns true if the URL starts with http://', () => {
+		const url = 'http://example.com';
+		const safeUrl = isUrlSafeHref(url);
+		expect(safeUrl).toBe(true);
+	});
+
+	it('returns true if the URL starts with https://', () => {
+		const url = 'https://example.com';
+		const safeUrl = isUrlSafeHref(url);
+		expect(safeUrl).toBe(true);
+	});
+
+	it.each`
+		href
+		${'ftp://example.com'}
+		${'file://localfile.txt'}
+		${'javascript:alert("XSS")'}
+		${'data:text/plain;base64,SGVsbG8sIFdvcmxkIQ=='}
+	`('returns false for unsafe URLs', ({ href }) => {
+		const safeUrl = isUrlSafeHref(href);
+		expect(safeUrl).toBe(false);
+	});
+
+	it('handles empty string input', () => {
+		const url = '';
+		const safeUrl = isUrlSafeHref(url);
+		expect(safeUrl).toBe(false);
+	});
+});

@@ -38,6 +38,11 @@ export class SettingsStore {
 		return get(this.$data);
 	}
 
+	async snapshotReady(): Promise<Settings> {
+		await this.ready();
+		return this.snapshot;
+	}
+
 	get $state() {
 		return this.state;
 	}

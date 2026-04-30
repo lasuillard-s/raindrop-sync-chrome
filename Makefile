@@ -88,6 +88,9 @@ e2e: build  ## Run e2e tests
 	yarn run e2e-docker --update-snapshots
 .PHONY: e2e
 
+e2e-ui:  ## Open Playwright UI for interactive e2e testing
+	yarn run e2e-docker:ui
+.PHONY: e2e-ui
 
 # =============================================================================
 # Handy Scripts

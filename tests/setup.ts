@@ -18,6 +18,13 @@ beforeEach(() => {
 		identity: {
 			getRedirectURL: vi.fn(),
 			launchWebAuthFlow: vi.fn()
+		},
+		storage: {
+			sync: {
+				get: vi.fn(async () => ({})),
+				set: vi.fn(async () => undefined),
+				remove: vi.fn(async () => undefined)
+			}
 		}
 	});
 
