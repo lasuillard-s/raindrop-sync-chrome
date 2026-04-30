@@ -1,4 +1,4 @@
-FROM mcr.microsoft.com/devcontainers/typescript-node:24-trixie@sha256:3ff0e3ff2f98928cb4cd1faab2b3338161b13007c04e9b0f1d2d89a69c75e676
+FROM mcr.microsoft.com/devcontainers/typescript-node:24-trixie@sha256:58cdebfe398bd451d5f51a567a00d9880691a17a93236d2be07354b80e6e289e
 
 USER root:root
 
