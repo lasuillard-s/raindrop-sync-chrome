@@ -1,11 +1,6 @@
+import { TestTreeNode } from '@test-helpers/tree';
 import { describe, expect, it } from 'vitest';
-import { ReadableAdapter, TreeNode } from '~/lib/sync';
-
-class TestTreeNode extends TreeNode {
-	getHash(): string {
-		return this.id;
-	}
-}
+import { ReadableAdapter } from '~/lib/sync';
 
 class RecordingAdapter extends ReadableAdapter<TestTreeNode> {
 	readonly calls: string[] = [];
@@ -20,11 +15,9 @@ class RecordingAdapter extends ReadableAdapter<TestTreeNode> {
 		return [
 			new TestTreeNode({
 				id: baseNodeId,
-				parent: null,
 				title: '',
 				url: null,
-				type: 'folder',
-				raw: null
+				type: 'folder'
 			})
 		];
 	}
@@ -32,6 +25,10 @@ class RecordingAdapter extends ReadableAdapter<TestTreeNode> {
 	protected buildTree(nodes: TestTreeNode[], baseNodeId: string): TestTreeNode {
 		this.calls.push(`build:${baseNodeId}:${nodes.length}`);
 		return nodes[0];
+	}
+
+	async changedSince(): Promise<boolean> {
+		return false;
 	}
 }
 

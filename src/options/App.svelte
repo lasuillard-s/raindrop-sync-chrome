@@ -13,7 +13,6 @@
 	import About from './tabs/About.svelte';
 	import Bookmarks from './tabs/Bookmarks.svelte';
 	import Integration from './tabs/Integration.svelte';
-	import NewSyncTest from './tabs/NewSyncTest.svelte';
 	import TryIt from './tabs/TryIt.svelte';
 </script>
 
@@ -35,7 +34,6 @@
 					New Sync (Test)
 				</div>
 			{/snippet}
-			<NewSyncTest />
 		</TabItem>
 		<TabItem>
 			{#snippet titleSlot()}

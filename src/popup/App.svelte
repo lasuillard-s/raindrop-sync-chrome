@@ -72,7 +72,7 @@
 		isSyncing = true;
 		startRotation();
 		try {
-			await app.sync.runFullSync({ force: forceSync });
+			await app.sync.runFullSync({}, { force: forceSync });
 		} catch (error) {
 			console.error('Sync error:', error);
 		} finally {

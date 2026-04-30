@@ -1,37 +1,13 @@
+import { TestTreeNode } from '@test-helpers/tree';
 import { describe, expect, it } from 'vitest';
-import { SyncDiffAnalyzer, TreeNode } from '~/lib/sync';
-
-class TestTreeNode extends TreeNode {
-	getHash(): string {
-		return `${this.title}|${this.url ?? ''}`;
-	}
-}
-
-const createNode = (args: {
-	id: string;
-	title: string;
-	type: 'folder' | 'bookmark';
-	url?: string | null;
-	parent?: TestTreeNode;
-}) => {
-	const node = new TestTreeNode({
-		id: args.id,
-		parent: args.parent ?? null,
-		title: args.title,
-		url: args.url ?? null,
-		type: args.type,
-		raw: null
-	});
-	args.parent?.addChild(node);
-	return node;
-};
+import { SyncDiffAnalyzer } from '~/lib/sync';
 
 describe('SyncDiffAnalyzer', () => {
 	it('categorizes only-in-left, changed, unchanged, and only-in-right nodes', () => {
-		const leftRoot = createNode({ id: 'left-root', title: '', type: 'folder' });
-		const rightRoot = createNode({ id: 'right-root', title: '', type: 'folder' });
+		const leftRoot = new TestTreeNode({ id: 'left-root', title: '', type: 'folder' });
+		const rightRoot = new TestTreeNode({ id: 'right-root', title: '', type: 'folder' });
 
-		createNode({
+		new TestTreeNode({
 			id: 'left-only',
 			title: 'left-only',
 			type: 'bookmark',
@@ -39,14 +15,14 @@ describe('SyncDiffAnalyzer', () => {
 			parent: leftRoot
 		});
 
-		createNode({
+		new TestTreeNode({
 			id: 'left-updated',
 			title: 'updated',
 			type: 'bookmark',
 			url: 'https://left-updated.example',
 			parent: leftRoot
 		});
-		createNode({
+		new TestTreeNode({
 			id: 'right-updated',
 			title: 'updated',
 			type: 'bookmark',
@@ -54,14 +30,14 @@ describe('SyncDiffAnalyzer', () => {
 			parent: rightRoot
 		});
 
-		createNode({
+		new TestTreeNode({
 			id: 'left-stable',
 			title: 'stable',
 			type: 'bookmark',
 			url: 'https://stable.example',
 			parent: leftRoot
 		});
-		createNode({
+		new TestTreeNode({
 			id: 'right-stable',
 			title: 'stable',
 			type: 'bookmark',
@@ -69,7 +45,7 @@ describe('SyncDiffAnalyzer', () => {
 			parent: rightRoot
 		});
 
-		createNode({
+		new TestTreeNode({
 			id: 'right-only',
 			title: 'right-only',
 			type: 'bookmark',

@@ -102,13 +102,13 @@ export class ChromeAdapter extends WritableAdapter<ChromeBookmarkTreeNode> {
 			const dateAdded = rawData.dateAdded;
 			if (dateAdded && dateAdded > baseDate.getTime()) {
 				hasChanges = true;
-				return true;
+				return 'break';
 			}
 
 			const dateGroupModified = rawData.dateGroupModified;
 			if (dateGroupModified && dateGroupModified > baseDate.getTime()) {
 				hasChanges = true;
-				return true;
+				return 'break';
 			}
 		});
 

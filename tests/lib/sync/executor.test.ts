@@ -32,6 +32,14 @@ class RecordingWritableAdapter extends WritableAdapter {
 		throw new Error('not used in this test');
 	}
 
+	async changedSince(): Promise<boolean> {
+		return true;
+	}
+
+	async hasFolderWithId(): Promise<boolean> {
+		return true;
+	}
+
 	async applyAction(action: SyncAction): Promise<void> {
 		this.applied.push(action);
 		if (this.shouldFailAt !== null && this.applied.length === this.shouldFailAt) {

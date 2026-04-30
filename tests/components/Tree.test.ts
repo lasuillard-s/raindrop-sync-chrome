@@ -1,14 +1,11 @@
 // @vitest-environment happy-dom
-import { TestNodeData } from '@test-helpers/tree';
+import { TestTreeNode } from '@test-helpers/tree';
 import { render } from '@testing-library/svelte';
 import userEvent from '@testing-library/user-event';
 import { beforeEach, expect, it } from 'vitest';
 import Tree from '~/components/Tree.svelte';
-import { NodeData, TreeNode } from '~/lib/bookmark';
 
-let rootData: NodeData;
-let exampleData: NodeData[];
-let tree: TreeNode<NodeData>;
+let tree: TestTreeNode;
 
 beforeEach(() => {
 	/* Example data structure:
@@ -20,51 +17,51 @@ beforeEach(() => {
     │       └── Bookmark 1-2-1
     └── Bookmark 2
     */
-	rootData = new TestNodeData({
+	tree = new TestTreeNode({
 		id: 'root',
-		parentId: null,
-		name: 'Root',
+		title: '',
 		url: null,
-		isFolder: true
+		type: 'folder'
 	});
-	exampleData = [
-		new TestNodeData({
-			id: '1',
-			parentId: null,
-			name: 'Folder 1',
-			url: null,
-			isFolder: true
-		}),
-		new TestNodeData({
-			id: '2',
-			parentId: '1',
-			name: 'Bookmark 1-1',
-			url: 'http://example.com/1-1',
-			isFolder: false
-		}),
-		new TestNodeData({
-			id: '3',
-			parentId: '1',
-			name: 'Folder 1-2',
-			url: null,
-			isFolder: true
-		}),
-		new TestNodeData({
-			id: '4',
-			parentId: '3',
-			name: 'Bookmark 1-2-1',
-			url: 'http://example.com/1-2-1',
-			isFolder: false
-		}),
-		new TestNodeData({
-			id: '5',
-			parentId: null,
-			name: 'Bookmark 2',
-			url: 'http://example.com/2',
-			isFolder: false
-		})
-	];
-	tree = TreeNode.createTree(rootData, exampleData);
+	const folder1 = new TestTreeNode({
+		id: '1',
+		title: 'Folder 1',
+		url: null,
+		type: 'folder',
+		parent: tree
+	});
+
+	new TestTreeNode({
+		id: '2',
+		title: 'Bookmark 1-1',
+		url: 'http://example.com/1-1',
+		type: 'bookmark',
+		parent: folder1
+	});
+
+	const folder12 = new TestTreeNode({
+		id: '3',
+		title: 'Folder 1-2',
+		url: null,
+		type: 'folder',
+		parent: folder1
+	});
+
+	new TestTreeNode({
+		id: '4',
+		title: 'Bookmark 1-2-1',
+		url: 'http://example.com/1-2-1',
+		type: 'bookmark',
+		parent: folder12
+	});
+
+	new TestTreeNode({
+		id: '5',
+		title: 'Bookmark 2',
+		url: 'http://example.com/2',
+		type: 'bookmark',
+		parent: tree
+	});
 });
 
 it('should render tree with children nodes recursively', async () => {

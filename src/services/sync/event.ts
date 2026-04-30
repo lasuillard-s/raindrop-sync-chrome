@@ -27,6 +27,7 @@ export enum SyncEventProgressDetail {
 	CheckShouldSync = 'check-should-sync',
 	FetchingSource = 'fetching-source',
 	FetchingTarget = 'fetching-target',
+	ConstructingStates = 'constructing-states',
 	CalculatingDiff = 'calculating-diff',
 	GeneratingPlan = 'generating-plan',
 	OptimizingPlan = 'optimizing-plan',
@@ -51,6 +52,8 @@ export class SyncEventProgress extends SyncEvent {
 				return 'Fetching source data...';
 			case SyncEventProgressDetail.FetchingTarget:
 				return 'Fetching target data...';
+			case SyncEventProgressDetail.ConstructingStates:
+				return 'Constructing current and desired states...';
 			case SyncEventProgressDetail.CalculatingDiff:
 				return 'Calculating differences...';
 			case SyncEventProgressDetail.GeneratingPlan:

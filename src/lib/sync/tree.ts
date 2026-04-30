@@ -1,4 +1,5 @@
 import { Path } from '~/lib/util/path';
+import { normalizeUrl } from '~/lib/util/string';
 import { BookmarkIsNotAFolderError } from './errors';
 
 export abstract class TreeNode {
@@ -110,5 +111,32 @@ export abstract class TreeNode {
 				queue.push(...currentNode.children);
 			}
 		}
+	}
+}
+
+export class NeutralTreeNode extends TreeNode {
+	getHash(): string {
+		if (this.isFolder()) {
+			return this.getPath().toString();
+		}
+		return this.getPath().toString() + '|' + normalizeUrl(this.url || '');
+	}
+
+	static cloneFrom(node: TreeNode): NeutralTreeNode {
+		const root = new NeutralTreeNode({
+			id: node.id,
+			parent: null, // Parent will be set when building the tree (.addChild())
+			title: node.title,
+			url: node.url,
+			type: node.type,
+			raw: null
+		});
+
+		// Recursively clone children if it's a folder
+		for (const child of node.children ?? []) {
+			root.addChild(NeutralTreeNode.cloneFrom(child));
+		}
+
+		return root;
 	}
 }

@@ -18,16 +18,23 @@
 	import { App } from '~/app';
 	import PathBreadcrumb from '~/components/PathBreadcrumb.svelte';
 	import Tree from '~/components/Tree.svelte';
-	import { defaultBrowserProxy, type ChromeBookmarkNodeData } from '~/lib/browser';
+	import { defaultBrowserProxy } from '~/lib/browser';
 	import { putMessage } from '~/lib/messages';
-	import { RaindropNodeData } from '~/lib/raindrop';
-	import type { SyncEvent, SyncEventListener, TreeNode } from '~/lib/sync';
-	import { SyncDiff } from '~/lib/sync';
+	import { SyncDiff, SyncDiffAnalyzer, SyncPlan, SyncPlanner } from '~/lib/sync';
+	import { ChromeAdapter, type ChromeBookmarkTreeNode } from '~/lib/sync/providers/chrome';
+	import { RaindropAdapter, type RaindropBookmarkTreeNode } from '~/lib/sync/providers/raindrop';
+	import { NeutralTreeNode } from '~/lib/sync/tree';
+	import type { SyncEvent, SyncEventListener } from '~/services/sync';
 
 	const app = App.getInstance();
 	const settings = app.settings;
 	const settingsSnapshot = settings.snapshot;
+	const sourceAdapter = new RaindropAdapter();
+	const targetAdapter = new ChromeAdapter();
+	const diffAnalyzer = new SyncDiffAnalyzer();
+	const syncPlanner = new SyncPlanner();
 
+	// Sync progress tracking
 	let latestSyncEvent: SyncEvent | null = $state(null);
 
 	class SyncEventListenerImpl implements SyncEventListener {
@@ -36,84 +43,32 @@
 		}
 	}
 
-	// Expected (from Raindrop.io)
-	let expectedBookmarkTree: TreeNode<RaindropNodeData> | null = $state(null);
-	let isFetchingRaindrops = $state(false);
-	let syncLocationFullPath: string | null = $state(null);
-
-	const fetchExpectedBookmarkTree = async () => {
-		isFetchingRaindrops = true;
-		try {
-			expectedBookmarkTree = await app.sync.getExpectedBookmarkTree();
-		} catch (err) {
-			putMessage({ type: 'error', message: `Failed to fetch Raindrop.io bookmarks: ${err}` });
-		} finally {
-			isFetchingRaindrops = false;
-		}
-	};
-
-	// Current (Chrome bookmarks)
-	let currentBookmarkTree: TreeNode<ChromeBookmarkNodeData> | null = $state(null);
-	let isFetchingChrome = $state(false);
-
-	const fetchCurrentBookmarkTree = async () => {
-		isFetchingChrome = true;
-		try {
-			currentBookmarkTree = await app.sync.getCurrentBookmarkTree();
-			syncLocationFullPath = currentBookmarkTree.getFullPathSegments().join(' / ') + ' /';
-		} catch (err) {
-			putMessage({ type: 'error', message: `Failed to fetch Chrome bookmarks: ${err}` });
-		} finally {
-			isFetchingChrome = false;
-		}
-	};
+	// Data trees
+	let sourceTree: RaindropBookmarkTreeNode | null = $state(null);
+	let fetchingSourceTree: boolean = $state(false);
+	let targetTree: ChromeBookmarkTreeNode | null = $state(null);
+	let fetchingTargetTree: boolean = $state(false);
+	let currentState: NeutralTreeNode | null = $state(null);
+	let desiredState: NeutralTreeNode | null = $state(null);
+	let diff: SyncDiff | null = $state(null);
+	let plan: SyncPlan | null = $state(null);
 
 	// Diff
-	let syncDiff: SyncDiff<RaindropNodeData, ChromeBookmarkNodeData> | null = $state(null);
 	let isCalculatingDiff = $state(false);
 
 	// Force sync
 	let isSyncing = $state(false);
 	let forceSyncEnabled = $state(false);
 
-	const calculateSyncDiff = async () => {
-		if (!expectedBookmarkTree || !currentBookmarkTree) {
-			return;
-		}
-		isCalculatingDiff = true;
-		try {
-			syncDiff = await app.sync.calculateSyncDiff(expectedBookmarkTree, currentBookmarkTree);
-			console.debug('Calculated difference between current and expected tree: ', syncDiff);
-
-			const getCircularReplacer = () => {
-				const seen = new WeakSet();
-				return (key: string, value: unknown) => {
-					if (typeof value === 'object' && value !== null) {
-						if (seen.has(value)) {
-							return;
-						}
-						seen.add(value);
-					}
-					return value;
-				};
-			};
-			console.debug(
-				'Calculated difference between current and expected tree: ',
-				JSON.stringify(syncDiff, getCircularReplacer())
-			);
-		} finally {
-			isCalculatingDiff = false;
-		}
-	};
-
 	// Sync settings
+	// --------------------------------------------------------------------------
 	let bookmarkFolders: { id: string; title: string; depth: number }[] = $state([]);
 
 	// Create reactive bindings to settings store
 	let autoSyncEnabled = $state(settingsSnapshot.autoSyncEnabled);
 	let autoSyncExecOnStartup = $state(settingsSnapshot.autoSyncExecOnStartup);
 	let autoSyncIntervalInMinutes = $state(settingsSnapshot.autoSyncIntervalInMinutes);
-	let syncLocation = $state(settingsSnapshot.syncLocation);
+	let syncLocationId = $state(settingsSnapshot.syncLocation);
 	let useLegacySyncMechanism = $state(settingsSnapshot.useLegacySyncMechanism);
 
 	// Keep local state in sync with settings store
@@ -122,41 +77,81 @@
 			autoSyncEnabled = settings.autoSyncEnabled;
 			autoSyncExecOnStartup = settings.autoSyncExecOnStartup;
 			autoSyncIntervalInMinutes = settings.autoSyncIntervalInMinutes;
-			syncLocation = settings.syncLocation;
+			syncLocationId = settings.syncLocation;
 			useLegacySyncMechanism = settings.useLegacySyncMechanism;
 		});
 		return unsubscribe;
 	});
 
-	const saveSettings = async () => {
-		await settings.update({
-			autoSyncEnabled,
-			autoSyncExecOnStartup,
-			autoSyncIntervalInMinutes,
-			syncLocation,
-			useLegacySyncMechanism
-		});
-		await syncManager.scheduleAutoSync();
-		putMessage({ type: 'success', message: 'Sync settings saved.' });
-	};
+	// User actions
+	// --------------------------------------------------------------------------
+	// eslint-disable-next-line jsdoc/require-jsdoc
+	async function makeSourceTree(options: { skipIfExists?: boolean } = { skipIfExists: false }) {
+		if (options?.skipIfExists && sourceTree) {
+			return;
+		}
+		try {
+			fetchingSourceTree = true;
+			sourceTree = await sourceAdapter.getTree();
+		} finally {
+			fetchingSourceTree = false;
+		}
+	}
+
+	// eslint-disable-next-line jsdoc/require-jsdoc
+	async function makeTargetTree(options: { skipIfExists?: boolean } = { skipIfExists: false }) {
+		if (options?.skipIfExists && targetTree) {
+			return;
+		}
+		try {
+			fetchingTargetTree = true;
+			targetTree = await targetAdapter.getTree();
+		} finally {
+			fetchingTargetTree = false;
+		}
+	}
+
+	// eslint-disable-next-line jsdoc/require-jsdoc
+	function constructStates() {
+		if (!sourceTree || !targetTree) {
+			throw new Error('Must fetch both source and target trees before constructing states.');
+		}
+		currentState = app.sync.buildCurrentState({ targetTree });
+		desiredState = app.sync.buildDesiredState({ targetTree, sourceTree });
+	}
+
+	// eslint-disable-next-line jsdoc/require-jsdoc
+	function compareDiff() {
+		if (!currentState || !desiredState) {
+			constructStates();
+		}
+		diff = diffAnalyzer.compare(desiredState!, currentState!);
+	}
+
+	// eslint-disable-next-line jsdoc/require-jsdoc
+	function generatePlan() {
+		if (!diff) {
+			throw new Error('Sync diff must be calculated before generating plan.');
+		}
+		plan = syncPlanner.generatePlan(diff);
+	}
 
 	const runSync = async () => {
 		isSyncing = true;
-		if (!currentBookmarkTree) {
-			currentBookmarkTree = await syncManager.getCurrentBookmarkTree();
-		}
-		if (!expectedBookmarkTree) {
-			expectedBookmarkTree = await syncManager.getExpectedBookmarkTree();
-		}
 		try {
-			await fetchCurrentBookmarkTree();
-			await fetchExpectedBookmarkTree();
-			await calculateSyncDiff();
-			await syncManager.startSync({
-				precalculatedDiff: syncDiff!,
-				force: forceSyncEnabled,
-				useLegacy: useLegacySyncMechanism
-			});
+			await makeSourceTree({ skipIfExists: true });
+			await makeTargetTree({ skipIfExists: true });
+			constructStates();
+			compareDiff();
+			generatePlan();
+			await app.sync.runFullSync(
+				{
+					plan: plan!
+				},
+				{
+					force: forceSyncEnabled
+				}
+			);
 			putMessage({ type: 'success', message: 'Sync completed.' });
 			// Refresh the bookmark trees after sync
 		} catch (err) {
@@ -166,9 +161,21 @@
 		}
 	};
 
+	const saveSettings = async () => {
+		await settings.update({
+			autoSyncEnabled,
+			autoSyncExecOnStartup,
+			autoSyncIntervalInMinutes,
+			syncLocation: syncLocationId,
+			useLegacySyncMechanism
+		});
+		await app.sync.scheduleAutoSync();
+		putMessage({ type: 'success', message: 'Sync settings saved.' });
+	};
+
 	$effect(() => {
 		const listener = new SyncEventListenerImpl();
-		syncManager.addListener(listener);
+		app.sync.addEventListener(listener);
 
 		void (async () => {
 			// Load bookmark folders for sync location selection.
@@ -197,7 +204,7 @@
 		})();
 
 		return () => {
-			syncManager.removeListener(listener);
+			app.sync.removeEventListener(listener);
 		};
 	});
 </script>
@@ -288,10 +295,10 @@
 					{#each bookmarkFolders as bf (bf.id)}
 						<label
 							class="flex cursor-pointer items-center border-b border-gray-100 px-3 py-2 transition-colors last:border-b-0 hover:bg-blue-50"
-							class:bg-blue-50={syncLocation === bf.id}
-							class:font-medium={syncLocation === bf.id}
+							class:bg-blue-50={syncLocationId === bf.id}
+							class:font-medium={syncLocationId === bf.id}
 						>
-							<Radio name="sync-location" bind:group={syncLocation} value={bf.id} class="mr-2" />
+							<Radio name="sync-location" bind:group={syncLocationId} value={bf.id} class="mr-2" />
 							<span class="text-sm text-gray-700" style="margin-left: {bf.depth * 1.5}rem;">
 								{#if bf.depth > 1}
 									<span class="mr-1 text-gray-400">└─</span>
@@ -315,16 +322,22 @@
 		<div class="rounded-lg border border-gray-200 bg-white p-4">
 			<div class="mb-4 flex items-center justify-between">
 				<P class="font-semibold text-gray-800">Raindrop.io Bookmarks</P>
-				<Button size="xs" onclick={fetchExpectedBookmarkTree} disabled={isFetchingRaindrops}>
-					{#if isFetchingRaindrops}
+				<Button
+					size="xs"
+					onclick={async () => {
+						await makeSourceTree();
+					}}
+					disabled={fetchingSourceTree}
+				>
+					{#if fetchingSourceTree}
 						<Spinner size="4" class="mr-1" />
 					{/if}
 					Fetch
 				</Button>
 			</div>
-			{#if expectedBookmarkTree}
+			{#if sourceTree}
 				<div class="min-h-75 overflow-y-auto">
-					<Tree treeNode={expectedBookmarkTree} collapsed={false}></Tree>
+					<Tree treeNode={sourceTree} collapsed={false}></Tree>
 				</div>
 			{:else}
 				<div class="flex min-h-75 items-center justify-center">
@@ -335,17 +348,19 @@
 		<div class="rounded-lg border border-gray-200 bg-white p-4">
 			<div class="mb-4 flex items-center justify-between">
 				<P class="font-semibold text-gray-800">Chrome Bookmarks</P>
-				<Button size="xs" onclick={fetchCurrentBookmarkTree} disabled={isFetchingChrome}>
+				<Button
+					size="xs"
+					onclick={async () => {
+						await makeTargetTree();
+					}}
+					disabled={fetchingTargetTree}
+				>
 					Reload
 				</Button>
 			</div>
-			{#if currentBookmarkTree}
+			{#if targetTree}
 				<div class="min-h-75 overflow-y-auto">
-					<Tree
-						treeNode={currentBookmarkTree}
-						collapsed={false}
-						nodeTitleOverride={syncLocationFullPath}
-					></Tree>
+					<Tree treeNode={targetTree} collapsed={false}></Tree>
 				</div>
 			{:else}
 				<div class="flex min-h-75 items-center justify-center">
@@ -360,13 +375,13 @@
 			<P class="font-semibold text-gray-800">Sync Differences</P>
 			<Button
 				size="xs"
-				onclick={calculateSyncDiff}
-				disabled={isCalculatingDiff || !expectedBookmarkTree || !currentBookmarkTree}
+				onclick={compareDiff}
+				disabled={isCalculatingDiff || !sourceTree || !targetTree}
 			>
 				Calculate
 			</Button>
 		</div>
-		{#if syncDiff}
+		{#if diff}
 			<div class="grid grid-cols-1 gap-4 md:grid-cols-2">
 				<!-- Add (Only in Raindrop) -->
 				<div class="rounded-lg border border-green-200 bg-green-50 p-3">
@@ -374,19 +389,19 @@
 						<CirclePlusSolid class="text-green-600" size="sm" />
 						<P class="font-medium text-green-800">Add</P>
 					</div>
-					<P class="text-2xl font-bold text-green-600">{syncDiff.onlyInLeft.length}</P>
+					<P class="text-2xl font-bold text-green-600">{diff.onlyInLeft.length}</P>
 					<P class="mb-3 text-sm text-green-700">Items to be added</P>
 					<Accordion>
 						<AccordionItem>
 							{#snippet header()}
 								<div class="text-sm font-medium text-green-800">
-									View details ({syncDiff!.onlyInLeft.length} items)
+									View details ({diff!.onlyInLeft.length} items)
 								</div>
 							{/snippet}
-							{#if syncDiff.onlyInLeft.length > 0}
+							{#if diff.onlyInLeft.length > 0}
 								<div class="max-h-75 space-y-2 overflow-y-auto">
-									{#each syncDiff.onlyInLeft as node (node.getId())}
-										<PathBreadcrumb pathSegments={node.getFullPath().getSegments()} />
+									{#each diff.onlyInLeft as node (node.id)}
+										<PathBreadcrumb pathSegments={node.getPath().getSegments()} />
 									{/each}
 								</div>
 							{:else}
@@ -402,19 +417,19 @@
 						<CircleMinusSolid class="text-red-600" size="sm" />
 						<P class="font-medium text-red-800">Remove</P>
 					</div>
-					<P class="text-2xl font-bold text-red-600">{syncDiff.onlyInRight.length}</P>
+					<P class="text-2xl font-bold text-red-600">{diff.onlyInRight.length}</P>
 					<P class="mb-3 text-sm text-red-700">Items to be removed</P>
 					<Accordion>
 						<AccordionItem>
 							{#snippet header()}
 								<div class="text-sm font-medium text-red-800">
-									View details ({syncDiff!.onlyInRight.length} items)
+									View details ({diff!.onlyInRight.length} items)
 								</div>
 							{/snippet}
-							{#if syncDiff.onlyInRight.length > 0}
+							{#if diff.onlyInRight.length > 0}
 								<div class="max-h-75 space-y-2 overflow-y-auto">
-									{#each syncDiff.onlyInRight as node (node.getId())}
-										<PathBreadcrumb pathSegments={node.getFullPath().getSegments()} />
+									{#each diff.onlyInRight as node (node.id)}
+										<PathBreadcrumb pathSegments={node.getPath().getSegments()} />
 									{/each}
 								</div>
 							{:else}
@@ -430,19 +445,19 @@
 						<ExclamationCircleSolid class="text-orange-600" size="sm" />
 						<P class="font-medium text-orange-800">Update</P>
 					</div>
-					<P class="text-2xl font-bold text-orange-600">{syncDiff.inBothButDifferent.length}</P>
+					<P class="text-2xl font-bold text-orange-600">{diff.inBothButDifferent.length}</P>
 					<P class="mb-3 text-sm text-orange-700">Items to be updated</P>
 					<Accordion>
 						<AccordionItem>
 							{#snippet header()}
 								<div class="text-sm font-medium text-orange-800">
-									View details ({syncDiff!.inBothButDifferent.length} items)
+									View details ({diff!.inBothButDifferent.length} items)
 								</div>
 							{/snippet}
-							{#if syncDiff.inBothButDifferent.length > 0}
+							{#if diff.inBothButDifferent.length > 0}
 								<div class="max-h-75 space-y-2 overflow-y-auto">
-									{#each syncDiff.inBothButDifferent as pair ((pair.left.getId(), pair.right.getId()))}
-										<PathBreadcrumb pathSegments={pair.left.getFullPath().getSegments()} />
+									{#each diff.inBothButDifferent as pair ((pair.left.id, pair.right.id))}
+										<PathBreadcrumb pathSegments={pair.left.getPath().getSegments()} />
 									{/each}
 								</div>
 							{:else}
@@ -458,19 +473,19 @@
 						<CheckCircleSolid class="text-gray-600" size="sm" />
 						<P class="font-medium text-gray-800">No Change</P>
 					</div>
-					<P class="text-2xl font-bold text-gray-600">{syncDiff.unchanged.length}</P>
+					<P class="text-2xl font-bold text-gray-600">{diff.unchanged.length}</P>
 					<P class="mb-3 text-sm text-gray-700">Items unchanged</P>
 					<Accordion>
 						<AccordionItem>
 							{#snippet header()}
 								<div class="text-sm font-medium text-gray-800">
-									View details ({syncDiff!.unchanged.length} items)
+									View details ({diff!.unchanged.length} items)
 								</div>
 							{/snippet}
-							{#if syncDiff.unchanged.length > 0}
+							{#if diff.unchanged.length > 0}
 								<div class="max-h-75 space-y-2 overflow-y-auto">
-									{#each syncDiff.unchanged as pair ((pair.left.getId(), pair.right.getId()))}
-										<PathBreadcrumb pathSegments={pair.left.getFullPath().getSegments()} />
+									{#each diff.unchanged as pair ((pair.left.id, pair.right.id))}
+										<PathBreadcrumb pathSegments={pair.left.getPath().getSegments()} />
 									{/each}
 								</div>
 							{:else}
@@ -483,7 +498,7 @@
 		{:else}
 			<div class="flex min-h-30 items-center justify-center">
 				<P class="text-gray-500 italic">
-					{#if !expectedBookmarkTree || !currentBookmarkTree}
+					{#if !sourceTree || !targetTree}
 						Please fetch both Raindrop.io and Chrome bookmarks first
 					{:else}
 						Click "Calculate" to see sync differences

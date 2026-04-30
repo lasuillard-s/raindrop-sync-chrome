@@ -8,75 +8,62 @@ type InstalledListener = (details: {
 type AlarmListener = (alarm: { name: string }) => Promise<void> | void;
 
 /**
- * Loads the service worker module with mocked dependencies and captured listeners.
- * @param args Optional scenario configuration.
- * @param args.installedVersion Version reported by chrome.management.getSelf.
- * @param args.useLegacySyncMechanism Whether settings should enable legacy sync.
+ * Loads service-worker module with mocked dependencies and captures registered listeners.
+ * @param args Optional test scenario overrides.
+ * @param args.installedVersion Mock extension version returned by management API.
  * @returns Captured listeners and dependency spies for assertions.
  */
-async function loadServiceWorker(args?: {
-	installedVersion?: string;
-	useLegacySyncMechanism?: boolean;
-}) {
-	vi.resetModules();
-
+async function loadServiceWorker(args?: { installedVersion?: string }) {
 	const installedListeners: InstalledListener[] = [];
 	const alarmListeners: AlarmListener[] = [];
 	const scheduleAutoSync = vi.fn(async () => undefined);
-	const startSync = vi.fn(async () => undefined);
-	const doMigrate = vi.fn(async () => undefined);
+	const runFullSync = vi.fn(async () => undefined);
 	const ready = vi.fn(async () => undefined);
-	const settings = {
-		ready,
-		snapshot: {
-			useLegacySyncMechanism: args?.useLegacySyncMechanism ?? false
+	const settings = { ready };
+	const app = {
+		settings,
+		sync: {
+			scheduleAutoSync,
+			runFullSync
 		}
 	};
-	const getOrCreate = vi.fn(() => settings);
-	const SyncManager = vi.fn(function SyncManager(this: {
-		scheduleAutoSync: typeof scheduleAutoSync;
-		startSync: typeof startSync;
-	}) {
-		this.scheduleAutoSync = scheduleAutoSync;
-		this.startSync = startSync;
+	const getInstance = vi.fn(() => app);
+	const doMigrate = vi.fn(async () => undefined);
+	const managementGetSelf = vi.fn(async () => ({ version: args?.installedVersion ?? '1.2.3' }));
+	const onInstalledAddListener = vi.fn((listener: InstalledListener) => {
+		installedListeners.push(listener);
 	});
+	const onAlarmAddListener = vi.fn((listener: AlarmListener) => {
+		alarmListeners.push(listener);
+	});
+	const getOnInstalledReason = vi.fn(() => ({
+		INSTALL: 'install',
+		UPDATE: 'update'
+	}));
 
-	vi.doMock('~/lib/sync', () => ({
-		SYNC_BOOKMARKS_ALARM_NAME: 'sync-bookmarks',
-		SyncManager
+	vi.doMock('~/app', () => ({
+		App: {
+			getInstance
+		}
 	}));
 	vi.doMock('~/migrations', () => ({ doMigrate }));
-	vi.doMock('~/config', () => ({
-		SettingsStore: {
-			getOrCreate
+	vi.doMock('~/services/sync', () => ({
+		SYNC_BOOKMARKS_ALARM_NAME: 'sync-bookmarks'
+	}));
+	vi.doMock('~/lib/browser', () => ({
+		defaultBrowserProxy: {
+			runtime: {
+				onInstalledAddListener,
+				getOnInstalledReason
+			},
+			alarms: {
+				onAlarmAddListener
+			},
+			management: {
+				getSelf: managementGetSelf
+			}
 		}
 	}));
-
-	vi.stubGlobal('chrome', {
-		runtime: {
-			OnInstalledReason: {
-				INSTALL: 'install',
-				UPDATE: 'update'
-			},
-			onInstalled: {
-				addListener: vi.fn((listener: InstalledListener) => {
-					installedListeners.push(listener);
-				})
-			}
-		},
-		alarms: {
-			onAlarm: {
-				addListener: vi.fn((listener: AlarmListener) => {
-					alarmListeners.push(listener);
-				})
-			}
-		},
-		management: {
-			getSelf: vi.fn(async () => ({
-				version: args?.installedVersion ?? '1.2.3'
-			}))
-		}
-	});
 
 	await import('~/service-worker');
 
@@ -84,76 +71,71 @@ async function loadServiceWorker(args?: {
 		installedListener: installedListeners[0],
 		alarmListener: alarmListeners[0],
 		scheduleAutoSync,
-		startSync,
+		runFullSync,
 		doMigrate,
 		ready,
-		getOrCreate,
-		SyncManager,
-		managementGetSelf: vi.mocked(chrome.management.getSelf)
+		getInstance,
+		managementGetSelf,
+		onInstalledAddListener,
+		onAlarmAddListener
 	};
 }
 
 afterEach(() => {
 	vi.resetModules();
-	vi.unstubAllGlobals();
 	vi.clearAllMocks();
-	vi.doUnmock('~/lib/sync');
+	vi.doUnmock('~/app');
 	vi.doUnmock('~/migrations');
-	vi.doUnmock('~/config');
+	vi.doUnmock('~/services/sync');
+	vi.doUnmock('~/lib/browser');
 });
 
 describe('service worker installation flow', () => {
 	it('runs migrations on update and always schedules auto sync afterward', async () => {
-		// Arrange
-		const { installedListener, doMigrate, scheduleAutoSync, managementGetSelf, SyncManager } =
-			await loadServiceWorker({ installedVersion: '0.6.1' });
+		const {
+			installedListener,
+			doMigrate,
+			scheduleAutoSync,
+			managementGetSelf,
+			getInstance,
+			onInstalledAddListener,
+			onAlarmAddListener
+		} = await loadServiceWorker({ installedVersion: '0.6.1' });
 
-		// Act
-		await installedListener({
-			reason: chrome.runtime.OnInstalledReason.UPDATE,
-			previousVersion: '0.5.0'
-		});
+		expect(getInstance).toHaveBeenCalledTimes(1);
+		expect(onInstalledAddListener).toHaveBeenCalledTimes(1);
+		expect(onAlarmAddListener).toHaveBeenCalledTimes(1);
 
-		// Assert
+		await installedListener({ reason: 'update', previousVersion: '0.5.0' });
+
 		expect(managementGetSelf).toHaveBeenCalledTimes(1);
 		expect(doMigrate).toHaveBeenCalledWith({
 			previousVersion: '0.5.0',
 			installedVersion: '0.6.1'
 		});
-		expect(SyncManager).toHaveBeenCalledTimes(1);
 		expect(scheduleAutoSync).toHaveBeenCalledTimes(1);
 	});
 
 	it('uses 0.0.0 as previousVersion when update event omits it', async () => {
-		// Arrange
-		const { installedListener, doMigrate, managementGetSelf } = await loadServiceWorker({
-			installedVersion: '0.6.1'
-		});
+		const { installedListener, doMigrate, managementGetSelf, scheduleAutoSync } =
+			await loadServiceWorker({ installedVersion: '0.6.1' });
 
-		// Act
-		await installedListener({
-			reason: chrome.runtime.OnInstalledReason.UPDATE
-		});
+		await installedListener({ reason: 'update' });
 
-		// Assert
 		expect(managementGetSelf).toHaveBeenCalledTimes(1);
 		expect(doMigrate).toHaveBeenCalledWith({
 			previousVersion: '0.0.0',
 			installedVersion: '0.6.1'
 		});
+		expect(scheduleAutoSync).toHaveBeenCalledTimes(1);
 	});
 
 	it('skips migrations on install but still schedules auto sync', async () => {
-		// Arrange
 		const { installedListener, doMigrate, scheduleAutoSync, managementGetSelf } =
 			await loadServiceWorker();
 
-		// Act
-		await installedListener({
-			reason: chrome.runtime.OnInstalledReason.INSTALL
-		});
+		await installedListener({ reason: 'install' });
 
-		// Assert
 		expect(managementGetSelf).not.toHaveBeenCalled();
 		expect(doMigrate).not.toHaveBeenCalled();
 		expect(scheduleAutoSync).toHaveBeenCalledTimes(1);
@@ -161,39 +143,21 @@ describe('service worker installation flow', () => {
 });
 
 describe('service worker alarm flow', () => {
-	it('starts sync with the legacy flag from settings when the sync alarm fires', async () => {
-		// Arrange
-		const { alarmListener, ready, getOrCreate, startSync, SyncManager } = await loadServiceWorker({
-			useLegacySyncMechanism: true
-		});
+	it('starts sync after settings are ready when the sync alarm fires', async () => {
+		const { alarmListener, ready, runFullSync } = await loadServiceWorker();
 
-		// Act
 		await alarmListener({ name: 'sync-bookmarks' });
 
-		// Assert
-		expect(getOrCreate).toHaveBeenCalledTimes(1);
 		expect(ready).toHaveBeenCalledTimes(1);
-		expect(SyncManager).toHaveBeenCalledWith(
-			expect.objectContaining({
-				settings: expect.objectContaining({
-					snapshot: expect.objectContaining({ useLegacySyncMechanism: true })
-				})
-			})
-		);
-		expect(startSync).toHaveBeenCalledWith({ useLegacy: true });
+		expect(runFullSync).toHaveBeenCalledTimes(1);
 	});
 
 	it('ignores unrelated alarms', async () => {
-		// Arrange
-		const { alarmListener, ready, getOrCreate, startSync, SyncManager } = await loadServiceWorker();
+		const { alarmListener, ready, runFullSync } = await loadServiceWorker();
 
-		// Act
 		await alarmListener({ name: 'other-alarm' });
 
-		// Assert
-		expect(getOrCreate).not.toHaveBeenCalled();
 		expect(ready).not.toHaveBeenCalled();
-		expect(SyncManager).not.toHaveBeenCalled();
-		expect(startSync).not.toHaveBeenCalled();
+		expect(runFullSync).not.toHaveBeenCalled();
 	});
 });

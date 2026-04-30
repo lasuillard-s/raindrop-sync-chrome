@@ -1,6 +1,8 @@
 import type { SettingsStore } from '~/config';
-import type { ReadableAdapter, SyncReport, WritableAdapter } from '~/lib/sync';
+import { ChromeAlarmScheduler } from '~/lib/browser';
+import type { ReadableAdapter, SyncPlan, SyncReport, WritableAdapter } from '~/lib/sync';
 import { SyncDiffAnalyzer, SyncExecutor, SyncPlanner, SyncPlanOptimizer } from '~/lib/sync';
+import { NeutralTreeNode, type TreeNode } from '~/lib/sync/tree';
 import {
 	SyncEventComplete,
 	SyncEventError,
@@ -46,7 +48,7 @@ export class SyncService {
 	 * Validate the synchronization configuration, such as checking if the target folder exists.
 	 * @returns A promise that resolves to true if the configuration is valid, false otherwise.
 	 */
-	protected async validateConfig(): Promise<boolean> {
+	async validateConfig(): Promise<boolean> {
 		this.emitEvent(new SyncEventProgress(SyncEventProgressDetail.Validating));
 		if (!this.target.hasFolderWithId(this.appSettings.snapshot.syncLocation)) {
 			return false;
@@ -59,7 +61,7 @@ export class SyncService {
 	 * @param thresholdSeconds Optional threshold in seconds to consider changes as significant. Default is 5 minutes.
 	 * @returns A promise that resolves to true if synchronization is needed, false otherwise.
 	 */
-	protected async checkShouldSync(thresholdSeconds?: number): Promise<boolean> {
+	async checkShouldSync(thresholdSeconds?: number): Promise<boolean> {
 		thresholdSeconds = thresholdSeconds ?? 60 * 5; // Default to 5 minutes
 		this.emitEvent(new SyncEventProgress(SyncEventProgressDetail.CheckShouldSync));
 
@@ -78,31 +80,99 @@ export class SyncService {
 	}
 
 	/**
+	 * Construct the current state tree by cloning the target tree.
+	 *
+	 * This represents the "as-is" state of the bookmarks before synchronization.
+	 * @param args Arguments for building the current state tree.
+	 * @param args.targetTree The target tree representing the current state of bookmarks.
+	 * @returns The current state tree cloned from the target tree.
+	 */
+	buildCurrentState(args: { targetTree: TreeNode }): NeutralTreeNode {
+		const { targetTree } = args;
+		return NeutralTreeNode.cloneFrom(targetTree);
+	}
+
+	/**
+	 * Construct the desired state tree by merging the source tree into the target tree at the sync location.
+	 *
+	 * The desired state represents the "to-be" state of the bookmarks after synchronization,
+	 * which is derived from the source tree but structured according to the target tree
+	 * with the sync folder as the root.
+	 * @param args Arguments for building the desired state tree.
+	 * @param args.targetTree The current state tree built from the target adapter, used as the base for constructing the desired state.
+	 * @param args.sourceTree The source tree containing the desired bookmarks structure to merge into the target tree.
+	 * @returns The desired state tree after merging the source tree into the target tree at the sync location.
+	 */
+	buildDesiredState(args: { targetTree: TreeNode; sourceTree: TreeNode }): NeutralTreeNode {
+		const { targetTree, sourceTree } = args;
+		const desiredState = NeutralTreeNode.cloneFrom(targetTree);
+
+		// Find the sync folder node in the desired state tree
+		const syncFolderId = this.appSettings.snapshot.syncLocation;
+		let syncFolder: NeutralTreeNode | null = null;
+		desiredState.bfs((node) => {
+			console.debug(
+				`Checking node ${node.getPath().toString()} (id: ${node.id}) against sync location id ${syncFolderId}`
+			);
+			if (node.id === syncFolderId) {
+				syncFolder = node;
+				return 'break';
+			}
+		});
+		if (!syncFolder) {
+			throw new Error(`Sync folder (${syncFolderId}) not found in the desired state tree.`);
+		}
+		// ? Workaround for wrong type inference
+		syncFolder = syncFolder as NeutralTreeNode;
+
+		// In-place update the sync folder node in the desired state tree with the
+		syncFolder.children?.splice(0, syncFolder.children.length);
+		sourceTree.children?.forEach((child) => {
+			syncFolder!.addChild(child);
+		});
+
+		return desiredState;
+	}
+
+	/**
 	 * Perform the synchronization process, including fetching trees, generating diff, creating and optimizing plan, and executing the plan.
+	 * @param args Optional arguments for the sync process.
+	 * @param args.plan An externally provided sync plan to execute. If not provided, the service will generate a plan by comparing source and target.
 	 * @param options Optional settings for the sync process.
 	 * @param options.dryRun If true, generates the sync plan but does not execute it.
 	 * @returns A promise that resolves to the sync report if executed, or null if dry run.
 	 */
-	protected async doSync(options?: { dryRun?: boolean }): Promise<SyncReport | null> {
-		// Build source tree (to-be)
-		this.emitEvent(new SyncEventProgress(SyncEventProgressDetail.FetchingSource));
-		const sourceTree = await this.source.getTree();
+	async doSync(
+		args?: { plan?: SyncPlan },
+		options?: { dryRun?: boolean }
+	): Promise<SyncReport | null> {
+		let plan = args?.plan;
+		if (!plan) {
+			// Build source tree (to-be)
+			this.emitEvent(new SyncEventProgress(SyncEventProgressDetail.FetchingSource));
+			const sourceTree = await this.source.getTree();
 
-		// Build target tree (as-is)
-		this.emitEvent(new SyncEventProgress(SyncEventProgressDetail.FetchingTarget));
-		const targetTree = await this.target.getTree();
+			// Build target tree (as-is)
+			this.emitEvent(new SyncEventProgress(SyncEventProgressDetail.FetchingTarget));
+			const targetTree = await this.target.getTree();
 
-		// Compare the two trees to generate a diff
-		this.emitEvent(new SyncEventProgress(SyncEventProgressDetail.CalculatingDiff));
-		const diff = this.diffAnalyzer.compare(sourceTree, targetTree);
+			// Get current state (as-is) and desired state (to-be) based on source and target trees
+			this.emitEvent(new SyncEventProgress(SyncEventProgressDetail.ConstructingStates));
+			const currentState = this.buildCurrentState({ targetTree });
+			const desiredState = this.buildDesiredState({ targetTree, sourceTree });
 
-		// Generate a sync plan based on the diff
-		this.emitEvent(new SyncEventProgress(SyncEventProgressDetail.GeneratingPlan));
-		const plan = this.planner.generatePlan(diff);
+			// Compare the two trees to generate a diff
+			this.emitEvent(new SyncEventProgress(SyncEventProgressDetail.CalculatingDiff));
+			const diff = this.diffAnalyzer.compare(desiredState, currentState);
 
-		// Optimize the sync plan
-		this.emitEvent(new SyncEventProgress(SyncEventProgressDetail.OptimizingPlan));
-		const optimizedPlan = this.planOptimizer.optimize(plan);
+			// Generate a sync plan based on the diff
+			this.emitEvent(new SyncEventProgress(SyncEventProgressDetail.GeneratingPlan));
+			plan = this.planner.generatePlan(diff);
+
+			// Optimize the sync plan
+			this.emitEvent(new SyncEventProgress(SyncEventProgressDetail.OptimizingPlan));
+			plan = this.planOptimizer.optimize(plan);
+		}
 
 		// Execute the sync plan to update the target to match the source
 		this.emitEvent(new SyncEventProgress(SyncEventProgressDetail.ExecutingPlan));
@@ -111,17 +181,23 @@ export class SyncService {
 			return null;
 		}
 
-		const report = await this.executor.execute(optimizedPlan, this.target);
+		const report = await this.executor.execute(plan, this.target);
 		return report;
 	}
 
 	/**
 	 * Run the full synchronization process, including validation, diffing, planning, and execution.
+	 * @param args Optional arguments for the sync process.
+	 * @param args.plan An externally provided sync plan to execute. If not provided, the service will generate a plan by comparing source and target.
 	 * @param options Optional settings for the sync process.
+	 * @param options.dryRun If true, generates the sync plan but does not execute it.
 	 * @param options.force If true, forces synchronization even if checkShouldSync returns false.
 	 * @returns A promise that resolves when the sync process is complete.
 	 */
-	async runFullSync(options?: { force?: boolean }): Promise<void> {
+	async runFullSync(
+		args?: { plan?: SyncPlan },
+		options?: { dryRun?: boolean; force?: boolean }
+	): Promise<void> {
 		try {
 			this.emitEvent(new SyncEventStart());
 
@@ -142,7 +218,7 @@ export class SyncService {
 			}
 
 			// Perform the synchronization
-			await this.doSync();
+			await this.doSync({ plan: args?.plan }, { dryRun: options?.dryRun });
 
 			this.emitEvent(new SyncEventComplete());
 		} catch (error) {
@@ -151,12 +227,26 @@ export class SyncService {
 		}
 	}
 
-	// TODO
-	// async scheduleAutoSync(): Promise<void> {
-	//   this.browserProxy.alarms.create(SYNC_BOOKMARKS_ALARM_NAME, {
-	//     ...
-	//   });
-	// }
+	/**
+	 * Schedule recurring sync alarm using current settings.
+	 */
+	async scheduleAutoSync(): Promise<void> {
+		const scheduler = new ChromeAlarmScheduler();
+		await scheduler.clearAll();
+
+		if (!this.appSettings.snapshot.autoSyncEnabled) {
+			return;
+		}
+
+		const delayInMinutes = this.appSettings.snapshot.autoSyncExecOnStartup
+			? 0
+			: this.appSettings.snapshot.autoSyncIntervalInMinutes;
+
+		await scheduler.create(SYNC_BOOKMARKS_ALARM_NAME, {
+			delayInMinutes,
+			periodInMinutes: this.appSettings.snapshot.autoSyncIntervalInMinutes
+		});
+	}
 
 	// Event handling
 	// -------------------------------------------------------------------------

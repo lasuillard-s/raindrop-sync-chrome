@@ -1,77 +1,52 @@
+import { TestTreeNode } from '@test-helpers/tree';
 import { describe, expect, it } from 'vitest';
 import {
 	SyncActionCreateBookmark,
 	SyncActionDelete,
 	SyncActionUpdateBookmark,
 	SyncDiff,
-	SyncPlanner,
-	TreeNode
+	SyncPlanner
 } from '~/lib/sync';
-
-class TestTreeNode extends TreeNode {
-	getHash(): string {
-		return `${this.title}|${this.url ?? ''}`;
-	}
-}
-
-const createNode = (args: {
-	id: string;
-	title: string;
-	type: 'folder' | 'bookmark';
-	url?: string | null;
-	parent?: TestTreeNode;
-}) => {
-	const node = new TestTreeNode({
-		id: args.id,
-		parent: args.parent ?? null,
-		title: args.title,
-		url: args.url ?? null,
-		type: args.type,
-		raw: null
-	});
-	args.parent?.addChild(node);
-	return node;
-};
 
 describe('SyncPlanner', () => {
 	it('generates create, update, and delete actions from a diff', () => {
-		const leftRoot = createNode({ id: 'left-root', title: '', type: 'folder' });
-		const rightRoot = createNode({ id: 'right-root', title: '', type: 'folder' });
-		const leftFolder = createNode({
+		const leftRoot = new TestTreeNode({ id: 'left-root', title: '', type: 'folder' });
+		const rightRoot = new TestTreeNode({ id: 'right-root', title: '', type: 'folder' });
+		const leftFolder = new TestTreeNode({
 			id: 'left-folder',
 			title: 'Collection',
 			type: 'folder',
 			parent: leftRoot
 		});
-		const rightFolder = createNode({
+		const rightFolder = new TestTreeNode({
 			id: 'right-folder',
 			title: 'Collection',
 			type: 'folder',
 			parent: rightRoot
 		});
 
-		const added = createNode({
+		const added = new TestTreeNode({
 			id: 'added-left',
 			title: 'Added bookmark',
 			type: 'bookmark',
 			url: 'https://added.example',
 			parent: leftFolder
 		});
-		const updatedLeft = createNode({
+		const updatedLeft = new TestTreeNode({
 			id: 'updated-left',
 			title: 'Updated bookmark',
 			type: 'bookmark',
 			url: 'https://updated.example',
 			parent: leftFolder
 		});
-		const updatedRight = createNode({
+		const updatedRight = new TestTreeNode({
 			id: 'updated-right',
 			title: 'Updated bookmark',
 			type: 'bookmark',
 			url: 'https://old.example',
 			parent: rightFolder
 		});
-		const removed = createNode({
+		const removed = new TestTreeNode({
 			id: 'removed-right',
 			title: 'Removed bookmark',
 			type: 'bookmark',

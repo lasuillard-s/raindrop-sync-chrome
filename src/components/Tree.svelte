@@ -1,11 +1,11 @@
-<script lang="ts" generics="T extends NodeData">
+<script lang="ts">
 	import { ChevronDownOutline, ChevronRightOutline } from 'flowbite-svelte-icons';
-	import type { NodeData, TreeNode } from '~/lib/bookmark';
+	import type { TreeNode } from '~/lib/sync/tree';
 	import { isUrlSafeHref } from '~/lib/util/string';
 	import Self from './Tree.svelte';
 
 	interface Props {
-		treeNode: TreeNode<T>;
+		treeNode: TreeNode;
 		collapsed?: boolean;
 		/** Override for title -- root-only. */
 		nodeTitleOverride?: string | null;
@@ -17,10 +17,10 @@
 	let { treeNode, collapsed, nodeTitleOverride = null, propagatingDefaults }: Props = $props();
 
 	const isFolder: boolean = $derived(treeNode.isFolder());
-	const href: string | null = $derived(treeNode.getUrl());
-	const nodeTitle: string = $derived(nodeTitleOverride || treeNode.getName() || '');
-	const childCount: number = $derived(treeNode.children.length);
-	const pathString: string = $derived(treeNode.getFullPath().toString());
+	const href: string | null = $derived(treeNode.url);
+	const nodeTitle: string = $derived(nodeTitleOverride || treeNode.title || '');
+	const childCount: number = $derived(treeNode.children?.length ?? 0);
+	const pathString: string = $derived(treeNode.getPath().toString());
 
 	const toggleCollapse = () => {
 		collapsed = !collapsed;
@@ -36,7 +36,7 @@
 <div class="leading-relaxed" data-testid={pathString}>
 	{#if isFolder}
 		<div class="inline-flex items-center gap-1.5">
-			{#if treeNode.children.length > 0}
+			{#if childCount > 0}
 				<button
 					type="button"
 					onclick={toggleCollapse}
@@ -71,9 +71,9 @@
 			>
 		</div>
 	{/if}
-	{#if treeNode.children.length > 0 && !collapsed}
+	{#if childCount > 0 && !collapsed}
 		<div class="mt-0.5 ml-6">
-			{#each treeNode.children as child (child.data?.getId() || Math.random())}
+			{#each treeNode.children as child (child.id)}
 				<Self treeNode={child} {propagatingDefaults} />
 			{/each}
 		</div>

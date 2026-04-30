@@ -1,5 +1,6 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import type { BrowserProxy } from '~/lib/browser';
+import type { SettingsStore } from '~/config';
+import type { SyncService } from '~/services/sync';
 
 describe('App', () => {
 	beforeEach(() => {
@@ -21,12 +22,14 @@ describe('App', () => {
 	it('preserves constructor-based dependency injection', async () => {
 		// Arrange
 		const { App } = await import('~/app');
-		const browserProxy = {} as BrowserProxy;
+		const settings = {} as SettingsStore;
+		const sync = {} as SyncService;
 
 		// Act
-		const app = new App(browserProxy);
+		const app = new App({ settings, sync });
 
 		// Assert
-		expect(app.browserProxy).toBe(browserProxy);
+		expect(app.settings).toBe(settings);
+		expect(app.sync).toBe(sync);
 	});
 });
