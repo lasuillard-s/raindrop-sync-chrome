@@ -16,9 +16,6 @@ log_file="${e2e_dir}/run-$(date +"%Y%m%dT%H%M%S").log"
 
 cd "$e2e_dir"
 
-# Variables for docker-compose
-export PLAYWRIGHT_VERSION="$(yarn exec --silent -- playwright --version | cut -d' ' -f2)"
-
 docker compose config >> "$log_file"
 
 # Pull the base images and build the services, while logging the output.
@@ -26,7 +23,6 @@ docker compose pull --ignore-buildable --include-deps >> "$log_file" 2>&1
 docker buildx bake \
     --file ./docker-compose.yaml \
     --file ./docker-bake.json \
-    --set playwright.args.PLAYWRIGHT_VERSION="$PLAYWRIGHT_VERSION" \
     --allow=fs.read=.. \
     --load \
     2>&1 | tee --append "$log_file"
