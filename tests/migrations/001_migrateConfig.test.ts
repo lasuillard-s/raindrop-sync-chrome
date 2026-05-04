@@ -1,35 +1,20 @@
-import { afterEach, describe, expect, it, vi } from 'vitest';
-import { SettingsRepository } from '~/config';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { BrowserSettingsRepository, DEFAULT_SETTINGS } from '~/config';
+import { defaultBrowserProxy } from '~/lib/browser';
 import { Migration } from '~/migrations/001_migrateConfig';
 
-afterEach(() => {
-	vi.unstubAllGlobals();
-	vi.clearAllMocks();
+let migration: Migration;
+
+beforeEach(() => {
+	migration = new Migration();
 });
 
-describe('Migration.shouldMigrate', () => {
-	it('returns false when unified settings already exist', async () => {
+describe('shouldMigrate', () => {
+	it('returns false when new settings already exist', async () => {
 		// Arrange
-		const get = vi.fn(async (keyOrKeys: string | string[]) => {
-			const key = Array.isArray(keyOrKeys) ? keyOrKeys[0] : keyOrKeys;
-			if (key === SettingsRepository.STORAGE_KEY) {
-				return {
-					[key]: JSON.stringify({ autoSyncEnabled: true })
-				};
-			}
-			return { [key]: undefined };
-		});
-
-		vi.stubGlobal('chrome', {
-			storage: {
-				sync: {
-					get,
-					set: vi.fn()
-				}
-			}
-		});
-
-		const migration = new Migration();
+		vi.spyOn(defaultBrowserProxy.storage, 'get').mockResolvedValue(
+			JSON.stringify(DEFAULT_SETTINGS)
+		);
 
 		// Act
 		const shouldMigrate = await migration.shouldMigrate({
@@ -39,26 +24,11 @@ describe('Migration.shouldMigrate', () => {
 
 		// Assert
 		expect(shouldMigrate).toBe(false);
-		expect(get).toHaveBeenCalledWith([SettingsRepository.STORAGE_KEY]);
 	});
 
 	it('returns true when unified settings do not exist yet', async () => {
 		// Arrange
-		const get = vi.fn(async (keyOrKeys: string | string[]) => {
-			const key = Array.isArray(keyOrKeys) ? keyOrKeys[0] : keyOrKeys;
-			return { [key]: undefined };
-		});
-
-		vi.stubGlobal('chrome', {
-			storage: {
-				sync: {
-					get,
-					set: vi.fn()
-				}
-			}
-		});
-
-		const migration = new Migration();
+		vi.spyOn(defaultBrowserProxy.storage, 'get').mockResolvedValue(undefined);
 
 		// Act
 		const shouldMigrate = await migration.shouldMigrate({
@@ -68,30 +38,11 @@ describe('Migration.shouldMigrate', () => {
 
 		// Assert
 		expect(shouldMigrate).toBe(true);
-		expect(get).toHaveBeenCalledWith([SettingsRepository.STORAGE_KEY]);
 	});
 
 	it('returns true when unified settings cannot be parsed', async () => {
 		// Arrange
-		const get = vi.fn(async (keyOrKeys: string | string[]) => {
-			const key = Array.isArray(keyOrKeys) ? keyOrKeys[0] : keyOrKeys;
-			if (key === SettingsRepository.STORAGE_KEY) {
-				return { [key]: 'not-json' };
-			}
-			return { [key]: undefined };
-		});
-		const warn = vi.spyOn(console, 'warn').mockImplementation(() => {});
-
-		vi.stubGlobal('chrome', {
-			storage: {
-				sync: {
-					get,
-					set: vi.fn()
-				}
-			}
-		});
-
-		const migration = new Migration();
+		vi.spyOn(defaultBrowserProxy.storage, 'get').mockResolvedValue('not a valid json');
 
 		// Act
 		const shouldMigrate = await migration.shouldMigrate({
@@ -101,14 +52,13 @@ describe('Migration.shouldMigrate', () => {
 
 		// Assert
 		expect(shouldMigrate).toBe(true);
-		expect(warn).toHaveBeenCalledOnce();
 	});
 });
 
-describe('Migration.run', () => {
+describe('run', () => {
 	it('collects legacy keys and saves a normalized settings object', async () => {
 		// Arrange
-		const legacyValues: Record<string, string | undefined> = {
+		const oldSettings = {
 			clientID: '"client-123"',
 			clientSecret: 'secret-raw',
 			accessToken: '"access-token"',
@@ -120,23 +70,10 @@ describe('Migration.run', () => {
 			autoSyncExecOnStartup: 'true',
 			useLegacySyncMechanism: 'false'
 		};
-		const get = vi.fn(async (key: string) => ({
-			[key]: legacyValues[key]
-		}));
-		const set = vi.fn(async (value: Record<string, string>) => {
-			void value;
+		vi.spyOn(defaultBrowserProxy.storage, 'get').mockImplementation((key) => {
+			return Promise.resolve(oldSettings[key as keyof typeof oldSettings]);
 		});
-
-		vi.stubGlobal('chrome', {
-			storage: {
-				sync: {
-					get,
-					set
-				}
-			}
-		});
-
-		const migration = new Migration();
+		const mockSet = vi.spyOn(defaultBrowserProxy.storage, 'set');
 
 		// Act
 		await migration.run({
@@ -145,26 +82,20 @@ describe('Migration.run', () => {
 		});
 
 		// Assert
-		expect(get).toHaveBeenCalledWith('clientID');
-		expect(get).toHaveBeenCalledWith('clientSecret');
-		expect(get).toHaveBeenCalledWith('autoSyncEnabled');
-		expect(set).toHaveBeenCalledTimes(1);
-
-		const firstSetCall = vi.mocked(set).mock.calls[0];
-		expect(firstSetCall).toBeDefined();
-		const persistedPayload = firstSetCall[0];
-		const persisted = JSON.parse(persistedPayload[SettingsRepository.STORAGE_KEY]);
-		expect(persisted).toMatchObject({
-			clientId: 'client-123',
-			clientSecret: 'secret-raw',
-			accessToken: 'access-token',
-			refreshToken: 'refresh-token',
-			clientLastSync: '2026-01-01T00:00:00.000Z',
-			syncLocation: 'folder-id',
-			autoSyncEnabled: true,
-			autoSyncIntervalInMinutes: 15,
-			autoSyncExecOnStartup: true,
-			useLegacySyncMechanism: false
-		});
+		expect(mockSet).toHaveBeenCalledExactlyOnceWith(
+			BrowserSettingsRepository.STORAGE_KEY,
+			JSON.stringify({
+				clientId: 'client-123',
+				clientSecret: 'secret-raw',
+				accessToken: 'access-token',
+				refreshToken: 'refresh-token',
+				clientLastSync: '2026-01-01T00:00:00.000Z',
+				syncLocation: 'folder-id',
+				autoSyncEnabled: true,
+				autoSyncIntervalInMinutes: 15,
+				autoSyncExecOnStartup: true,
+				useLegacySyncMechanism: false
+			})
+		);
 	});
 });

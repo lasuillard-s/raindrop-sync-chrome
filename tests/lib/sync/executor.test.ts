@@ -11,7 +11,7 @@ import {
 	type TreeNode
 } from '@lib/sync';
 import { Path } from '@lib/util/path';
-import { describe, expect, it, vi } from 'vitest';
+import { describe, expect, it } from 'vitest';
 
 class RecordingWritableAdapter extends WritableAdapter {
 	readonly applied: SyncAction[] = [];
@@ -90,7 +90,6 @@ describe('SyncExecutor', () => {
 	});
 
 	it('continues execution and captures errors when applying action fails', async () => {
-		const errorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
 		const plan = new SyncPlan();
 		plan.addAction(
 			new SyncActionCreateBookmark({
@@ -116,7 +115,5 @@ describe('SyncExecutor', () => {
 		expect(report.deleted).toBe(1);
 		expect(report.errors).toHaveLength(1);
 		expect(report.errors[0].message).toBe('boom-2');
-
-		errorSpy.mockRestore();
 	});
 });

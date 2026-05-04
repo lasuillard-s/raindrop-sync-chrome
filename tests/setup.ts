@@ -1,7 +1,7 @@
 import { mocks as chromeBookmarkMocks } from '@test-helpers/chrome-bookmarks';
 import { cleanup } from '@testing-library/svelte';
 import { afterEach, beforeEach, vi } from 'vitest';
-import { InMemoryStorageAdapter, SettingsRepository, SettingsStore } from '~/config';
+import { InMemorySettingsRepository, SettingsStore } from '~/config';
 
 beforeEach(() => {
 	// Tried to use both sinon-chrome and vitest-chrome, but it seems both are not being
@@ -32,13 +32,12 @@ beforeEach(() => {
 		}
 	});
 
-	const adapter = new InMemoryStorageAdapter();
-	const repository = new SettingsRepository(adapter);
-	const settings = new SettingsStore(repository);
+	const settings = new SettingsStore(new InMemorySettingsRepository());
 	vi.spyOn(SettingsStore, 'getOrCreate').mockReturnValue(settings);
 });
 
 afterEach(() => {
-	vi.resetAllMocks();
+	vi.clearAllMocks();
+	vi.unstubAllGlobals();
 	cleanup();
 });

@@ -1,5 +1,5 @@
 import { get, writable, type Writable } from 'svelte/store';
-import { SettingsRepository } from './repository';
+import { BrowserSettingsRepository, SettingsRepository } from './repository';
 import { DEFAULT_SETTINGS, Settings } from './settings';
 
 export type SettingsState = 'idle' | 'loading' | 'ready' | 'error';
@@ -14,7 +14,7 @@ export class SettingsStore {
 	private readyPromise: Promise<void> | null = null;
 
 	constructor(repository?: SettingsRepository) {
-		this.repository = repository ?? new SettingsRepository();
+		this.repository = repository ?? new BrowserSettingsRepository();
 		this.data = writable<Settings>(DEFAULT_SETTINGS);
 		this.state = writable<SettingsState>('idle');
 		this.error = writable<Error | null>(null);

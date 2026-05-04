@@ -19,7 +19,7 @@
 		"check": "svelte-check --tsconfig ./tsconfig.json",
 		"check:watch": "svelte-check --tsconfig ./tsconfig.json --watch",
 		"test": "vitest --run",
-		"test:watch": "vitest --silent --watch --ui",
+		"test:watch": "vitest --watch --ui",
 		"e2e": "playwright test",
 		"e2e:watch": "playwright test --ui",
 		"e2e-docker": "./e2e/run.sh test",

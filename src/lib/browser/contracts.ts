@@ -5,7 +5,9 @@ export interface AlarmService {
 }
 
 export interface StorageService {
-	getSyncRaw(key: string): Promise<unknown>;
+	get(key: string): Promise<unknown>;
+	set(key: string, value: unknown): Promise<void>;
+	remove(key: string): Promise<void>;
 }
 
 export interface RuntimeService {

@@ -56,7 +56,6 @@ export default defineConfig(({ mode }) => {
 		test: {
 			expect: { requireAssertions: true },
 			include: ['tests/**/*.{test,spec}.{js,ts}'],
-			exclude: ['**/__mocks__/*'],
 			reporters: ['junit', 'default'],
 			outputFile: {
 				junit: './junit.xml'
@@ -65,11 +64,14 @@ export default defineConfig(({ mode }) => {
 				enabled: true,
 				include: ['src/**'],
 				exclude: [
-					'src/**/__mocks__/*',
-					'src/**/*.d.ts',
 					'tests/**/*.{test,spec}.ts',
+					// Not source files
+					'src/**/*.d.ts',
 					'src/assets/*',
-					'src/**/index.html'
+					// Below handled in E2E tests
+					'src/service-worker.ts',
+					'src/options/*',
+					'src/popup/*'
 				],
 				reporter: ['text', 'clover', 'html']
 			},

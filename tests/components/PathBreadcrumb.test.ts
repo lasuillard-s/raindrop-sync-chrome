@@ -3,7 +3,7 @@ import { render } from '@testing-library/svelte';
 import { expect, it } from 'vitest';
 import PathBreadcrumb from '~/components/PathBreadcrumb.svelte';
 
-it('renders component with pathSegments', async () => {
+it('renders with pathSegments', async () => {
 	const { getByTestId, queryByTestId } = render(PathBreadcrumb, {
 		pathSegments: ['folder', 'subfolder', 'item']
 	});
@@ -13,7 +13,7 @@ it('renders component with pathSegments', async () => {
 	expect(queryByTestId('path-segment-3')).toBeNull();
 });
 
-it('renders component with empty pathSegments', () => {
+it('renders with empty pathSegments', () => {
 	const { container } = render(PathBreadcrumb, {
 		pathSegments: []
 	});

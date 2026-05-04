@@ -4,28 +4,31 @@ import { BookmarkIsNotAFolderError } from './errors';
 
 export abstract class TreeNode {
 	readonly id: string;
-	protected parent: TreeNode | null;
 	readonly title: string;
 	readonly url: string | null;
 	readonly type: 'folder' | 'bookmark';
-	readonly children?: TreeNode[];
 	protected readonly raw: unknown;
+	protected parent: TreeNode | null;
+	readonly children?: TreeNode[];
 
 	constructor(args: {
 		id: string;
-		parent: TreeNode | null;
 		title: string;
 		url: string | null;
 		type: 'folder' | 'bookmark';
 		raw: unknown;
+		parent?: TreeNode | null;
 	}) {
 		this.id = args.id;
-		this.parent = args.parent;
 		this.title = args.title;
 		this.url = args.url;
 		this.type = args.type;
-		this.children = this.isFolder() ? [] : undefined;
 		this.raw = args.raw;
+		this.parent = null;
+		this.children = this.isFolder() ? [] : undefined;
+		if (args.parent) {
+			args.parent.addChild(this);
+		}
 	}
 
 	/**

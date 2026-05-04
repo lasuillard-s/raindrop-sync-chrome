@@ -9,12 +9,12 @@ const labelSnippet = createRawSnippet(() => ({
 	render: () => '<span>Secret Label</span>'
 }));
 
-it('renders SecretInput component without any properties', () => {
+it('renders without any properties', () => {
 	const { container } = render(SecretInput);
 	expect(container).toBeTruthy();
 });
 
-it('renders SecretInput component with a label property', () => {
+it('renders with a label property', () => {
 	const { getByText } = render(SecretInput, {
 		props: {
 			children: labelSnippet
@@ -23,7 +23,7 @@ it('renders SecretInput component with a label property', () => {
 	expect(getByText('Secret Label')).toBeTruthy();
 });
 
-it('renders SecretInput component with a value property', async () => {
+it('renders with a value property', async () => {
 	// Arrange
 	const user = userEvent.setup();
 	const { getByLabelText } = render(SecretInput, {

@@ -1,5 +1,5 @@
 import { defaultBrowserProxy } from '@lib/browser';
-import { ChromeStorageAdapter, Settings, SettingsRepository } from '~/config';
+import { BrowserSettingsRepository, Settings } from '~/config';
 import { MigrationBase, type MigrationContext } from './types';
 
 export class Migration extends MigrationBase {
@@ -8,25 +8,36 @@ export class Migration extends MigrationBase {
 
 	// eslint-disable-next-line @typescript-eslint/no-unused-vars
 	async shouldMigrate(context: MigrationContext): Promise<boolean> {
-		const adapter = new ChromeStorageAdapter();
+		let existing: unknown;
+
+		// Check if new settings key already exists and is valid
 		try {
-			if (await adapter.get(SettingsRepository.STORAGE_KEY)) {
-				console.debug('New settings key already exists, skipping migration');
-				return false;
+			existing = await defaultBrowserProxy.storage.get(BrowserSettingsRepository.STORAGE_KEY);
+			if (!existing) {
+				console.debug('New settings key does not exist, proceeding with migration');
+				return true;
 			}
-		} catch (error) {
+		} catch (err) {
 			console.warn(
-				'Failed to read unified settings during migration check, continuing with migration',
-				error
+				'Failed to read unified settings during migration check, continuing with migration:',
+				err
 			);
+			return true;
 		}
 
-		return true;
+		// If the key exists, check if it can be parsed as valid JSON
+		try {
+			Settings.parse(JSON.parse(existing as string));
+			console.debug('New settings key is valid, skipping migration');
+			return false;
+		} catch (err) {
+			console.warn('New settings key is invalid, proceeding with migration:', err);
+			return true;
+		}
 	}
 
 	// eslint-disable-next-line @typescript-eslint/no-unused-vars
 	async run(context: MigrationContext) {
-		const adapter = new ChromeStorageAdapter();
 		const keysToMigrate = [
 			// [newKey, oldKey] - if oldKey is not provided, it defaults to newKey
 			['clientId', 'clientID'],
@@ -38,6 +49,7 @@ export class Migration extends MigrationBase {
 			['autoSyncEnabled'],
 			['autoSyncIntervalInMinutes'],
 			['autoSyncExecOnStartup'],
+			// Deprecated; will be removed in a near future
 			['useLegacySyncMechanism']
 		];
 
@@ -46,7 +58,7 @@ export class Migration extends MigrationBase {
 		for (const [key, oldKey] of keysToMigrate) {
 			const oldKeyToUse = oldKey ?? key;
 			console.debug(`Migrating setting "${key}" from old key "${oldKeyToUse}"`);
-			const value = await defaultBrowserProxy.storage.getSyncRaw(oldKeyToUse);
+			const value = await defaultBrowserProxy.storage.get(oldKeyToUse);
 			if (value !== undefined) {
 				try {
 					newObj[key] = JSON.parse(value as string);
@@ -58,7 +70,8 @@ export class Migration extends MigrationBase {
 			}
 		}
 		const newSettings = Settings.parse(newObj);
-		await adapter.set(SettingsRepository.STORAGE_KEY, newSettings);
+		const serialized = JSON.stringify(newSettings);
+		await defaultBrowserProxy.storage.set(BrowserSettingsRepository.STORAGE_KEY, serialized);
 		console.debug('Migration completed, new settings saved');
 
 		// * Leave old keys in place for now

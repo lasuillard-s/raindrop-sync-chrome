@@ -4,7 +4,19 @@ import { describe, expect, it } from 'vitest';
 
 describe('SyncDiffAnalyzer', () => {
 	it('categorizes only-in-left, changed, unchanged, and only-in-right nodes', () => {
+		// Left tree structure (path):
+		// - left-root (/)
+		//   - left-only (/left-only)
+		//   - left-updated (/updated)
+		//   - left-stable (/stable)
+		//
 		const leftRoot = new TestTreeNode({ id: 'left-root', title: '', type: 'folder' });
+
+		// Right tree structure:
+		// - right-root (/)
+		//   - right-only (/right-only)
+		//   - right-updated (/updated)
+		//   - right-stable (/stable)
 		const rightRoot = new TestTreeNode({ id: 'right-root', title: '', type: 'folder' });
 
 		new TestTreeNode({
