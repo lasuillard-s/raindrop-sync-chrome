@@ -106,6 +106,10 @@ test.describe('popup bookmark synchronization', () => {
 		await extensionStorage.clearAppSettings();
 	});
 
+	test.afterEach(async ({ bookmarks }) => {
+		await bookmarks.clearAllBookmarks();
+	});
+
 	test('syncs mocked Raindrop data into configured Chrome bookmark folder', async ({
 		page,
 		context,

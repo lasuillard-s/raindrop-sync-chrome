@@ -112,4 +112,20 @@ export class BookmarkFixture {
 			await chrome.bookmarks.removeTree(nodeId);
 		}, id);
 	}
+
+	async clearAllBookmarks(): Promise<void> {
+		await this.serviceWorker.evaluate(async () => {
+			const [root] = await chrome.bookmarks.getTree();
+			const rootFolders = root?.children ?? [];
+			for (const folder of rootFolders) {
+				for (const child of folder.children ?? []) {
+					if (child.url === undefined) {
+						await chrome.bookmarks.removeTree(child.id);
+					} else {
+						await chrome.bookmarks.remove(child.id);
+					}
+				}
+			}
+		});
+	}
 }
