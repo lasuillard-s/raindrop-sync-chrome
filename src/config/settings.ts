@@ -9,8 +9,7 @@ export const Settings = z.object({
 	syncLocation: z.string().default(''),
 	autoSyncEnabled: z.boolean().default(false),
 	autoSyncIntervalInMinutes: z.int().min(1).max(1_440 /* 24H */).default(5),
-	autoSyncExecOnStartup: z.boolean().default(false),
-	useLegacySyncMechanism: z.boolean().default(true)
+	autoSyncExecOnStartup: z.boolean().default(false)
 });
 export type Settings = z.infer<typeof Settings>;
 

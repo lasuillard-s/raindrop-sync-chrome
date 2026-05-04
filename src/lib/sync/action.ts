@@ -77,6 +77,8 @@ export class SyncActionUpdateFolder extends SyncActionBase {
 
 export interface SyncActionDeleteArgs {
 	id: string;
+	path?: Path;
+	nodeType?: 'folder' | 'bookmark';
 }
 export class SyncActionDelete extends SyncActionBase {
 	readonly type = SyncActionType.Delete;

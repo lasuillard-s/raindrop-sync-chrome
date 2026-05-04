@@ -103,26 +103,27 @@ export class SyncService {
 	 * @param args Arguments for building the desired state tree.
 	 * @param args.targetTree The current state tree built from the target adapter, used as the base for constructing the desired state.
 	 * @param args.sourceTree The source tree containing the desired bookmarks structure to merge into the target tree.
+	 * @param args.syncLocationId The folder ID in the target tree where synchronized items should be placed.
 	 * @returns The desired state tree after merging the source tree into the target tree at the sync location.
 	 */
-	buildDesiredState(args: { targetTree: TreeNode; sourceTree: TreeNode }): NeutralTreeNode {
-		const { targetTree, sourceTree } = args;
+	buildDesiredState(args: {
+		targetTree: TreeNode;
+		sourceTree: TreeNode;
+		syncLocationId: string;
+	}): NeutralTreeNode {
+		const { targetTree, sourceTree, syncLocationId } = args;
 		const desiredState = NeutralTreeNode.cloneFrom(targetTree);
 
 		// Find the sync folder node in the desired state tree
-		const syncFolderId = this.appSettings.snapshot.syncLocation;
 		let syncFolder: NeutralTreeNode | null = null;
 		desiredState.bfs((node) => {
-			console.debug(
-				`Checking node ${node.getPath().toString()} (id: ${node.id}) against sync location id ${syncFolderId}`
-			);
-			if (node.id === syncFolderId) {
+			if (node.id === syncLocationId) {
 				syncFolder = node;
 				return 'break';
 			}
 		});
 		if (!syncFolder) {
-			throw new Error(`Sync folder (${syncFolderId}) not found in the desired state tree.`);
+			throw new Error(`Sync folder (${syncLocationId}) not found in the desired state tree.`);
 		}
 		// ? Workaround for wrong type inference
 		syncFolder = syncFolder as NeutralTreeNode;
@@ -150,6 +151,8 @@ export class SyncService {
 	): Promise<SyncReport | null> {
 		let plan = args?.plan;
 		if (!plan) {
+			const settingsSnapshot = await this.appSettings.snapshotReady();
+
 			// Build source tree (to-be)
 			this.emitEvent(new SyncEventProgress(SyncEventProgressDetail.FetchingSource));
 			const sourceTree = await this.source.getTree();
@@ -161,7 +164,11 @@ export class SyncService {
 			// Get current state (as-is) and desired state (to-be) based on source and target trees
 			this.emitEvent(new SyncEventProgress(SyncEventProgressDetail.ConstructingStates));
 			const currentState = this.buildCurrentState({ targetTree });
-			const desiredState = this.buildDesiredState({ targetTree, sourceTree });
+			const desiredState = this.buildDesiredState({
+				targetTree,
+				sourceTree,
+				syncLocationId: settingsSnapshot.syncLocation
+			});
 
 			// Compare the two trees to generate a diff
 			this.emitEvent(new SyncEventProgress(SyncEventProgressDetail.CalculatingDiff));
@@ -221,7 +228,10 @@ export class SyncService {
 			}
 
 			// Perform the synchronization
-			await this.doSync({ plan: args?.plan }, { dryRun: options?.dryRun });
+			const report = await this.doSync({ plan: args?.plan }, { dryRun: options?.dryRun });
+			if (!options?.dryRun && report && report.errors.length === 0) {
+				await this.appSettings.update({ clientLastSync: new Date() });
+			}
 
 			this.emitEvent(new SyncEventComplete());
 		} catch (error) {

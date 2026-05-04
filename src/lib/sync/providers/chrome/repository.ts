@@ -70,7 +70,7 @@ export class ChromeBookmarkRepository {
 				currentNodes = [];
 			}
 
-			if (segments.length === 0 && nextNode.url === undefined) {
+			if (segments.length === 0) {
 				return nextNode;
 			}
 		}
@@ -301,6 +301,10 @@ export class ChromeBookmarkRepository {
 	async delete(id: string) {
 		console.log(`Deleting node with ID ${id}`);
 		const node = await this.getBy({ id });
+		if (node.url === undefined) {
+			await this.bookmarks.removeTree(node.id);
+			return;
+		}
 		await this.bookmarks.remove(node.id);
 	}
 

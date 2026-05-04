@@ -67,8 +67,7 @@ describe('run', () => {
 			syncLocation: '"folder-id"',
 			autoSyncEnabled: 'true',
 			autoSyncIntervalInMinutes: '15',
-			autoSyncExecOnStartup: 'true',
-			useLegacySyncMechanism: 'false'
+			autoSyncExecOnStartup: 'true'
 		};
 		vi.spyOn(defaultBrowserProxy.storage, 'get').mockImplementation((key) => {
 			return Promise.resolve(oldSettings[key as keyof typeof oldSettings]);
@@ -93,8 +92,7 @@ describe('run', () => {
 				syncLocation: 'folder-id',
 				autoSyncEnabled: true,
 				autoSyncIntervalInMinutes: 15,
-				autoSyncExecOnStartup: true,
-				useLegacySyncMechanism: false
+				autoSyncExecOnStartup: true
 			})
 		);
 	});

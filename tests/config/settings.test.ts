@@ -11,7 +11,6 @@ it('defaults', () => {
 		clientLastSync: new Date(0),
 		clientSecret: '',
 		refreshToken: '',
-		syncLocation: '',
-		useLegacySyncMechanism: true
+		syncLocation: ''
 	});
 });

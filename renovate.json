@@ -2,13 +2,14 @@
   "$schema": "https://docs.renovatebot.com/renovate-schema.json",
   "extends": [
     "local>lasuillard-s/renovate-config"
-  ],"packageRules": [
-        {
-            "groupName": "Playwright",
-            "matchPackageNames": [
-                "@playwright/test",
-                "mcr.microsoft.com/playwright"
-            ]
-        }
-    ]
+  ],
+  "packageRules": [
+    {
+      "groupName": "Playwright",
+      "matchPackageNames": [
+        "@playwright/test",
+        "mcr.microsoft.com/playwright"
+      ]
+    }
+  ]
 }

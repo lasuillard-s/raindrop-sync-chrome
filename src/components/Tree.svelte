@@ -73,7 +73,7 @@
 	{/if}
 	{#if childCount > 0 && !collapsed}
 		<div class="mt-0.5 ml-6">
-			{#each treeNode.children as child (child.id)}
+			{#each treeNode.children ?? [] as child (child.id)}
 				<Self treeNode={child} {propagatingDefaults} />
 			{/each}
 		</div>

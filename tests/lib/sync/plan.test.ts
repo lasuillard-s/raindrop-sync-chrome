@@ -5,6 +5,7 @@ import {
 	SyncActionUpdateBookmark,
 	SyncActionUpdateFolder,
 	SyncDiff,
+	SyncPlanOptimizer,
 	SyncPlanner
 } from '@lib/sync';
 import { TestTreeNode } from '@test-helpers/tree';
@@ -76,7 +77,11 @@ describe('SyncPlanner', () => {
 			url: 'https://updated.example'
 		});
 		expect(plan.actions[2]).toBeInstanceOf(SyncActionDelete);
-		expect((plan.actions[2] as SyncActionDelete).args).toEqual({ id: 'removed-right' });
+		expect((plan.actions[2] as SyncActionDelete).args).toEqual({
+			id: 'removed-right',
+			path: removed.getPath(),
+			nodeType: 'bookmark'
+		});
 	});
 
 	it('generates folder actions for folder nodes in the diff', () => {
@@ -116,6 +121,37 @@ describe('SyncPlanner', () => {
 		expect((plan.actions[1] as SyncActionUpdateFolder).args).toEqual({
 			id: 'updated-right-folder',
 			title: 'Renamed folder'
+		});
+	});
+
+	it('coalesces nested folder deletions during optimization', () => {
+		const leftRoot = new TestTreeNode({ id: 'left-root', title: '', type: 'folder' });
+		const rightRoot = new TestTreeNode({ id: 'right-root', title: '', type: 'folder' });
+		const removedFolder = new TestTreeNode({
+			id: 'removed-folder',
+			title: 'Removed folder',
+			type: 'folder',
+			parent: rightRoot
+		});
+		const removedBookmark = new TestTreeNode({
+			id: 'removed-bookmark',
+			title: 'Removed bookmark',
+			type: 'bookmark',
+			url: 'https://removed.example',
+			parent: removedFolder
+		});
+
+		const diff = new SyncDiff(leftRoot, rightRoot);
+		diff.onlyInRight.push(removedFolder, removedBookmark);
+
+		const plan = new SyncPlanOptimizer().optimize(new SyncPlanner().generatePlan(diff));
+
+		expect(plan.actions).toHaveLength(1);
+		expect(plan.actions[0]).toBeInstanceOf(SyncActionDelete);
+		expect((plan.actions[0] as SyncActionDelete).args).toEqual({
+			id: 'removed-folder',
+			path: removedFolder.getPath(),
+			nodeType: 'folder'
 		});
 	});
 });

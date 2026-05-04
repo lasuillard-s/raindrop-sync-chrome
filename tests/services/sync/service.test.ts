@@ -1,5 +1,5 @@
 import { defaultBrowserProxy } from '@lib/browser';
-import { WritableAdapter, type SyncAction } from '@lib/sync';
+import { SyncReport, WritableAdapter, type SyncAction } from '@lib/sync';
 import { TestTreeNode } from '@test-helpers/tree';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import type { SettingsStore } from '~/config';
@@ -68,7 +68,8 @@ function createService(snapshot: {
 	const appSettings = {
 		snapshot: settingsSnapshot,
 		ready: vi.fn(async () => undefined),
-		snapshotReady: vi.fn(async () => settingsSnapshot)
+		snapshotReady: vi.fn(async () => settingsSnapshot),
+		update: vi.fn(async () => undefined)
 	} as unknown as SettingsStore;
 	return new SyncService({
 		source: adapter,
@@ -109,6 +110,59 @@ describe('SyncService.scheduleAutoSync', () => {
 		expect(create).toHaveBeenCalledWith(SYNC_BOOKMARKS_ALARM_NAME, {
 			delayInMinutes: 0,
 			periodInMinutes: 10
+		});
+	});
+});
+
+describe('SyncService execution', () => {
+	it('uses the provided sync location when constructing desired state', async () => {
+		const service = createService({
+			autoSyncEnabled: false,
+			autoSyncExecOnStartup: false,
+			autoSyncIntervalInMinutes: 5,
+			syncLocation: 'sync-folder'
+		});
+		const targetTree = new TestTreeNode({ id: 'root', title: '', type: 'folder' });
+		new TestTreeNode({
+			id: 'sync-folder',
+			title: 'Synced',
+			type: 'folder',
+			parent: targetTree
+		});
+		const sourceTree = new TestTreeNode({ id: 'source-root', title: '', type: 'folder' });
+		new TestTreeNode({
+			id: 'bookmark',
+			title: 'Bookmark',
+			type: 'bookmark',
+			url: 'https://example.com',
+			parent: sourceTree
+		});
+
+		const desiredState = service.buildDesiredState({
+			targetTree,
+			sourceTree,
+			syncLocationId: 'sync-folder'
+		});
+
+		expect(desiredState.children).toHaveLength(1);
+		expect(desiredState.children?.[0].children).toHaveLength(1);
+		expect(desiredState.children?.[0].children?.[0].title).toBe('Bookmark');
+	});
+
+	it('updates clientLastSync after a successful sync run', async () => {
+		const service = createService({
+			autoSyncEnabled: false,
+			autoSyncExecOnStartup: false,
+			autoSyncIntervalInMinutes: 5
+		});
+		service.executor = {
+			execute: vi.fn(async () => new SyncReport())
+		} as any;
+
+		await service.runFullSync({ plan: { actions: [] } as any }, { force: true });
+
+		expect(service.appSettings.update).toHaveBeenCalledWith({
+			clientLastSync: expect.any(Date)
 		});
 	});
 });

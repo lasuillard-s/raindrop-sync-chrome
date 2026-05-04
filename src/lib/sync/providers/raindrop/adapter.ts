@@ -14,7 +14,11 @@ export type RaindropItem =
 	| GetAllRaindropsResponseItem;
 
 export class RaindropBookmarkTreeNode extends TreeNode {
-	declare raw: RaindropItem | null;
+	declare protected readonly raw: RaindropItem | null;
+
+	get rawData(): RaindropItem | null {
+		return this.raw;
+	}
 
 	constructor(args: {
 		id: string;
@@ -103,7 +107,7 @@ export class RaindropAdapter extends ReadableAdapter<RaindropBookmarkTreeNode> {
 		for (const node of nodes) {
 			const originalParentId =
 				// @ts-expect-error Multi-type handling
-				node.raw?.parent?.$id.toString() || node.raw?.collection?.$id.toString() || null;
+				node.rawData?.parent?.$id.toString() || node.rawData?.collection?.$id.toString() || null;
 
 			const parentId: string =
 				// Unsorted (-1) does not belong to any collection, treat it as root-level

@@ -5,7 +5,9 @@ import PathBreadcrumb from '~/components/PathBreadcrumb.svelte';
 
 it('renders with pathSegments', async () => {
 	const { getByTestId, queryByTestId } = render(PathBreadcrumb, {
-		pathSegments: ['folder', 'subfolder', 'item']
+		props: {
+			pathSegments: ['folder', 'subfolder', 'item']
+		}
 	});
 	expect(getByTestId('path-segment-0').textContent).toBe('folder');
 	expect(getByTestId('path-segment-1').textContent).toBe('subfolder');
@@ -15,7 +17,9 @@ it('renders with pathSegments', async () => {
 
 it('renders with empty pathSegments', () => {
 	const { container } = render(PathBreadcrumb, {
-		pathSegments: []
+		props: {
+			pathSegments: []
+		}
 	});
 	expect(container).toBeTruthy();
 });

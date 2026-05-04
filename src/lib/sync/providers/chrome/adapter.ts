@@ -3,7 +3,11 @@ import { normalizeUrl } from '@lib/util/string';
 import { ChromeBookmarkRepository } from './repository';
 
 export class ChromeBookmarkTreeNode extends TreeNode {
-	declare readonly raw: chrome.bookmarks.BookmarkTreeNode;
+	declare protected readonly raw: chrome.bookmarks.BookmarkTreeNode | null;
+
+	get rawData(): chrome.bookmarks.BookmarkTreeNode | null {
+		return this.raw;
+	}
 
 	constructor(args: {
 		id: string;
@@ -76,7 +80,7 @@ export class ChromeAdapter extends WritableAdapter<ChromeBookmarkTreeNode> {
 		const root = nodeMap.get(baseNodeId)!;
 
 		for (const node of nodes) {
-			const parentId = node.raw.parentId;
+			const parentId = node.rawData?.parentId;
 			if (parentId) {
 				const parent = nodeMap.get(parentId);
 				if (!parent) {
@@ -98,7 +102,10 @@ export class ChromeAdapter extends WritableAdapter<ChromeBookmarkTreeNode> {
 		const root = await this.getTree();
 		let hasChanges = false;
 		root.bfs((node) => {
-			const rawData = (node as ChromeBookmarkTreeNode).raw;
+			const rawData = (node as ChromeBookmarkTreeNode).rawData;
+			if (!rawData) {
+				return;
+			}
 			const dateAdded = rawData.dateAdded;
 			if (dateAdded && dateAdded > baseDate.getTime()) {
 				hasChanges = true;

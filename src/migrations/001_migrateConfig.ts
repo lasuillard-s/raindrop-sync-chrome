@@ -48,9 +48,7 @@ export class Migration extends MigrationBase {
 			['syncLocation'],
 			['autoSyncEnabled'],
 			['autoSyncIntervalInMinutes'],
-			['autoSyncExecOnStartup'],
-			// Deprecated; will be removed in a near future
-			['useLegacySyncMechanism']
+			['autoSyncExecOnStartup']
 		];
 
 		// Migrate existing settings to the new structure (a single settings object)

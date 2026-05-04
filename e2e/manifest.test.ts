@@ -1,6 +1,6 @@
 import { expect, test } from './fixtures';
 
-test.describe('manifest', async () => {
+test.describe('manifest', () => {
 	test('exposes expected manifest fields in extension context', async ({
 		page,
 		extensionPages

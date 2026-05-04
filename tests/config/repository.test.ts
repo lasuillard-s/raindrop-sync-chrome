@@ -26,8 +26,7 @@ describe('BrowserSettingsRepository', () => {
 				syncLocation: '',
 				autoSyncEnabled: true,
 				autoSyncIntervalInMinutes: 42,
-				autoSyncExecOnStartup: false,
-				useLegacySyncMechanism: true
+				autoSyncExecOnStartup: false
 			})
 		);
 		const loaded = await repository.load();
@@ -40,8 +39,7 @@ describe('BrowserSettingsRepository', () => {
 			clientLastSync: new Date(0),
 			clientSecret: '',
 			refreshToken: '',
-			syncLocation: '',
-			useLegacySyncMechanism: true
+			syncLocation: ''
 		});
 	});
 

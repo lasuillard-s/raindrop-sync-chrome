@@ -77,14 +77,14 @@ describe('getBookmarkBy', () => {
 		});
 	});
 
-	it('throws NodeNotFoundError when searching bookmark by path', async () => {
-		await expect(
-			repository.getBookmarkBy({
-				path: new Path({
-					segments: ['Bookmarks bar', 'updateRaindrops', 'updateRaindrops']
-				})
+	it('returns bookmark when found by path', async () => {
+		const bookmark = await repository.getBookmarkBy({
+			path: new Path({
+				segments: ['Bookmarks bar', 'updateRaindrops', 'updateRaindrops']
 			})
-		).rejects.toThrow(NodeNotFoundError);
+		});
+		expect(bookmark.id).toBe('6');
+		expect(bookmark.url).toBe('https://raindrop.io/');
 	});
 
 	it('throws AssertionError when found node is a folder', async () => {
@@ -167,6 +167,11 @@ describe('delete', () => {
 	it('deletes node when found by id', async () => {
 		await repository.delete('6');
 		expect(chrome.bookmarks.remove).toHaveBeenCalledWith('6');
+	});
+
+	it('deletes folder trees recursively when found by id', async () => {
+		await repository.delete('5');
+		expect(chrome.bookmarks.removeTree).toHaveBeenCalledWith('5');
 	});
 
 	it('throws NodeNotFoundError when target does not exist', async () => {
