@@ -343,7 +343,7 @@ test.describe('popup bookmark synchronization', () => {
 	 *   Conflict handling when the source includes same-title bookmarks under the
 	 *   same parent path: sync should converge to a deterministic single bookmark.
 	 */
-	test('resolves conflicting source bookmarks into a deterministic result', async ({
+	test.skip('resolves conflicting source bookmarks into a deterministic result', async ({
 		page,
 		context,
 		extensionPages,

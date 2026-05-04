@@ -1,5 +1,11 @@
-import { AssertionError, InvalidSearchQueryError, NodeNotFoundError } from '@lib/browser/errors';
-import { defaultBrowserProxy, type BookmarkService, type BrowserProxy } from '@lib/browser/proxy';
+import {
+	AssertionError,
+	defaultBrowserProxy,
+	InvalidSearchQueryError,
+	NodeNotFoundError,
+	type BookmarkService,
+	type BrowserProxy
+} from '@lib/browser';
 import { Path } from '@lib/util/path';
 
 type NodeType = chrome.bookmarks.BookmarkTreeNode;

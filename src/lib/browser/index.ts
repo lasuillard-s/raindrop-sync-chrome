@@ -1,13 +1,8 @@
-export { ChromeAlarmScheduler } from './alarm';
-export type { AlarmScheduler } from './alarm';
-export type {
-	AlarmService,
-	BookmarkService,
-	BrowserProxy,
-	IdentityService,
-	ManagementService,
-	RuntimeService,
-	StorageService
-} from './contracts';
+export type { AlarmService } from './alarm';
+export type { BookmarkService } from './bookmark';
 export { AssertionError, InvalidSearchQueryError, NodeNotFoundError } from './errors';
-export { defaultBrowserProxy, WebExtensionProxy } from './proxy';
+export type { IdentityService } from './identity';
+export type { ManagementService } from './management';
+export { defaultBrowserProxy, WebExtensionProxy, type BrowserProxy } from './proxy';
+export type { RuntimeService } from './runtime';
+export type { StorageService } from './storage';
