@@ -16,13 +16,11 @@ export class ExtensionPagesFixture {
 	}
 
 	public async gotoOptionsPage(page: Page): Promise<void> {
-		await page.goto(this.optionsUrl());
-		await page.waitForLoadState('domcontentloaded');
+		await page.goto(this.optionsUrl(), { waitUntil: 'load' });
 	}
 
 	public async gotoPopupPage(page: Page): Promise<void> {
-		await page.goto(this.popupUrl());
-		await page.waitForLoadState('domcontentloaded');
+		await page.goto(this.popupUrl(), { waitUntil: 'load' });
 	}
 }
 

@@ -10,6 +10,11 @@ test('visit page', async ({ page, extensionPages }) => {
 	await extensionPages.gotoOptionsPage(page);
 	await expect(page.getByText('Bookmarks', { exact: true })).toBeVisible();
 	await expect(page.getByText('Sync Location', { exact: true })).toBeVisible();
+
+	// FIXME: Wait for the screenshot to be stable.
+	//        Bookmarks in Sync Location section aren't rendered reliably, causing flaky screenshot tests.
+	await page.waitForTimeout(3_000);
+
 	await expect(page).toHaveScreenshot('options-tab-bookmarks.png', { fullPage: true });
 });
 
