@@ -1,7 +1,9 @@
 import {
 	SyncActionCreateBookmark,
+	SyncActionCreateFolder,
 	SyncActionDelete,
 	SyncActionUpdateBookmark,
+	SyncActionUpdateFolder,
 	SyncExecutor,
 	SyncPlan,
 	WritableAdapter,
@@ -58,10 +60,21 @@ describe('SyncExecutor', () => {
 			})
 		);
 		plan.addAction(
+			new SyncActionCreateFolder({
+				path: new Path({ pathString: '/Synced/Folder' })
+			})
+		);
+		plan.addAction(
 			new SyncActionUpdateBookmark({
 				id: 'updated-id',
 				title: 'Updated',
 				url: 'https://updated.example'
+			})
+		);
+		plan.addAction(
+			new SyncActionUpdateFolder({
+				id: 'updated-folder-id',
+				title: 'Updated folder'
 			})
 		);
 		plan.addAction(new SyncActionDelete({ id: 'deleted-id' }));
@@ -69,9 +82,9 @@ describe('SyncExecutor', () => {
 		const target = new RecordingWritableAdapter();
 		const report = await new SyncExecutor().execute(plan, target);
 
-		expect(target.applied).toHaveLength(3);
-		expect(report.created).toBe(1);
-		expect(report.updated).toBe(1);
+		expect(target.applied).toHaveLength(5);
+		expect(report.created).toBe(2);
+		expect(report.updated).toBe(2);
 		expect(report.deleted).toBe(1);
 		expect(report.errors).toEqual([]);
 	});

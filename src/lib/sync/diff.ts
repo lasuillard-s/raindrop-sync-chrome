@@ -1,3 +1,4 @@
+import { DuplicateBookmarkError } from './errors';
 import type { TreeNode } from './tree';
 
 export class SyncDiff {
@@ -19,10 +20,14 @@ export class SyncDiff {
 }
 
 export class SyncDiffAnalyzer {
-	compare(source: TreeNode, target: TreeNode): SyncDiff {
+	compare(
+		source: TreeNode,
+		target: TreeNode,
+		options: { conflict: 'throw' | 'ignore' } = { conflict: 'throw' }
+	): SyncDiff {
 		const diff = new SyncDiff(source, target);
-		const sourceMap = toPathMap(source);
-		const targetMap = toPathMap(target);
+		const sourceMap = toPathMap(source, options);
+		const targetMap = toPathMap(target, options);
 		for (const [path, sourceNode] of sourceMap.entries()) {
 			const targetNode = targetMap.get(path);
 
@@ -60,12 +65,26 @@ export class SyncDiffAnalyzer {
 /**
  * Helper function to create a map of nodes by their path for easy lookup during diffing.
  * @param tree Root node of the tree to create the map from
+ * @param options Options for building the path map
+ * @param options.conflict Conflict handling strategy for duplicate paths. Defaults to 'throw'.
  * @returns Map where keys are node paths and values are the corresponding nodes
  */
-function toPathMap(tree: TreeNode): Map<string, TreeNode> {
+function toPathMap(
+	tree: TreeNode,
+	options: { conflict: 'throw' | 'ignore' } = { conflict: 'throw' }
+): Map<string, TreeNode> {
 	const pathMap = new Map<string, TreeNode>();
 	tree.dfs((node) => {
-		pathMap.set(node.getPath().toString(), node);
+		const path = node.getPath().toString();
+		if (pathMap.has(path)) {
+			if (options.conflict === 'throw') {
+				throw new DuplicateBookmarkError(`Duplicate node path detected during diffing: ${path}`);
+			} else if (options.conflict === 'ignore') {
+				// * Last one wins
+				return;
+			}
+		}
+		pathMap.set(path, node);
 	});
 	return pathMap;
 }

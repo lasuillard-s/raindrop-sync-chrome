@@ -133,7 +133,9 @@ export class ChromeAdapter extends WritableAdapter<ChromeBookmarkTreeNode> {
 				);
 				break;
 			case SyncActionType.CreateFolder:
-				this.repository.createFolderByPath(action.args.path, { createParentsIfNotExists: true });
+				await this.repository.createFolderByPath(action.args.path, {
+					createParentsIfNotExists: true
+				});
 				break;
 			case SyncActionType.UpdateBookmark:
 				await this.repository.updateBookmark(action.args.id, {

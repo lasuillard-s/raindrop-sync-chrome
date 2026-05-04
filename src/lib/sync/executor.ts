@@ -24,9 +24,11 @@ export class SyncExecutor {
 				await target.applyAction(action);
 				switch (action.type) {
 					case SyncActionType.CreateBookmark:
+					case SyncActionType.CreateFolder:
 						report.created++;
 						break;
 					case SyncActionType.UpdateBookmark:
+					case SyncActionType.UpdateFolder:
 						report.updated++;
 						break;
 					case SyncActionType.Delete:

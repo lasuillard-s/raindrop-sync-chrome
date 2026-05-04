@@ -38,6 +38,7 @@ trap cleanup EXIT
 docker compose up --wait --wait-timeout 600
 
 # Run the e2e tests, passing specified host environment variables to the container
+pass_envvars=( CI )
 docker compose exec \
     $(for var in "${pass_envvars[@]}"; do echo "--env ${var}"; done) \
     playwright \

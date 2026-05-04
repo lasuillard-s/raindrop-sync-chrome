@@ -71,9 +71,7 @@ export abstract class TreeNode {
 	 */
 	addChild(child: TreeNode): void {
 		if (this.type !== 'folder') {
-			throw new BookmarkIsNotAFolderError(
-				`Node with id ${this.id} is not a folder and cannot have children`
-			);
+			throw new BookmarkIsNotAFolderError(this.id);
 		}
 		this.children!.push(child);
 		child.parent = this;

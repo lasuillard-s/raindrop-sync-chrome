@@ -50,7 +50,8 @@ describe('TreeNode', () => {
 			url: 'https://child.example'
 		});
 
-		expect(() => bookmark.addChild(child)).toThrowError(BookmarkIsNotAFolderError);
+		expect(() => bookmark.addChild(child)).toThrow(BookmarkIsNotAFolderError);
+		expect(() => bookmark.addChild(child)).toThrow('Node with id 1 is not a folder');
 	});
 
 	it('traverses nodes in depth-first order', () => {

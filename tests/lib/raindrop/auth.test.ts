@@ -59,7 +59,7 @@ describe(launchWebAuthFlow, () => {
 				clientID: 'client-id',
 				clientSecret: 'client-secret'
 			})
-		).rejects.toThrowError('web auth flow error: `responseURL` is empty');
+		).rejects.toThrow('web auth flow error: `responseURL` is empty');
 	});
 
 	it('throws an error if `code` not provided', async () => {
@@ -74,6 +74,6 @@ describe(launchWebAuthFlow, () => {
 				clientID: 'client-id',
 				clientSecret: 'client-secret'
 			})
-		).rejects.toThrowError('Authorization code not found in URL params');
+		).rejects.toThrow('Authorization code not found in URL params');
 	});
 });

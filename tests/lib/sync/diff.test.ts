@@ -62,4 +62,28 @@ describe('SyncDiffAnalyzer', () => {
 		expect(diff.unchanged.some((pair) => pair.left.title === 'stable')).toBe(true);
 		expect(diff.onlyInRight.map((n) => n.title)).toEqual(['right-only']);
 	});
+
+	it('throws when duplicate node paths are present in one tree', () => {
+		const leftRoot = new TestTreeNode({ id: 'left-root', title: '', type: 'folder' });
+		const rightRoot = new TestTreeNode({ id: 'right-root', title: '', type: 'folder' });
+
+		new TestTreeNode({
+			id: 'duplicate-a',
+			title: 'duplicate',
+			type: 'bookmark',
+			url: 'https://first.example',
+			parent: leftRoot
+		});
+		new TestTreeNode({
+			id: 'duplicate-b',
+			title: 'duplicate',
+			type: 'bookmark',
+			url: 'https://second.example',
+			parent: leftRoot
+		});
+
+		expect(() => new SyncDiffAnalyzer().compare(leftRoot, rightRoot)).toThrow(
+			'Duplicate node path detected during diffing: /duplicate'
+		);
+	});
 });

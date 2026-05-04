@@ -1,7 +1,9 @@
 import {
 	SyncActionCreateBookmark,
+	SyncActionCreateFolder,
 	SyncActionDelete,
 	SyncActionUpdateBookmark,
+	SyncActionUpdateFolder,
 	SyncDiff,
 	SyncPlanner
 } from '@lib/sync';
@@ -75,5 +77,45 @@ describe('SyncPlanner', () => {
 		});
 		expect(plan.actions[2]).toBeInstanceOf(SyncActionDelete);
 		expect((plan.actions[2] as SyncActionDelete).args).toEqual({ id: 'removed-right' });
+	});
+
+	it('generates folder actions for folder nodes in the diff', () => {
+		const leftRoot = new TestTreeNode({ id: 'left-root', title: '', type: 'folder' });
+		const rightRoot = new TestTreeNode({ id: 'right-root', title: '', type: 'folder' });
+		const addedFolder = new TestTreeNode({
+			id: 'added-folder',
+			title: 'Added folder',
+			type: 'folder',
+			parent: leftRoot
+		});
+		const updatedLeftFolder = new TestTreeNode({
+			id: 'updated-left-folder',
+			title: 'Renamed folder',
+			type: 'folder',
+			parent: leftRoot
+		});
+		const updatedRightFolder = new TestTreeNode({
+			id: 'updated-right-folder',
+			title: 'Old folder',
+			type: 'folder',
+			parent: rightRoot
+		});
+
+		const diff = new SyncDiff(leftRoot, rightRoot);
+		diff.onlyInLeft.push(addedFolder);
+		diff.inBothButDifferent.push({ left: updatedLeftFolder, right: updatedRightFolder });
+
+		const plan = new SyncPlanner().generatePlan(diff);
+
+		expect(plan.actions).toHaveLength(2);
+		expect(plan.actions[0]).toBeInstanceOf(SyncActionCreateFolder);
+		expect((plan.actions[0] as SyncActionCreateFolder).args).toEqual({
+			path: addedFolder.getPath()
+		});
+		expect(plan.actions[1]).toBeInstanceOf(SyncActionUpdateFolder);
+		expect((plan.actions[1] as SyncActionUpdateFolder).args).toEqual({
+			id: 'updated-right-folder',
+			title: 'Renamed folder'
+		});
 	});
 });

@@ -70,6 +70,39 @@ describe('Migration.shouldMigrate', () => {
 		expect(shouldMigrate).toBe(true);
 		expect(get).toHaveBeenCalledWith([SettingsRepository.STORAGE_KEY]);
 	});
+
+	it('returns true when unified settings cannot be parsed', async () => {
+		// Arrange
+		const get = vi.fn(async (keyOrKeys: string | string[]) => {
+			const key = Array.isArray(keyOrKeys) ? keyOrKeys[0] : keyOrKeys;
+			if (key === SettingsRepository.STORAGE_KEY) {
+				return { [key]: 'not-json' };
+			}
+			return { [key]: undefined };
+		});
+		const warn = vi.spyOn(console, 'warn').mockImplementation(() => {});
+
+		vi.stubGlobal('chrome', {
+			storage: {
+				sync: {
+					get,
+					set: vi.fn()
+				}
+			}
+		});
+
+		const migration = new Migration();
+
+		// Act
+		const shouldMigrate = await migration.shouldMigrate({
+			previousVersion: '0.5.0',
+			installedVersion: '0.6.1'
+		});
+
+		// Assert
+		expect(shouldMigrate).toBe(true);
+		expect(warn).toHaveBeenCalledOnce();
+	});
 });
 
 describe('Migration.run', () => {

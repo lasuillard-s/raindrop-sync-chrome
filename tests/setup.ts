@@ -12,6 +12,10 @@ beforeEach(() => {
 		//
 		// vi.mocked(chrome.bookmarks.getSubTree).mockImplementationOnce(...)
 		//
+		alarms: {
+			create: vi.fn(),
+			clearAll: vi.fn()
+		},
 		bookmarks: {
 			...chromeBookmarkMocks
 		},

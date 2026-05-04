@@ -1,4 +1,4 @@
-import { ChromeAlarmScheduler } from '@lib/browser';
+import { defaultBrowserProxy } from '@lib/browser';
 import type { ReadableAdapter, SyncPlan, SyncReport, WritableAdapter } from '@lib/sync';
 import { SyncDiffAnalyzer, SyncExecutor, SyncPlanner, SyncPlanOptimizer } from '@lib/sync';
 import { NeutralTreeNode, type TreeNode } from '@lib/sync/tree';
@@ -50,7 +50,8 @@ export class SyncService {
 	 */
 	async validateConfig(): Promise<boolean> {
 		this.emitEvent(new SyncEventProgress(SyncEventProgressDetail.Validating));
-		if (!this.target.hasFolderWithId(this.appSettings.snapshot.syncLocation)) {
+		const settingsSnapshot = await this.appSettings.snapshotReady();
+		if (!(await this.target.hasFolderWithId(settingsSnapshot.syncLocation))) {
 			return false;
 		}
 		return true;
@@ -64,9 +65,10 @@ export class SyncService {
 	async checkShouldSync(thresholdSeconds?: number): Promise<boolean> {
 		thresholdSeconds = thresholdSeconds ?? 60 * 5; // Default to 5 minutes
 		this.emitEvent(new SyncEventProgress(SyncEventProgressDetail.CheckShouldSync));
+		const settingsSnapshot = await this.appSettings.snapshotReady();
 
 		// Check if there have been changes in either source or target since last sync
-		const clientLastSync = this.appSettings.snapshot.clientLastSync; // Default is Date(0)
+		const clientLastSync = settingsSnapshot.clientLastSync; // Default is Date(0)
 		const sourceChanged = await this.source.changedSince(clientLastSync, { thresholdSeconds });
 		const targetChanged = await this.target.changedSince(clientLastSync, { thresholdSeconds });
 
@@ -128,7 +130,7 @@ export class SyncService {
 		// In-place update the sync folder node in the desired state tree with the
 		syncFolder.children?.splice(0, syncFolder.children.length);
 		sourceTree.children?.forEach((child) => {
-			syncFolder!.addChild(child);
+			syncFolder!.addChild(NeutralTreeNode.cloneFrom(child));
 		});
 
 		return desiredState;
@@ -200,6 +202,7 @@ export class SyncService {
 	): Promise<void> {
 		try {
 			this.emitEvent(new SyncEventStart());
+			await this.appSettings.ready();
 
 			// Validate configurations
 			const isValid = await this.validateConfig();
@@ -231,20 +234,20 @@ export class SyncService {
 	 * Schedule recurring sync alarm using current settings.
 	 */
 	async scheduleAutoSync(): Promise<void> {
-		const scheduler = new ChromeAlarmScheduler();
-		await scheduler.clearAll();
+		const settingsSnapshot = await this.appSettings.snapshotReady();
+		await defaultBrowserProxy.alarms.clearAll();
 
-		if (!this.appSettings.snapshot.autoSyncEnabled) {
+		if (!settingsSnapshot.autoSyncEnabled) {
 			return;
 		}
 
-		const delayInMinutes = this.appSettings.snapshot.autoSyncExecOnStartup
+		const delayInMinutes = settingsSnapshot.autoSyncExecOnStartup
 			? 0
-			: this.appSettings.snapshot.autoSyncIntervalInMinutes;
+			: settingsSnapshot.autoSyncIntervalInMinutes;
 
-		await scheduler.create(SYNC_BOOKMARKS_ALARM_NAME, {
+		await defaultBrowserProxy.alarms.create(SYNC_BOOKMARKS_ALARM_NAME, {
 			delayInMinutes,
-			periodInMinutes: this.appSettings.snapshot.autoSyncIntervalInMinutes
+			periodInMinutes: settingsSnapshot.autoSyncIntervalInMinutes
 		});
 	}
 

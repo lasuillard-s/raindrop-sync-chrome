@@ -1,7 +1,9 @@
 import {
 	SyncActionCreateBookmark,
+	SyncActionCreateFolder,
 	SyncActionDelete,
 	SyncActionUpdateBookmark,
+	SyncActionUpdateFolder,
 	type SyncAction
 } from './action';
 import type { SyncDiff } from './diff';
@@ -24,22 +26,45 @@ export class SyncPlanner {
 		const plan = new SyncPlan();
 
 		for (const node of diff.onlyInLeft) {
-			plan.addAction(
-				new SyncActionCreateBookmark({
-					path: node.getPath(),
-					url: node.url!
-				})
-			);
+			if (node.isRoot()) {
+				continue;
+			}
+			if (node.isFolder()) {
+				plan.addAction(
+					new SyncActionCreateFolder({
+						path: node.getPath()
+					})
+				);
+			} else {
+				plan.addAction(
+					new SyncActionCreateBookmark({
+						path: node.getPath(),
+						url: node.url!
+					})
+				);
+			}
 		}
 
 		for (const { left, right } of diff.inBothButDifferent) {
-			plan.addAction(
-				new SyncActionUpdateBookmark({
-					id: right.id,
-					title: left.title,
-					url: left.url!
-				})
-			);
+			if (left.isRoot()) {
+				continue;
+			}
+			if (left.isFolder()) {
+				plan.addAction(
+					new SyncActionUpdateFolder({
+						id: right.id,
+						title: left.title
+					})
+				);
+			} else {
+				plan.addAction(
+					new SyncActionUpdateBookmark({
+						id: right.id,
+						title: left.title,
+						url: left.url!
+					})
+				);
+			}
 		}
 
 		// No action needed for unchanged nodes, but we can add a noop for clarity if desired.
@@ -48,6 +73,9 @@ export class SyncPlanner {
 		// }
 
 		for (const node of diff.onlyInRight) {
+			if (node.isRoot()) {
+				continue;
+			}
 			plan.addAction(
 				new SyncActionDelete({
 					id: node.id

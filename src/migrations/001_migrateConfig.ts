@@ -9,9 +9,16 @@ export class Migration extends MigrationBase {
 	// eslint-disable-next-line @typescript-eslint/no-unused-vars
 	async shouldMigrate(context: MigrationContext): Promise<boolean> {
 		const adapter = new ChromeStorageAdapter();
-		if (await adapter.get(SettingsRepository.STORAGE_KEY)) {
-			console.debug('New settings key already exists, skipping migration');
-			return false;
+		try {
+			if (await adapter.get(SettingsRepository.STORAGE_KEY)) {
+				console.debug('New settings key already exists, skipping migration');
+				return false;
+			}
+		} catch (error) {
+			console.warn(
+				'Failed to read unified settings during migration check, continuing with migration',
+				error
+			);
 		}
 
 		return true;
