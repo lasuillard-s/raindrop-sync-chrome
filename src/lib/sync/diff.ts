@@ -80,7 +80,7 @@ function toPathMap(
 			if (options.conflict === 'throw') {
 				throw new DuplicateBookmarkError(`Duplicate node path detected during diffing: ${path}`);
 			} else if (options.conflict === 'ignore') {
-				// * Last one wins
+				// * First one wins
 				return;
 			}
 		}

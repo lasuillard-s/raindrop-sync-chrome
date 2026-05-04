@@ -115,6 +115,31 @@ export class ChromeBookmarkRepository {
 	}
 
 	/**
+	 * Determine the type of a bookmark node (folder or bookmark) based on the presence of the url property.
+	 * @param node The bookmark node to determine the type of.
+	 * @returns 'folder' if the node is a folder, 'bookmark' if the node is a bookmark.
+	 */
+	protected getNodeType(node: NodeType): 'folder' | 'bookmark' {
+		return node.url === undefined ? 'folder' : 'bookmark';
+	}
+
+	/**
+	 * Check that a node is of the expected type (folder or bookmark).
+	 * @param node The bookmark node to check.
+	 * @param assertions The expected type assertions for the node.
+	 * @param assertions.typeIs The expected type of the node ('folder' or 'bookmark').
+	 * @returns True if the node matches the expected type, false otherwise.
+	 */
+	protected checkNodeIs(
+		node: NodeType,
+		assertions: {
+			typeIs: 'folder' | 'bookmark';
+		}
+	): boolean {
+		const nodeType = this.getNodeType(node);
+		return nodeType === assertions.typeIs;
+	}
+	/**
 	 * Assert that a node is of the expected type (folder or bookmark). Throws an error if the type does not match.
 	 * @param node The bookmark node to check.
 	 * @param assertions The expected type assertions for the node.
@@ -128,9 +153,8 @@ export class ChromeBookmarkRepository {
 			typeIs: 'folder' | 'bookmark';
 		}
 	): NodeType {
-		// Assert node type
-		const nodeType = node.url === undefined ? 'folder' : 'bookmark';
-		if (nodeType !== assertions.typeIs) {
+		if (!this.checkNodeIs(node, assertions)) {
+			const nodeType = this.getNodeType(node);
 			throw new AssertionError(
 				`Node type mismatch: expected ${assertions.typeIs}, got ${nodeType}`
 			);
@@ -301,7 +325,8 @@ export class ChromeBookmarkRepository {
 	async delete(id: string) {
 		console.log(`Deleting node with ID ${id}`);
 		const node = await this.getBy({ id });
-		if (node.url === undefined) {
+		const nodeType = this.getNodeType(node);
+		if (nodeType === 'folder') {
 			await this.bookmarks.removeTree(node.id);
 			return;
 		}
