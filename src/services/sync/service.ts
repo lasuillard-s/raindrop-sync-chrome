@@ -1,7 +1,7 @@
-import { defaultBrowserProxy } from '@lib/browser';
-import type { ReadableAdapter, SyncPlan, SyncReport, WritableAdapter } from '@lib/sync';
-import { SyncDiffAnalyzer, SyncExecutor, SyncPlanner, SyncPlanOptimizer } from '@lib/sync';
-import { NeutralTreeNode, type TreeNode } from '@lib/sync/tree';
+import { defaultBrowserProxy } from '$lib/browser';
+import type { ReadableAdapter, SyncPlan, SyncReport, WritableAdapter } from '$lib/sync';
+import { SyncDiffAnalyzer, SyncExecutor, SyncPlanner, SyncPlanOptimizer } from '$lib/sync';
+import { NeutralTreeNode, type TreeNode } from '$lib/sync/tree';
 import type { SettingsStore } from '~/config';
 import {
 	SyncEventComplete,

@@ -1,10 +1,10 @@
 <script lang="ts">
-	import { defaultBrowserProxy } from '@lib/browser';
-	import { putMessage } from '@lib/messages';
-	import { SyncDiff, SyncDiffAnalyzer, SyncPlan, SyncPlanner } from '@lib/sync';
-	import { ChromeAdapter, type ChromeBookmarkTreeNode } from '@lib/sync/providers/chrome';
-	import { RaindropAdapter, type RaindropBookmarkTreeNode } from '@lib/sync/providers/raindrop';
-	import { NeutralTreeNode } from '@lib/sync/tree';
+	import { defaultBrowserProxy } from '$lib/browser';
+	import { putMessage } from '$lib/messages';
+	import { SyncDiff, SyncDiffAnalyzer, SyncPlan, SyncPlanner } from '$lib/sync';
+	import { ChromeAdapter, type ChromeBookmarkTreeNode } from '$lib/sync/providers/chrome';
+	import { RaindropAdapter, type RaindropBookmarkTreeNode } from '$lib/sync/providers/raindrop';
+	import { NeutralTreeNode } from '$lib/sync/tree';
 	import {
 		Accordion,
 		AccordionItem,

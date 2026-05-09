@@ -1,4 +1,4 @@
-import { Migration as _001_Migration } from './001_migrateConfig';
+import { Migration as _001_Migration } from './001_migrate-config';
 import type { MigrationContext } from './types';
 
 /**

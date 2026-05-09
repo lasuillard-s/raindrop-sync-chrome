@@ -1,5 +1,5 @@
+import { TreeNode } from '$lib/sync';
 import { faker } from '@faker-js/faker';
-import { TreeNode } from '@lib/sync';
 
 export class TestTreeNode extends TreeNode {
 	constructor(props: {

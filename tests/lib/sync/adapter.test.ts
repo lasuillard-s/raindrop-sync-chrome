@@ -1,5 +1,5 @@
-import { ReadableAdapter } from '@lib/sync';
-import { TestTreeNode } from '@test-helpers/tree';
+import { ReadableAdapter } from '$lib/sync';
+import { TestTreeNode } from '$test-helpers/tree';
 import { describe, expect, it } from 'vitest';
 
 class RecordingAdapter extends ReadableAdapter<TestTreeNode> {

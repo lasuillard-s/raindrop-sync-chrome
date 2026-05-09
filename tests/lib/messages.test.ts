@@ -1,4 +1,4 @@
-import { dismissMessage, messageBox, putMessage } from '@lib/messages';
+import { dismissMessage, messageBox, putMessage } from '$lib/messages';
 import { get } from 'svelte/store';
 import { beforeEach, describe, expect, it } from 'vitest';
 

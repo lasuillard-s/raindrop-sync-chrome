@@ -1,5 +1,5 @@
 // @vitest-environment happy-dom
-import { TestTreeNode } from '@test-helpers/tree';
+import { TestTreeNode } from '$test-helpers/tree';
 import { render } from '@testing-library/svelte';
 import userEvent from '@testing-library/user-event';
 import { beforeEach, expect, it } from 'vitest';

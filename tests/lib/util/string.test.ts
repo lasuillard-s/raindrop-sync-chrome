@@ -1,4 +1,4 @@
-import { isUrlSafeHref, normalizeUrl } from '@lib/util/string';
+import { isUrlSafeHref, normalizeUrl } from '$lib/util/string';
 import { describe, expect, it } from 'vitest';
 
 describe('normalizeUrl', () => {

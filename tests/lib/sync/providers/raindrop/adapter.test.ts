@@ -1,4 +1,4 @@
-import { RaindropAdapter } from '@lib/sync/providers/raindrop';
+import { RaindropAdapter } from '$lib/sync/providers/raindrop';
 import { describe, expect, it, vi } from 'vitest';
 
 describe('RaindropAdapter', () => {

@@ -1,9 +1,10 @@
 <script lang="ts">
+	import { defaultBrowserProxy } from '$lib/browser';
 	import { format, formatDistanceToNow } from 'date-fns';
 	import { A, Toggle } from 'flowbite-svelte';
 	import { RefreshOutline } from 'flowbite-svelte-icons';
+	import { onMount } from 'svelte';
 	import { App } from '~/app';
-	import { defaultBrowserProxy } from '@lib/browser';
 	import { type SyncEvent, type SyncEventListener } from '~/services/sync';
 
 	const app = App.getInstance();
@@ -16,26 +17,23 @@
 	let lastSyncTime = $state(settings.snapshot.clientLastSync);
 	let latestSyncEvent: SyncEvent | null = $state(null);
 
-	$effect(() => {
-		const unsubscribe = settings.$data.subscribe((data) => {
-			lastSyncTime = data.clientLastSync;
-		});
-		return unsubscribe;
-	});
-
 	class SyncEventListenerImpl implements SyncEventListener {
 		onEvent(event: SyncEvent) {
 			latestSyncEvent = event;
 		}
 	}
 
-	$effect(() => {
+	onMount(() => {
+		const unsubscribe = settings.$data.subscribe((data) => {
+			lastSyncTime = data.clientLastSync;
+		});
 		const listener = new SyncEventListenerImpl();
 		app.sync.addEventListener(listener);
 
 		void settings.ready();
 
 		return () => {
+			unsubscribe();
 			app.sync.removeEventListener(listener);
 		};
 	});

@@ -1,4 +1,4 @@
-import { Path, PathMap } from '@lib/util/path';
+import { Path, PathMap } from '$lib/util/path';
 import { describe, expect, it } from 'vitest';
 
 describe('Path', () => {
@@ -62,6 +62,20 @@ describe('Path', () => {
 		const newPath = path.join('subfolder', 'file.txt');
 		expect(newPath.getSegments()).toEqual(['folder', 'subfolder', 'file.txt']);
 		expect(newPath.toString()).toBe('/folder/subfolder/file.txt');
+	});
+
+	it('reports depth based on the number of segments', () => {
+		expect(Path.root().depth()).toBe(0);
+		expect(new Path({ pathString: '/folder/subfolder/file.txt' }).depth()).toBe(3);
+	});
+
+	it('detects descendant paths', () => {
+		const ancestor = new Path({ pathString: '/folder/subfolder' });
+		expect(new Path({ pathString: '/folder/subfolder/file.txt' }).isDescendantOf(ancestor)).toBe(
+			true
+		);
+		expect(new Path({ pathString: '/folder/subfolder' }).isDescendantOf(ancestor)).toBe(false);
+		expect(new Path({ pathString: '/folder/other' }).isDescendantOf(ancestor)).toBe(false);
 	});
 });
 

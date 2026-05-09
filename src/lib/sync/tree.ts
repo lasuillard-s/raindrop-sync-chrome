@@ -1,5 +1,5 @@
-import { Path } from '@lib/util/path';
-import { normalizeUrl } from '@lib/util/string';
+import { Path } from '$lib/util/path';
+import { normalizeUrl } from '$lib/util/string';
 import { BookmarkIsNotAFolderError } from './errors';
 
 export abstract class TreeNode {
@@ -115,6 +115,11 @@ export abstract class TreeNode {
 	}
 }
 
+/**
+ * Provider-neutral tree node used while diffing and reshaping trees.
+ * It drops provider-specific raw data so subtrees can be cloned and re-parented
+ * without mutating the original source or target trees.
+ */
 export class NeutralTreeNode extends TreeNode {
 	getHash(): string {
 		if (this.isFolder()) {
@@ -123,6 +128,11 @@ export class NeutralTreeNode extends TreeNode {
 		return this.getPath().toString() + '|' + normalizeUrl(this.url || '');
 	}
 
+	/**
+	 * Deep-clone a tree into neutral nodes.
+	 * @param node Root of the tree to clone.
+	 * @returns Cloned tree detached from provider-specific raw data.
+	 */
 	static cloneFrom(node: TreeNode): NeutralTreeNode {
 		const root = new NeutralTreeNode({
 			id: node.id,

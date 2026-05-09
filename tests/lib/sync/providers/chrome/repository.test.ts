@@ -1,6 +1,6 @@
-import { AssertionError, InvalidSearchQueryError, NodeNotFoundError } from '@lib/browser';
-import { ChromeBookmarkRepository } from '@lib/sync/providers/chrome';
-import { Path } from '@lib/util/path';
+import { AssertionError, InvalidSearchQueryError, NodeNotFoundError } from '$lib/browser';
+import { ChromeBookmarkRepository } from '$lib/sync/providers/chrome';
+import { Path } from '$lib/util/path';
 import { beforeEach, describe, expect, it } from 'vitest';
 
 let repository: ChromeBookmarkRepository;

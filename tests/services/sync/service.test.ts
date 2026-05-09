@@ -1,6 +1,6 @@
-import { defaultBrowserProxy } from '@lib/browser';
-import { SyncReport, WritableAdapter, type SyncAction } from '@lib/sync';
-import { TestTreeNode } from '@test-helpers/tree';
+import { defaultBrowserProxy } from '$lib/browser';
+import { SyncReport, WritableAdapter, type SyncAction } from '$lib/sync';
+import { TestTreeNode } from '$test-helpers/tree';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import type { SettingsStore } from '~/config';
 import { SYNC_BOOKMARKS_ALARM_NAME, SyncService } from '~/services/sync';
@@ -85,27 +85,33 @@ describe('SyncService.scheduleAutoSync', () => {
 	});
 
 	it('clears alarms and does not schedule when auto sync is disabled', async () => {
+		// Arrange
 		const service = createService({
 			autoSyncEnabled: false,
 			autoSyncExecOnStartup: false,
 			autoSyncIntervalInMinutes: 15
 		});
 
+		// Act
 		await service.scheduleAutoSync();
 
+		// Assert
 		expect(clearAll).toHaveBeenCalledTimes(1);
 		expect(create).not.toHaveBeenCalled();
 	});
 
 	it('schedules recurring alarm with immediate startup delay when enabled', async () => {
+		// Arrange
 		const service = createService({
 			autoSyncEnabled: true,
 			autoSyncExecOnStartup: true,
 			autoSyncIntervalInMinutes: 10
 		});
 
+		// Act
 		await service.scheduleAutoSync();
 
+		// Assert
 		expect(clearAll).toHaveBeenCalledTimes(1);
 		expect(create).toHaveBeenCalledWith(SYNC_BOOKMARKS_ALARM_NAME, {
 			delayInMinutes: 0,
@@ -116,6 +122,7 @@ describe('SyncService.scheduleAutoSync', () => {
 
 describe('SyncService execution', () => {
 	it('uses the provided sync location when constructing desired state', async () => {
+		// Arrange
 		const service = createService({
 			autoSyncEnabled: false,
 			autoSyncExecOnStartup: false,
@@ -138,18 +145,21 @@ describe('SyncService execution', () => {
 			parent: sourceTree
 		});
 
+		// Act
 		const desiredState = service.buildDesiredState({
 			targetTree,
 			sourceTree,
 			syncLocationId: 'sync-folder'
 		});
 
+		// Assert
 		expect(desiredState.children).toHaveLength(1);
 		expect(desiredState.children?.[0].children).toHaveLength(1);
 		expect(desiredState.children?.[0].children?.[0].title).toBe('Bookmark');
 	});
 
 	it('updates clientLastSync after a successful sync run', async () => {
+		// Arrange
 		const service = createService({
 			autoSyncEnabled: false,
 			autoSyncExecOnStartup: false,
@@ -159,8 +169,10 @@ describe('SyncService execution', () => {
 			execute: vi.fn(async () => new SyncReport())
 		} as any;
 
+		// Act
 		await service.runFullSync({ plan: { actions: [] } as any }, { force: true });
 
+		// Assert
 		expect(service.appSettings.update).toHaveBeenCalledWith({
 			clientLastSync: expect.any(Date)
 		});

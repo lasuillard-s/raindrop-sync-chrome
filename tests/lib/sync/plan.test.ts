@@ -7,8 +7,8 @@ import {
 	SyncDiff,
 	SyncPlanOptimizer,
 	SyncPlanner
-} from '@lib/sync';
-import { TestTreeNode } from '@test-helpers/tree';
+} from '$lib/sync';
+import { TestTreeNode } from '$test-helpers/tree';
 import { describe, expect, it } from 'vitest';
 
 describe('SyncPlanner', () => {

@@ -1,8 +1,9 @@
 <script lang="ts">
-	import { defaultBrowserProxy } from '@lib/browser';
-	import { putMessage } from '@lib/messages';
-	import { launchWebAuthFlow as _launchWebAuthFlow } from '@lib/raindrop/auth';
+	import { defaultBrowserProxy } from '$lib/browser';
+	import { putMessage } from '$lib/messages';
+	import { launchWebAuthFlow as _launchWebAuthFlow } from '$lib/raindrop/auth';
 	import { Accordion, AccordionItem, Button, Heading, P } from 'flowbite-svelte';
+	import { onMount } from 'svelte';
 	import { App } from '~/app';
 	import imgCNA1 from '~/assets/raindrop-create-new-app-1.png';
 	import imgCNA2 from '~/assets/raindrop-create-new-app-2.png';
@@ -21,8 +22,8 @@
 	let accessToken = $state(settingsSnapshot.accessToken);
 	let refreshToken = $state(settingsSnapshot.refreshToken);
 
-	// Keep local state in sync with unified settings store
-	$effect(() => {
+	onMount(() => {
+		void settings.ready();
 		const unsubscribe = settings.$data.subscribe((settings) => {
 			clientId = settings.clientId;
 			clientSecret = settings.clientSecret;
@@ -58,10 +59,6 @@
 		});
 		putMessage({ type: 'success', message: 'Settings saved.' });
 	};
-
-	$effect(() => {
-		void settings.ready();
-	});
 </script>
 
 <div>

@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { dismissMessage, type Message } from '@lib/messages';
+	import { dismissMessage, type Message } from '$lib/messages';
 	import { Toast } from 'flowbite-svelte';
 	import {
 		CheckCircleSolid,

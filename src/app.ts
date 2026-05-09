@@ -1,5 +1,5 @@
-import { ChromeAdapter } from '@lib/sync/providers/chrome';
-import { RaindropAdapter } from '@lib/sync/providers/raindrop';
+import { ChromeAdapter } from '$lib/sync/providers/chrome';
+import { RaindropAdapter } from '$lib/sync/providers/raindrop';
 import { SettingsStore } from '~/config';
 import { SyncService } from '~/services/sync';
 

@@ -87,6 +87,29 @@ export class Path {
 		}
 		return this.pathSegments[this.pathSegments.length - 1];
 	}
+
+	/**
+	 * Get the number of segments in the path.
+	 * @returns Path depth from the root.
+	 */
+	depth(): number {
+		return this.pathSegments.length;
+	}
+
+	/**
+	 * Check whether this path is nested beneath another path.
+	 * @param ancestor Candidate ancestor path.
+	 * @returns True when this path is a strict descendant of ancestor.
+	 */
+	isDescendantOf(ancestor: Path): boolean {
+		// A path cannot be a descendant of itself or of a shorter path
+		if (this.pathSegments.length <= ancestor.pathSegments.length) {
+			return false;
+		}
+
+		// Check if all segments of the ancestor match the corresponding segments of this path
+		return ancestor.pathSegments.every((segment, index) => this.pathSegments[index] === segment);
+	}
 }
 
 /**

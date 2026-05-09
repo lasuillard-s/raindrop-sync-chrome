@@ -1,4 +1,3 @@
-import type { Path } from '@lib/util/path';
 import {
 	SyncActionCreateBookmark,
 	SyncActionCreateFolder,
@@ -10,7 +9,7 @@ import {
 import type { SyncDiff } from './diff';
 
 export class SyncPlan {
-	readonly actions: SyncAction[] = [];
+	actions: SyncAction[] = [];
 
 	addAction(action: SyncAction): void {
 		this.actions.push(action);
@@ -28,6 +27,7 @@ export class SyncPlanner {
 
 		for (const node of diff.onlyInLeft) {
 			if (node.isRoot()) {
+				// Diff roots describe the sync boundary itself, not a folder/bookmark to create.
 				continue;
 			}
 			if (node.isFolder()) {
@@ -48,6 +48,7 @@ export class SyncPlanner {
 
 		for (const { left, right } of diff.inBothButDifferent) {
 			if (left.isRoot()) {
+				// Root updates would rename the sync boundary rather than synced content, so skip them.
 				continue;
 			}
 			if (left.isFolder()) {
@@ -75,6 +76,7 @@ export class SyncPlanner {
 
 		for (const node of diff.onlyInRight) {
 			if (node.isRoot()) {
+				// Deleting the root would remove the target sync boundary instead of obsolete children.
 				continue;
 			}
 			plan.addAction(
@@ -115,10 +117,10 @@ export class SyncPlanOptimizer {
 				(action) =>
 					!(
 						action.args.path &&
-						folderDeletePaths.some((folderPath) => isDescendantPath(action.args.path!, folderPath))
+						folderDeletePaths.some((folderPath) => action.args.path!.isDescendantOf(folderPath))
 					)
 			)
-			.sort((left, right) => getPathDepth(right.args.path) - getPathDepth(left.args.path));
+			.sort((left, right) => (right.args.path?.depth() ?? 0) - (left.args.path?.depth() ?? 0));
 
 		for (const action of optimizedDeletes) {
 			optimized.addAction(action);
@@ -126,30 +128,4 @@ export class SyncPlanOptimizer {
 
 		return optimized;
 	}
-}
-
-/**
- * Return the number of path segments for a delete target.
- * Deeper paths should be deleted first.
- * @param path Path associated with the delete action.
- * @returns Number of segments in the path.
- */
-function getPathDepth(path?: Path): number {
-	return path?.getSegments().length ?? 0;
-}
-
-/**
- * Check whether a path is nested beneath another path.
- * @param path Candidate descendant path.
- * @param ancestor Candidate ancestor path.
- * @returns True when path is a strict descendant of ancestor.
- */
-function isDescendantPath(path: Path, ancestor: Path): boolean {
-	const pathSegments = path.getSegments();
-	const ancestorSegments = ancestor.getSegments();
-	if (pathSegments.length <= ancestorSegments.length) {
-		return false;
-	}
-
-	return ancestorSegments.every((segment, index) => pathSegments[index] === segment);
 }

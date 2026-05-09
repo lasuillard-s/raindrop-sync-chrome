@@ -1,4 +1,4 @@
-import { defaultBrowserProxy } from '@lib/browser';
+import { defaultBrowserProxy } from '$lib/browser';
 import { BrowserSettingsRepository, Settings } from '~/config';
 import { MigrationBase, type MigrationContext } from './types';
 

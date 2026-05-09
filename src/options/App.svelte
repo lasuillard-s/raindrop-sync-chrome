@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { messageBox } from '@lib/messages';
+	import { messageBox } from '$lib/messages';
 	import { TabItem, Tabs } from 'flowbite-svelte';
 	import {
 		BookmarkOutline,

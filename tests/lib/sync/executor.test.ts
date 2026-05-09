@@ -9,8 +9,8 @@ import {
 	WritableAdapter,
 	type SyncAction,
 	type TreeNode
-} from '@lib/sync';
-import { Path } from '@lib/util/path';
+} from '$lib/sync';
+import { Path } from '$lib/util/path';
 import { describe, expect, it } from 'vitest';
 
 class RecordingWritableAdapter extends WritableAdapter {

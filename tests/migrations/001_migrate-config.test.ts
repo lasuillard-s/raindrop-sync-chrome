@@ -1,7 +1,7 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { BrowserSettingsRepository, DEFAULT_SETTINGS } from '~/config';
 import { defaultBrowserProxy } from '~/lib/browser';
-import { Migration } from '~/migrations/001_migrateConfig';
+import { Migration } from '~/migrations/001_migrate-config';
 
 let migration: Migration;
 

@@ -5,8 +5,8 @@ import {
 	NodeNotFoundError,
 	type BookmarkService,
 	type BrowserProxy
-} from '@lib/browser';
-import { Path } from '@lib/util/path';
+} from '$lib/browser';
+import { Path } from '$lib/util/path';
 
 type NodeType = chrome.bookmarks.BookmarkTreeNode;
 

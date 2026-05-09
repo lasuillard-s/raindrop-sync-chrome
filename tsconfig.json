@@ -15,9 +15,9 @@
 		"paths": {
 			"~/*": ["./src/*"],
 			"^/*": ["./*"],
-			"@lib/*": ["./src/lib/*"],
-			"@fixtures/*": ["./tests/fixtures/*"],
-			"@test-helpers/*": ["./tests/helpers/*"]
+			"$lib/*": ["./src/lib/*"],
+			"$fixtures/*": ["./tests/fixtures/*"],
+			"$test-helpers/*": ["./tests/helpers/*"]
 		},
 		"isolatedModules": true,
 		"useDefineForClassFields": true,

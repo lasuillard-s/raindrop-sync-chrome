@@ -3,7 +3,7 @@ import type { TreeNode } from './tree';
 
 export abstract class ReadableAdapter<T extends TreeNode = TreeNode> {
 	/**
-	 * Resolves the base node ID to fetch. If `baseNodeId` is not provided, should return the default root node ID for the data source.
+	 * Resolves the base node ID to fetch. If `baseNodeId` is not provided, implementations should return the source-specific root node ID.
 	 * @param baseNodeId The base node ID to resolve.
 	 */
 	protected abstract resolveBaseNodeId(baseNodeId?: string): string;

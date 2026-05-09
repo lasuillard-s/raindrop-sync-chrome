@@ -76,15 +76,19 @@ function toPathMap(
 	const pathMap = new Map<string, TreeNode>();
 	tree.dfs((node) => {
 		const path = node.getPath().toString();
-		if (pathMap.has(path)) {
-			if (options.conflict === 'throw') {
+		if (!pathMap.has(path)) {
+			pathMap.set(path, node);
+			return;
+		}
+
+		// Handle duplicate paths according to the specified conflict strategy
+		switch (options.conflict) {
+			case 'throw':
 				throw new DuplicateBookmarkError(`Duplicate node path detected during diffing: ${path}`);
-			} else if (options.conflict === 'ignore') {
+			case 'ignore':
 				// * First one wins
 				return;
-			}
 		}
-		pathMap.set(path, node);
 	});
 	return pathMap;
 }

@@ -1,4 +1,4 @@
-import _getTree from '@fixtures/chrome/bookmarks/getTree.json';
+import _getTree from '$fixtures/chrome/bookmarks/getTree.json';
 import { vi } from 'vitest';
 
 // @ts-expect-error Ignore type mismatch for mocks

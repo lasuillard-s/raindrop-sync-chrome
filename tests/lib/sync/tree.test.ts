@@ -1,5 +1,5 @@
-import { BookmarkIsNotAFolderError } from '@lib/sync';
-import { TestTreeNode } from '@test-helpers/tree';
+import { BookmarkIsNotAFolderError } from '$lib/sync';
+import { TestTreeNode } from '$test-helpers/tree';
 import { describe, expect, it } from 'vitest';
 
 describe('TreeNode', () => {
@@ -50,11 +50,15 @@ describe('TreeNode', () => {
 			url: 'https://child.example'
 		});
 
-		expect(() => bookmark.addChild(child)).toThrow(BookmarkIsNotAFolderError);
-		expect(() => bookmark.addChild(child)).toThrow('Node with id 1 is not a folder');
+		expect(() => bookmark.addChild(child)).toThrow(new BookmarkIsNotAFolderError(bookmark.id));
 	});
 
 	it('traverses nodes in depth-first order', () => {
+		// Tree structure:
+		// Root
+		// ├── A
+		// │   └── B
+		// └── C
 		const root = new TestTreeNode({ id: '0', title: '', type: 'folder' });
 		const folderA = new TestTreeNode({ id: 'a', title: 'A', type: 'folder', parent: root });
 		new TestTreeNode({
@@ -78,5 +82,36 @@ describe('TreeNode', () => {
 		});
 
 		expect(visited).toEqual(['/', '/A', '/A/B', '/C']);
+	});
+
+	it('traverses nodes in breadth-first order', () => {
+		// Tree structure:
+		// Root
+		// ├── A
+		// │   └── B
+		// └── C
+		const root = new TestTreeNode({ id: '0', title: '', type: 'folder' });
+		const folderA = new TestTreeNode({ id: 'a', title: 'A', type: 'folder', parent: root });
+		new TestTreeNode({
+			id: 'b',
+			title: 'B',
+			type: 'bookmark',
+			url: 'https://b.example',
+			parent: folderA
+		});
+		new TestTreeNode({
+			id: 'c',
+			title: 'C',
+			type: 'bookmark',
+			url: 'https://c.example',
+			parent: root
+		});
+
+		const visited: string[] = [];
+		root.bfs((node) => {
+			visited.push(node.getPath().toString());
+		});
+
+		expect(visited).toEqual(['/', '/A', '/C', '/A/B']);
 	});
 });

@@ -1,5 +1,5 @@
 // @vitest-environment happy-dom
-import type { Message as MessageItem } from '@lib/messages';
+import type { Message as MessageItem } from '$lib/messages';
 import { render } from '@testing-library/svelte';
 import { expect, it } from 'vitest';
 import Message from '~/components/Message.svelte';

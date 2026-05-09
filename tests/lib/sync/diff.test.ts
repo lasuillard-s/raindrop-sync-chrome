@@ -1,5 +1,5 @@
-import { SyncDiffAnalyzer } from '@lib/sync';
-import { TestTreeNode } from '@test-helpers/tree';
+import { SyncDiffAnalyzer } from '$lib/sync';
+import { TestTreeNode } from '$test-helpers/tree';
 import { describe, expect, it } from 'vitest';
 
 describe('SyncDiffAnalyzer', () => {
