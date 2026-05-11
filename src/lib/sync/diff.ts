@@ -49,8 +49,7 @@ export class SyncDiffAnalyzer {
 
 			// Node exists in both, check if content or path has changed
 			const isContentChanged = sourceNode.getHash() !== targetNode.getHash();
-			const isMoved = sourceNode.getPath().toString() !== targetNode.getPath().toString();
-			if (isContentChanged || isMoved) {
+			if (isContentChanged) {
 				console.debug(`Node with path "${path}" changed:`, { sourceNode, targetNode });
 				diff.inBothButDifferent.push({ left: sourceNode, right: targetNode });
 			} else {

@@ -1,7 +1,9 @@
-import { mocks as chromeBookmarkMocks } from '$test-helpers/chrome-bookmarks';
+import _getTree from '$fixtures/chrome/bookmarks/getTree.json';
 import { cleanup } from '@testing-library/svelte';
 import { afterEach, beforeEach, vi } from 'vitest';
-import { InMemorySettingsRepository, SettingsStore } from '~/config';
+
+// @ts-expect-error Ignore type mismatch for mocks
+const getTree: chrome.bookmarks.BookmarkTreeNode[] = _getTree;
 
 beforeEach(() => {
 	// Tried to use both sinon-chrome and vitest-chrome, but it seems both are not being
@@ -17,7 +19,45 @@ beforeEach(() => {
 			clearAll: vi.fn()
 		},
 		bookmarks: {
-			...chromeBookmarkMocks
+			getTree: vi.fn(() => getTree),
+			getSubTree: vi.fn((id) => {
+				// Simple recursive search for the node by ID
+				const findNodeById = (
+					nodes: chrome.bookmarks.BookmarkTreeNode[],
+					idToFind: string
+				): chrome.bookmarks.BookmarkTreeNode | null => {
+					for (const node of nodes) {
+						if (node.id === idToFind) {
+							return node;
+						}
+						if (node.children) {
+							const foundInChildren = findNodeById(node.children, idToFind);
+							if (foundInChildren) {
+								return foundInChildren;
+							}
+						}
+					}
+					return null;
+				};
+				const node = findNodeById(getTree, id);
+				if (node) {
+					return Promise.resolve([node]);
+				} else {
+					return Promise.reject(new Error("Can't find bookmark for id."));
+				}
+			}),
+			create: vi.fn(({ parentId, title }) => ({
+				dateAdded: Date.now(),
+				id: Math.random().toString(36).substring(2, 15),
+				parentId,
+				syncing: false,
+				title,
+				children: []
+			})),
+			remove: vi.fn(),
+			removeTree: vi.fn(),
+			update: vi.fn(),
+			move: vi.fn()
 		},
 		identity: {
 			getRedirectURL: vi.fn(),
@@ -31,13 +71,10 @@ beforeEach(() => {
 			}
 		}
 	});
-
-	const settings = new SettingsStore(new InMemorySettingsRepository());
-	vi.spyOn(SettingsStore, 'getOrCreate').mockReturnValue(settings);
 });
 
 afterEach(() => {
-	vi.clearAllMocks();
+	vi.restoreAllMocks();
 	vi.unstubAllGlobals();
 	cleanup();
 });

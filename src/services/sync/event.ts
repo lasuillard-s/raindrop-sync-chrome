@@ -1,3 +1,5 @@
+import { errorToString } from '~/lib/util/string';
+
 export interface SyncEventListener {
 	onEvent(event: SyncEvent): void;
 }
@@ -6,6 +8,7 @@ export enum SyncEventType {
 	Start = 'start',
 	Progress = 'progress',
 	Complete = 'complete',
+	Skipped = 'skipped',
 	Error = 'error'
 }
 export abstract class SyncEvent {
@@ -74,6 +77,14 @@ export class SyncEventComplete extends SyncEvent {
 	}
 }
 
+export class SyncEventSkipped extends SyncEvent {
+	type = SyncEventType.Skipped;
+
+	toMessage(): string {
+		return 'Synchronization was skipped.';
+	}
+}
+
 export class SyncEventError extends SyncEvent {
 	type = SyncEventType.Error;
 	error: any;
@@ -84,6 +95,6 @@ export class SyncEventError extends SyncEvent {
 	}
 
 	toMessage(): string {
-		return `Synchronization failed with error: ${this.error}`;
+		return `Synchronization failed with error: ${errorToString(this.error)}`;
 	}
 }

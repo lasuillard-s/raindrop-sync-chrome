@@ -3,11 +3,13 @@ import type { ReadableAdapter, SyncPlan, SyncReport, WritableAdapter } from '$li
 import { SyncDiffAnalyzer, SyncExecutor, SyncPlanner, SyncPlanOptimizer } from '$lib/sync';
 import { NeutralTreeNode, type TreeNode } from '$lib/sync/tree';
 import type { SettingsStore } from '~/config';
+import { ConfigValidationError } from './errors';
 import {
 	SyncEventComplete,
 	SyncEventError,
 	SyncEventProgress,
 	SyncEventProgressDetail,
+	SyncEventSkipped,
 	SyncEventStart,
 	type SyncEvent,
 	type SyncEventListener
@@ -215,7 +217,7 @@ export class SyncService {
 			const isValid = await this.validateConfig();
 			if (!isValid) {
 				console.error('Sync configuration is invalid');
-				return;
+				throw new ConfigValidationError('Sync configuration is invalid');
 			}
 
 			// Check if synchronization is needed (unless forced)
@@ -223,6 +225,7 @@ export class SyncService {
 				const shouldSync = await this.checkShouldSync();
 				if (!shouldSync) {
 					console.info('No synchronization needed - target is already up to date');
+					this.emitEvent(new SyncEventSkipped());
 					return;
 				}
 			}

@@ -85,10 +85,13 @@ export abstract class TreeNode {
 	 * @param callback The function to apply to each node. If the callback returns a truthy value, the traversal will stop.
 	 */
 	dfs(callback: (node: TreeNode) => any): void {
+		// If the callback returns a truthy value, stop the traversal
 		const stop = callback(this);
 		if (stop) {
 			return;
 		}
+
+		// Recursively traverse children if it's a folder
 		if (this.type === 'folder' && this.children) {
 			for (const child of this.children) {
 				child.dfs(callback);
@@ -102,12 +105,20 @@ export abstract class TreeNode {
 	 */
 	bfs(callback: (node: TreeNode) => any): void {
 		const queue: TreeNode[] = [this];
-		while (queue.length > 0) {
-			const currentNode = queue.shift()!;
+		let head = 0;
+		while (head < queue.length) {
+			// Dequeue the next node to visit using indexing to avoid the overhead of Array.shift()
+			// which can be O(n) due to re-indexing the array on each call
+			const currentNode = queue[head];
+			head += 1;
+
+			// Apply the callback to the current node. If it returns a truthy value, stop the traversal.
 			const stop = callback(currentNode);
 			if (stop) {
 				return;
 			}
+
+			// Enqueue children if it's a folder
 			if (currentNode.type === 'folder' && currentNode.children) {
 				queue.push(...currentNode.children);
 			}

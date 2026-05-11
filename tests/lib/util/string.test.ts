@@ -1,4 +1,4 @@
-import { isUrlSafeHref, normalizeUrl } from '$lib/util/string';
+import { errorToString, isUrlSafeHref, normalizeUrl } from '$lib/util/string';
 import { describe, expect, it } from 'vitest';
 
 describe('normalizeUrl', () => {
@@ -61,5 +61,25 @@ describe('isUrlSafeHref', () => {
 		const url = '';
 		const safeUrl = isUrlSafeHref(url);
 		expect(safeUrl).toBe(false);
+	});
+});
+
+describe('errorToString', () => {
+	it('returns the message of an Error object', () => {
+		const error = new Error('Something went wrong');
+		const message = errorToString(error);
+		expect(message).toBe('Something went wrong');
+	});
+
+	it('returns a string representation for non-Error objects', () => {
+		const error = { code: 500, message: 'Internal Server Error' };
+		const message = errorToString(error);
+		expect(message).toBe('[object Object]');
+	});
+
+	it('returns a string representation for primitive values', () => {
+		const error = 'A simple error message';
+		const message = errorToString(error);
+		expect(message).toBe('A simple error message');
 	});
 });

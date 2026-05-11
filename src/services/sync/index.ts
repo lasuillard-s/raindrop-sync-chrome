@@ -4,6 +4,7 @@ export {
 	SyncEventError,
 	SyncEventProgress,
 	SyncEventProgressDetail,
+	SyncEventSkipped,
 	SyncEventStart,
 	SyncEventType,
 	type SyncEventListener

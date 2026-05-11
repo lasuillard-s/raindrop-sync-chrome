@@ -79,9 +79,8 @@ export class RaindropAdapter extends ReadableAdapter<RaindropBookmarkTreeNode> {
 		});
 
 		// Deduplicate items
-		const uniqueNodes = nodes.filter(
-			(left, index, self) => index === self.findIndex((right) => right.id === left.id)
-		);
+		const nodeMap = new Map<string, RaindropBookmarkTreeNode>(nodes.map((node) => [node.id, node]));
+		const uniqueNodes = Array.from(nodeMap.values());
 
 		return uniqueNodes;
 	}

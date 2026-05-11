@@ -53,7 +53,7 @@ describe('RaindropAdapter', () => {
 		expect(paths).toEqual([
 			'/Raindrop.io',
 			'/Raindrop.io/Collection',
-			'/Raindrop.io/Collection/Bookmark',
+			'/Raindrop.io/Collection/Bookmark duplicate', // Later node with same ID overwrites the previous one
 			'/Raindrop.io/Unsorted'
 		]);
 	});
