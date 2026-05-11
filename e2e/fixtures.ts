@@ -1,7 +1,10 @@
 import { test as base, chromium, type BrowserContext, type Worker } from '@playwright/test';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { BookmarkFixture, ExtensionPagesFixture, ExtensionStorageFixture } from './helpers/browser';
+import { AppSettingsFixture } from './helpers/app-settings';
+import { BookmarkFixture } from './helpers/bookmark';
+import { GotoFixture } from './helpers/goto';
+import { RaindropMockerFixture } from './helpers/raindrop';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
@@ -9,9 +12,10 @@ export const test = base.extend<{
 	context: BrowserContext;
 	serviceWorker: Worker;
 	extensionId: string;
-	extensionPages: ExtensionPagesFixture;
-	extensionStorage: ExtensionStorageFixture;
+	goto: GotoFixture;
+	appSettings: AppSettingsFixture;
 	bookmarks: BookmarkFixture;
+	raindropMocker: RaindropMockerFixture;
 }>({
 	// eslint-disable-next-line no-empty-pattern
 	context: async ({}, use) => {
@@ -35,14 +39,17 @@ export const test = base.extend<{
 		const extensionId = serviceWorker.url().split('/')[2];
 		await use(extensionId);
 	},
-	extensionPages: async ({ extensionId }, use) => {
-		await use(new ExtensionPagesFixture(extensionId));
+	goto: async ({ extensionId }, use) => {
+		await use(new GotoFixture(extensionId));
 	},
-	extensionStorage: async ({ serviceWorker }, use) => {
-		await use(new ExtensionStorageFixture(serviceWorker));
+	appSettings: async ({ serviceWorker }, use) => {
+		await use(new AppSettingsFixture(serviceWorker));
 	},
 	bookmarks: async ({ serviceWorker }, use) => {
 		await use(new BookmarkFixture(serviceWorker));
+	},
+	raindropMocker: async ({ context }, use) => {
+		await use(new RaindropMockerFixture(context));
 	}
 });
 
