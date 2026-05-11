@@ -75,7 +75,7 @@ describe('SyncDiffAnalyzer', () => {
 		expect(diff.onlyInRight.map((n) => n.title)).toEqual(['right-only']);
 	});
 
-	it('throws when duplicate node paths are present in one tree', () => {
+	it('first-one-wins when duplicate node paths are present in one tree', () => {
 		const leftRoot = new TestTreeNode({ id: 'left-root', title: '', type: 'folder' });
 		const rightRoot = new TestTreeNode({ id: 'right-root', title: '', type: 'folder' });
 
@@ -94,8 +94,9 @@ describe('SyncDiffAnalyzer', () => {
 			parent: leftRoot
 		});
 
-		expect(() => new SyncDiffAnalyzer().compare(leftRoot, rightRoot)).toThrow(
-			'Duplicate node path detected during diffing: /duplicate'
-		);
+		const diff = new SyncDiffAnalyzer().compare(leftRoot, rightRoot);
+		expect(diff.onlyInLeft.map((n) => ({ title: n.title, url: n.url }))).toEqual([
+			{ title: 'duplicate', url: 'https://first.example' }
+		]);
 	});
 });

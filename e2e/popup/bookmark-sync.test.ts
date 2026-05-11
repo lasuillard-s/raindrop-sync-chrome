@@ -215,7 +215,7 @@ Other bookmarks
 });
 
 // ! This test is skipped for now (pending feature change)
-test.skip('when conflicting, first bookmark remain in place', async ({
+test('when conflicting, first bookmark remain in place', async ({
 	page,
 	goto,
 	appSettings,

@@ -20,10 +20,19 @@ export class SyncDiff {
 }
 
 export class SyncDiffAnalyzer {
+	/**
+	 * Compares two bookmark trees and produces a diff of their differences.
+	 * @param source The source tree to compare from
+	 * @param target The target tree to compare to
+	 * @param options Options for handling conflicts during diffing
+	 * @param options.conflict Conflict handling strategy for duplicate paths. Defaults to 'ignore'.
+	 * @returns A SyncDiff object containing the differences between the two trees
+	 * @throws {DuplicateBookmarkError} if duplicate paths are detected in either tree and conflict strategy is 'throw'
+	 */
 	compare(
 		source: TreeNode,
 		target: TreeNode,
-		options: { conflict: 'throw' | 'ignore' } = { conflict: 'throw' }
+		options: { conflict: 'throw' | 'ignore' } = { conflict: 'ignore' }
 	): SyncDiff {
 		const diff = new SyncDiff(source, target);
 		const sourceMap = toPathMap(source, options);
