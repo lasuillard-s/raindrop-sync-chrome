@@ -14,12 +14,12 @@ export class BookmarkFixture {
 	 * @returns String representation of the bookmark tree.
 	 * @example
 	 * Root
-	 * - Work
-	 *   - Project A (https://project-a.com)
-	 *   - Project B (https://project-b.com)
-	 * - Personal
-	 * - Delete 1 (https://delete-1.example)
-	 * - Delete 2 (https://delete-2.example)
+	 *   Work
+	 *     Project A (https://project-a.com)
+	 *     Project B (https://project-b.com)
+	 *   Personal
+	 *   Delete 1 (https://delete-1.example)
+	 *   Delete 2 (https://delete-2.example)
 	 */
 	async getTreeRepr(): Promise<string> {
 		return await this.serviceWorker.evaluate(async () => {
