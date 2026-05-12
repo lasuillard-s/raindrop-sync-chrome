@@ -79,6 +79,7 @@ export class RaindropAdapter extends ReadableAdapter<RaindropBookmarkTreeNode> {
 		});
 
 		// Deduplicate items
+		// ! If there are multiple items with the same ID, only the last one will be kept.
 		const nodeMap = new Map<string, RaindropBookmarkTreeNode>(nodes.map((node) => [node.id, node]));
 		const uniqueNodes = Array.from(nodeMap.values());
 
@@ -89,7 +90,6 @@ export class RaindropAdapter extends ReadableAdapter<RaindropBookmarkTreeNode> {
 		nodes: RaindropBookmarkTreeNode[],
 		baseNodeId: string
 	): RaindropBookmarkTreeNode {
-		const rootAlias = '$root';
 		const root = new RaindropBookmarkTreeNode({
 			id: baseNodeId,
 			parent: null,
@@ -98,11 +98,17 @@ export class RaindropAdapter extends ReadableAdapter<RaindropBookmarkTreeNode> {
 			type: 'folder',
 			raw: null
 		});
+
+		// Alias for root node to simplify handling of items without a parent
+		const rootAlias = '$root';
+
+		// Build a map of all nodes for easy lookup when establishing parent-child relationships
 		const nodeMap = new Map<string, RaindropBookmarkTreeNode>();
 		nodeMap.set(root.id, root);
 		nodeMap.set(rootAlias, root);
 		nodes.forEach((node) => nodeMap.set(node.id, node));
 
+		// Establish parent-child relationships
 		for (const node of nodes) {
 			const originalParentId =
 				// @ts-expect-error Multi-type handling

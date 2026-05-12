@@ -103,6 +103,8 @@ export class SyncPlanOptimizer {
 				!(action instanceof SyncActionDelete)
 		);
 
+		// Other actions (creates/updates) should be executed before deletes
+		// to avoid unnecessary operations on nodes that will be deleted.
 		for (const action of otherActions) {
 			optimized.addAction(action);
 		}

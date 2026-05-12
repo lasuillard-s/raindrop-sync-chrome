@@ -97,7 +97,7 @@ export class Path {
 	}
 
 	/**
-	 * Check whether this path is nested beneath another path.
+	 * Check whether this path (e.g. /a/b/c) is nested beneath another path (e.g. /a/b).
 	 * @param ancestor Candidate ancestor path.
 	 * @returns True when this path is a strict descendant of ancestor.
 	 */

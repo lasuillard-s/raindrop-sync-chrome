@@ -190,7 +190,7 @@ test('handles mixed synchronization changes in one run', async ({
 		syncLocation: syncRoot.id
 	});
 
-	// Go to popup, trigger synchronization, and verify results
+	// Go to popup and trigger synchronization
 	await goto.popup(page);
 	await triggerForceSync(page);
 	await expectSyncSuccess(page);
@@ -332,7 +332,7 @@ test('does not mutate bookmarks when sync location is invalid', async ({
 		`
 Bookmarks bar
 Other bookmarks
-  ${existingFolder.title}
+  Sync Root
     Existing Link (https://existing.example/)
 `.trimStart()
 	);
@@ -366,7 +366,11 @@ test('surfaces synchronization error on unauthorized source response', async ({
 	// Trigger synchronization
 	await goto.popup(page);
 	await triggerForceSync(page);
+
+	// Synchronization should fail and surface error message
 	await notExpectSyncSuccess(page);
+
+	// Verify bookmark state remains unchanged
 	await expect(
 		page.getByText('Synchronization failed with error:', { exact: false })
 	).toBeVisible();
@@ -374,7 +378,7 @@ test('surfaces synchronization error on unauthorized source response', async ({
 		`
 Bookmarks bar
 Other bookmarks
-  ${syncRoot.title}
+  Sync Root
 `.trimStart()
 	);
 });
@@ -420,15 +424,28 @@ test('is idempotent when synchronizing unchanged source repeatedly', async ({
 
 	// Trigger synchronization twice and verify that the same data is created without duplication or mutation.
 	await goto.popup(page);
-	await triggerForceSync(page);
-	await expectSyncSuccess(page);
+
+	// 1st sync
 	await triggerForceSync(page);
 	await expectSyncSuccess(page);
 	expect(await bookmarks.getTreeRepr()).toEqual(
 		`
 Bookmarks bar
 Other bookmarks
-  ${syncRoot.title}
+  Sync Root
+    Work
+      Stable Link (https://stable.example/)
+`.trimStart()
+	);
+
+	// 2nd sync
+	await triggerForceSync(page);
+	await expectSyncSuccess(page);
+	expect(await bookmarks.getTreeRepr()).toEqual(
+		`
+Bookmarks bar
+Other bookmarks
+  Sync Root
     Work
       Stable Link (https://stable.example/)
 `.trimStart()

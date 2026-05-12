@@ -5,20 +5,11 @@ import { describe, expect, it } from 'vitest';
 describe('SyncDiffAnalyzer', () => {
 	it('categorizes only-in-left, changed, unchanged, and only-in-right nodes', () => {
 		// Left tree structure (path):
-		// - left-root (/)
-		//   - left-only (/left-only)
-		//   - left-updated (/updated)
-		//   - left-stable (/stable)
-		//
+		// └ left-root (/)
+		//   ├ left-only (/left-only)
+		//   ├ left-updated (/updated)
+		//   └ left-stable (/stable)
 		const leftRoot = new TestTreeNode({ id: 'left-root', title: '', type: 'folder' });
-
-		// Right tree structure:
-		// - right-root (/)
-		//   - right-only (/right-only)
-		//   - right-updated (/updated)
-		//   - right-stable (/stable)
-		const rightRoot = new TestTreeNode({ id: 'right-root', title: '', type: 'folder' });
-
 		new TestTreeNode({
 			id: 'left-only',
 			title: 'left-only',
@@ -26,7 +17,6 @@ describe('SyncDiffAnalyzer', () => {
 			url: 'https://left-only.example',
 			parent: leftRoot
 		});
-
 		new TestTreeNode({
 			id: 'left-updated',
 			title: 'updated',
@@ -35,19 +25,25 @@ describe('SyncDiffAnalyzer', () => {
 			parent: leftRoot
 		});
 		new TestTreeNode({
-			id: 'right-updated',
-			title: 'updated',
-			type: 'bookmark',
-			url: 'https://right-updated.example',
-			parent: rightRoot
-		});
-
-		new TestTreeNode({
 			id: 'left-stable',
 			title: 'stable',
 			type: 'bookmark',
 			url: 'https://stable.example',
 			parent: leftRoot
+		});
+
+		// Right tree structure:
+		// └ right-root (/)
+		//   ├ right-only (/right-only)
+		//   ├ right-updated (/updated)
+		//   └ right-stable (/stable)
+		const rightRoot = new TestTreeNode({ id: 'right-root', title: '', type: 'folder' });
+		new TestTreeNode({
+			id: 'right-updated',
+			title: 'updated',
+			type: 'bookmark',
+			url: 'https://right-updated.example',
+			parent: rightRoot
 		});
 		new TestTreeNode({
 			id: 'right-stable',
@@ -56,7 +52,6 @@ describe('SyncDiffAnalyzer', () => {
 			url: 'https://stable.example',
 			parent: rightRoot
 		});
-
 		new TestTreeNode({
 			id: 'right-only',
 			title: 'right-only',

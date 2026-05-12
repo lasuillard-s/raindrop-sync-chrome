@@ -72,10 +72,12 @@ export class SyncService {
 		// Check if there have been changes in either source or target since last sync
 		const clientLastSync = settingsSnapshot.clientLastSync; // Default is Date(0)
 		const sourceChanged = await this.source.changedSince(clientLastSync, { thresholdSeconds });
-		const targetChanged = await this.target.changedSince(clientLastSync, { thresholdSeconds });
+		if (sourceChanged) {
+			return true;
+		}
 
-		// Either source or target has changed - sync is needed
-		if (sourceChanged || targetChanged) {
+		const targetChanged = await this.target.changedSince(clientLastSync, { thresholdSeconds });
+		if (targetChanged) {
 			return true;
 		}
 
