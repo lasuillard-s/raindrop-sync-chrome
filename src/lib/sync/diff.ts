@@ -1,66 +1,102 @@
-import type { NodeData, TreeNode } from './tree';
+import { DuplicateBookmarkError } from './errors';
+import type { TreeNode } from './tree';
 
-export class SyncDiff<L extends NodeData, R extends NodeData> {
-	left: TreeNode<L>;
-	right: TreeNode<R>;
+export class SyncDiff {
+	left: TreeNode;
+	right: TreeNode;
+	onlyInLeft: TreeNode[] = [];
+	inBothButDifferent: Array<{ left: TreeNode; right: TreeNode }> = [];
+	unchanged: Array<{ left: TreeNode; right: TreeNode }> = [];
+	onlyInRight: TreeNode[] = [];
 
-	onlyInLeft: TreeNode<L>[] = [];
-	inBothButDifferent: Array<{
-		left: TreeNode<L>;
-		right: TreeNode<R>;
-	}> = [];
-	unchanged: Array<{
-		left: TreeNode<L>;
-		right: TreeNode<R>;
-	}> = [];
-	onlyInRight: TreeNode<R>[] = [];
-
-	constructor(left: TreeNode<L>, right: TreeNode<R>) {
+	constructor(left: TreeNode, right: TreeNode) {
 		this.left = left;
 		this.right = right;
+		this.onlyInLeft = [];
+		this.inBothButDifferent = [];
+		this.unchanged = [];
+		this.onlyInRight = [];
 	}
+}
 
-	static calculateDiff<L extends NodeData, R extends NodeData>(
-		left: TreeNode<L>,
-		right: TreeNode<R>
-	): SyncDiff<L, R> {
-		const diff = new SyncDiff<L, R>(left, right);
+export class SyncDiffAnalyzer {
+	/**
+	 * Compares two bookmark trees and produces a diff of their differences.
+	 * @param source The source tree to compare from
+	 * @param target The target tree to compare to
+	 * @param options Options for handling conflicts during diffing
+	 * @param options.conflict Conflict handling strategy for duplicate paths. Defaults to 'ignore'.
+	 * @returns A SyncDiff object containing the differences between the two trees
+	 * @throws {DuplicateBookmarkError} if duplicate paths are detected in either tree and conflict strategy is 'throw'
+	 */
+	compare(
+		source: TreeNode,
+		target: TreeNode,
+		options: { conflict: 'throw' | 'ignore' } = { conflict: 'ignore' }
+	): SyncDiff {
+		const diff = new SyncDiff(source, target);
+		const sourceMap = toPathMap(source, options);
+		const targetMap = toPathMap(target, options);
+		for (const [path, sourceNode] of sourceMap.entries()) {
+			const targetNode = targetMap.get(path);
 
-		// Flatten both trees to maps of their terminal nodes for easier comparison
-		const leftMap = left.toMap({ onlyTerminal: true });
-		const rightMap = right.toMap({
-			onlyTerminal: true,
-			// Use itself as base to calculate path relative to the sync target location
-			relativeTo: right
-		});
-		console.debug('Calculating diff between trees:');
-		console.debug('Left map:', leftMap);
-		console.debug('Right map:', rightMap);
+			// New node in source that doesn't exist in target
+			if (!targetNode) {
+				console.debug(`Node with path "${path}" only in source:`, sourceNode);
+				diff.onlyInLeft.push(sourceNode);
+				continue;
+			}
 
-		// Compare left to right
-		for (const [path, leftNode] of leftMap.entries()) {
-			if (rightMap.has(path)) {
-				const rightNode = rightMap.get(path)!;
-
-				// ? Update below condition for more complex comparison logic if needed
-				if (leftNode.data?.getHash() === rightNode.data?.getHash()) {
-					diff.unchanged.push({ left: leftNode, right: rightNode });
-				} else {
-					diff.inBothButDifferent.push({ left: leftNode, right: rightNode });
-				}
-
-				// ... this makes easy to find nodes only in right later
-				rightMap.delete(path);
+			// Node exists in both, check if content or path has changed
+			const isContentChanged = sourceNode.getHash() !== targetNode.getHash();
+			if (isContentChanged) {
+				console.debug(`Node with path "${path}" changed:`, { sourceNode, targetNode });
+				diff.inBothButDifferent.push({ left: sourceNode, right: targetNode });
 			} else {
-				diff.onlyInLeft.push(leftNode);
+				console.debug(`Node with path "${path}" unchanged:`, sourceNode);
+				diff.unchanged.push({ left: sourceNode, right: targetNode });
 			}
 		}
 
-		// Any remaining nodes in rightMap are only in right
-		for (const rightNode of rightMap.values()) {
-			diff.onlyInRight.push(rightNode);
+		// Nodes in target that don't exist in source (deleted in source or new in target)
+		for (const [path, targetNode] of targetMap.entries()) {
+			if (!sourceMap.has(path)) {
+				console.debug(`Node with path "${path}" only in target:`, targetNode);
+				diff.onlyInRight.push(targetNode);
+			}
 		}
 
 		return diff;
 	}
+}
+
+/**
+ * Helper function to create a map of nodes by their path for easy lookup during diffing.
+ * @param tree Root node of the tree to create the map from
+ * @param options Options for building the path map
+ * @param options.conflict Conflict handling strategy for duplicate paths. Defaults to 'throw'.
+ * @returns Map where keys are node paths and values are the corresponding nodes
+ */
+function toPathMap(
+	tree: TreeNode,
+	options: { conflict: 'throw' | 'ignore' } = { conflict: 'throw' }
+): Map<string, TreeNode> {
+	const pathMap = new Map<string, TreeNode>();
+	tree.dfs((node) => {
+		const path = node.getPath().toString();
+		if (!pathMap.has(path)) {
+			pathMap.set(path, node);
+			return;
+		}
+
+		// Handle duplicate paths according to the specified conflict strategy
+		switch (options.conflict) {
+			case 'throw':
+				throw new DuplicateBookmarkError(`Duplicate node path detected during diffing: ${path}`);
+			case 'ignore':
+				// * First one wins
+				return;
+		}
+	});
+	return pathMap;
 }

@@ -4,13 +4,7 @@ services:
     build:
       # ! Be sure to match the version of @playwright/test in package.json file
       context: ..
-      dockerfile_inline: |
-        FROM mcr.microsoft.com/playwright:v${PLAYWRIGHT_VERSION:?}-noble
-
-        WORKDIR /workspace
-        VOLUME /workspace/node_modules
-        COPY package.json yarn.lock ./
-        RUN yarn install --frozen-lockfile
+      dockerfile: ./e2e/Dockerfile
     ports:
       - 127.0.0.1:8888:8888 # Playwright UI
       - 127.0.0.1:9323:9323 # Playwright reports

@@ -63,9 +63,52 @@ export class Path {
 	 * @param segments The segments to join.
 	 * @returns A new Path with the joined segments.
 	 */
-	joinPath(...segments: string[]): Path {
+	join(...segments: string[]): Path {
 		const newSegments = [...this.pathSegments, ...segments];
 		return new Path({ segments: newSegments });
+	}
+
+	/**
+	 * Join another Path to the current path.
+	 * @param other The Path to join.
+	 * @returns A new Path with the joined segments.
+	 */
+	joinPath(other: Path): Path {
+		return this.join(...other.getSegments());
+	}
+
+	/**
+	 * Get the basename of the path (the last segment).
+	 * @returns The basename of the path, or an empty string if the path is empty.
+	 */
+	basename(): string {
+		if (this.pathSegments.length === 0) {
+			return '';
+		}
+		return this.pathSegments[this.pathSegments.length - 1];
+	}
+
+	/**
+	 * Get the number of segments in the path.
+	 * @returns Path depth from the root.
+	 */
+	depth(): number {
+		return this.pathSegments.length;
+	}
+
+	/**
+	 * Check whether this path (e.g. /a/b/c) is nested beneath another path (e.g. /a/b).
+	 * @param ancestor Candidate ancestor path.
+	 * @returns True when this path is a strict descendant of ancestor.
+	 */
+	isDescendantOf(ancestor: Path): boolean {
+		// A path cannot be a descendant of itself or of a shorter path
+		if (this.pathSegments.length <= ancestor.pathSegments.length) {
+			return false;
+		}
+
+		// Check if all segments of the ancestor match the corresponding segments of this path
+		return ancestor.pathSegments.every((segment, index) => this.pathSegments[index] === segment);
 	}
 }
 

@@ -1,82 +1,133 @@
-import { Path } from '~/lib/util/path';
+import {
+	SyncActionCreateBookmark,
+	SyncActionCreateFolder,
+	SyncActionDelete,
+	SyncActionUpdateBookmark,
+	SyncActionUpdateFolder,
+	type SyncAction
+} from './action';
 import type { SyncDiff } from './diff';
-import { SyncOp, SyncOpAdd, SyncOpDelete, SyncOpNoop, SyncOpUpdate } from './op';
-import type { NodeData } from './tree';
 
 export class SyncPlan {
-	readonly operations: SyncOp[] = [];
+	actions: SyncAction[] = [];
 
+	addAction(action: SyncAction): void {
+		this.actions.push(action);
+	}
+}
+
+export class SyncPlanner {
 	/**
-	 * Create a SyncPlan from a SyncDiff.
-	 * @param diff The SyncDiff object representing differences between trees.
-	 * @param syncFolder The base folder path for synchronization.
-	 * @returns A SyncPlan representing the operations needed to synchronize.
+	 * Generate a synchronization plan based on the differences between two trees.
+	 * @param diff The SyncDiff object representing the differences between the source and target trees.
+	 * @returns A SyncPlan object containing the actions needed to synchronize the target tree to match the source tree.
 	 */
-	static fromDiff<L extends NodeData, R extends NodeData>(
-		diff: SyncDiff<L, R>,
-		syncFolder: Path
-	): SyncPlan {
+	generatePlan(diff: SyncDiff): SyncPlan {
 		const plan = new SyncPlan();
 
 		for (const node of diff.onlyInLeft) {
-			const name = node.getName(),
-				url = node.getUrl();
-
-			if (!name || !url) {
-				console.warn('Skipping adding node with missing name or url:', node);
+			if (node.isRoot()) {
+				// Diff roots describe the sync boundary itself, not a folder/bookmark to create.
 				continue;
 			}
-			const path = syncFolder.joinPath(...node.getFullPath().getSegments());
-			console.debug('Computed path for addition:', path, 'from:', syncFolder, node);
-			plan.addOp(
-				new SyncOpAdd({
-					path,
-					title: name,
-					url: url
-				})
-			);
+			if (node.isFolder()) {
+				plan.addAction(
+					new SyncActionCreateFolder({
+						path: node.getPath()
+					})
+				);
+			} else {
+				plan.addAction(
+					new SyncActionCreateBookmark({
+						path: node.getPath(),
+						url: node.url!
+					})
+				);
+			}
 		}
 
 		for (const { left, right } of diff.inBothButDifferent) {
-			const name = left.getName(),
-				url = left.getUrl();
-
-			if (!name || !url) {
-				console.warn('Skipping updating node with missing name or url:', left);
+			if (left.isRoot()) {
+				// Root updates would rename the sync boundary rather than synced content, so skip them.
 				continue;
 			}
-
-			plan.addOp(
-				new SyncOpUpdate({
-					path: right.getFullPath(),
-					title: name,
-					url: url
-				})
-			);
+			if (left.isFolder()) {
+				plan.addAction(
+					new SyncActionUpdateFolder({
+						id: right.id,
+						title: left.title
+					})
+				);
+			} else {
+				plan.addAction(
+					new SyncActionUpdateBookmark({
+						id: right.id,
+						title: left.title,
+						url: left.url!
+					})
+				);
+			}
 		}
 
-		// Although no operation needed for unchanged nodes, leave it here for clarity
-		// eslint-disable-next-line @typescript-eslint/no-unused-vars
-		for (const { left, right } of diff.unchanged) {
-			plan.addOp(new SyncOpNoop({ path: right.getFullPath() }));
-		}
+		// No action needed for unchanged nodes, but we can add a noop for clarity if desired.
+		// for (const { left, right } of diff.unchanged) {
+		// 	plan.addAction(new SyncActionNoop());
+		// }
 
 		for (const node of diff.onlyInRight) {
-			plan.addOp(
-				new SyncOpDelete({
-					path: node.getFullPath()
+			if (node.isRoot()) {
+				// Deleting the root would remove the target sync boundary instead of obsolete children.
+				continue;
+			}
+			plan.addAction(
+				new SyncActionDelete({
+					id: node.id,
+					path: node.getPath(),
+					nodeType: node.type
 				})
 			);
 		}
 
 		return plan;
 	}
+}
 
-	/**
-	 * Add an operation to the sync plan.
-	 * @param op The SyncOp to add.
-	 */
-	addOp(op: SyncOp) {
-		this.operations.push(op);
+export class SyncPlanOptimizer {
+	optimize(plan: SyncPlan): SyncPlan {
+		const optimized = new SyncPlan();
+		const deleteActions = plan.actions.filter(
+			(action): action is SyncActionDelete => action instanceof SyncActionDelete
+		);
+		const otherActions = plan.actions.filter(
+			(action): action is Exclude<SyncAction, SyncActionDelete> =>
+				!(action instanceof SyncActionDelete)
+		);
+
+		// Other actions (creates/updates) should be executed before deletes
+		// to avoid unnecessary operations on nodes that will be deleted.
+		for (const action of otherActions) {
+			optimized.addAction(action);
+		}
+
+		// Deleting a folder will implicitly delete all of its contents,
+		// so we can skip delete actions for any nodes that are descendants of a deleted folder.
+		const folderDeletePaths = deleteActions.flatMap((action) =>
+			action.args.nodeType === 'folder' && action.args.path ? [action.args.path] : []
+		);
+		const optimizedDeletes = deleteActions
+			.filter(
+				(action) =>
+					!(
+						action.args.path &&
+						folderDeletePaths.some((folderPath) => action.args.path!.isDescendantOf(folderPath))
+					)
+			)
+			.sort((left, right) => (right.args.path?.depth() ?? 0) - (left.args.path?.depth() ?? 0));
+
+		for (const action of optimizedDeletes) {
+			optimized.addAction(action);
+		}
+
+		return optimized;
 	}
 }

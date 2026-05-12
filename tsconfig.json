@@ -15,13 +15,14 @@
 		"paths": {
 			"~/*": ["./src/*"],
 			"^/*": ["./*"],
-			"@fixtures/*": ["./tests/fixtures/*"],
-			"@test-helpers/*": ["./tests/helpers/*"]
+			"$lib/*": ["./src/lib/*"],
+			"$fixtures/*": ["./tests/fixtures/*"],
+			"$test-helpers/*": ["./tests/helpers/*"]
 		},
 		"isolatedModules": true,
 		"useDefineForClassFields": true,
 		"allowSyntheticDefaultImports": true,
-		"types": ["vitest/importMeta"]
+		"types": ["vitest/importMeta", "@types/chrome"]
 	},
 	"include": [
 		"vite.config.ts",

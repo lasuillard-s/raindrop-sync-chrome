@@ -19,11 +19,11 @@
 		"check": "svelte-check --tsconfig ./tsconfig.json",
 		"check:watch": "svelte-check --tsconfig ./tsconfig.json --watch",
 		"test": "vitest --run",
-		"test:watch": "vitest --silent --watch --ui",
+		"test:watch": "vitest --watch --ui",
 		"e2e": "playwright test",
 		"e2e:watch": "playwright test --ui",
-		"e2e-docker": "./e2e/playwright-docker.sh test",
-		"e2e-docker:watch": "./e2e/playwright-docker.sh --ui --ui-host \"$([ -n \"$$CONTAINER\" ] && echo '0.0.0.0' || echo '127.0.0.1')\" --ui-port 8888"
+		"e2e-docker": "./e2e/run.sh test",
+		"e2e-docker:ui": "./e2e/run.sh test --ui --ui-host 0.0.0.0 --ui-port 8888"
 	},
 	"type": "module",
 	"dependencies": {},

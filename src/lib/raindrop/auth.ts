@@ -1,3 +1,4 @@
+import { defaultBrowserProxy, type BrowserProxy } from '$lib/browser';
 import { generated } from '@lasuillard/raindrop-client';
 import { Raindrop } from './client';
 
@@ -17,16 +18,18 @@ export type AuthFlowResponse = {
  * Initiate OAuth2 Authorization Code Flow for Raindrop API.
  * @param params Auth flow credentials.
  * @param raindrop Raindrop API client.
+ * @param browserProxy Browser API proxy for identity operations.
  * @returns Response body.
  */
 export async function launchWebAuthFlow(
 	params: AuthFlowParams,
-	raindrop?: Raindrop
+	raindrop?: Raindrop,
+	browserProxy: BrowserProxy = defaultBrowserProxy
 ): Promise<AuthFlowResponse> {
 	const rd = raindrop ?? new Raindrop();
 
 	// NOTE: `url` includes credentials; DO NOT print
-	const redirectURL = chrome.identity.getRedirectURL();
+	const redirectURL = browserProxy.identity.getRedirectURL();
 
 	// Build auth flow URL
 	const authURL = new URL('https://api.raindrop.io/v1/oauth/authorize');
@@ -35,7 +38,7 @@ export async function launchWebAuthFlow(
 
 	// Initiate auth flow
 	console.debug(`Launching web auth flow with with redirectURL "${redirectURL}"`);
-	const responseURL = await chrome.identity.launchWebAuthFlow({
+	const responseURL = await browserProxy.identity.launchWebAuthFlow({
 		url: authURL.toString(),
 		interactive: true
 	});

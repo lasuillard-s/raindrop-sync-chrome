@@ -13,7 +13,8 @@ export default defineConfig(({ mode }) => {
 		tailwindcss(),
 		svelte({
 			compilerOptions: {
-				dev: mode === 'development'
+				dev: mode === 'development',
+				runes: true
 			}
 		})
 	] as any[];
@@ -41,9 +42,9 @@ export default defineConfig(({ mode }) => {
 			conditions: mode === 'test' ? ['browser'] : undefined,
 			alias: [
 				{ find: '~', replacement: path.resolve(__dirname, 'src') },
-				{ find: '^', replacement: path.resolve(__dirname) },
-				{ find: '@fixtures', replacement: path.resolve(__dirname, 'tests/fixtures') },
-				{ find: '@test-helpers', replacement: path.resolve(__dirname, 'tests/helpers') }
+				{ find: '$lib', replacement: path.resolve(__dirname, 'src/lib') },
+				{ find: '$fixtures', replacement: path.resolve(__dirname, 'tests/fixtures') },
+				{ find: '$test-helpers', replacement: path.resolve(__dirname, 'tests/helpers') }
 			]
 		},
 		server: {
@@ -54,8 +55,7 @@ export default defineConfig(({ mode }) => {
 		},
 		test: {
 			expect: { requireAssertions: true },
-			include: ['src/**/*.{test,spec}.{js,ts}'],
-			exclude: ['**/__mocks__/*'],
+			include: ['tests/**/*.{test,spec}.{js,ts}'],
 			reporters: ['junit', 'default'],
 			outputFile: {
 				junit: './junit.xml'
@@ -64,11 +64,14 @@ export default defineConfig(({ mode }) => {
 				enabled: true,
 				include: ['src/**'],
 				exclude: [
-					'src/**/__mocks__/*',
+					'tests/**/*.{test,spec}.ts',
+					// Not source files
 					'src/**/*.d.ts',
-					'src/**/*.{test,spec}.ts',
 					'src/assets/*',
-					'src/**/index.html'
+					// Below handled in E2E tests
+					'src/service-worker.ts',
+					'src/options/*',
+					'src/popup/*'
 				],
 				reporter: ['text', 'clover', 'html']
 			},

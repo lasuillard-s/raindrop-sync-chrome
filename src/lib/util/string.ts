@@ -34,3 +34,15 @@ export function isUrlSafeHref(href: string): boolean {
 	}
 	return true;
 }
+
+/**
+ * Convert an error object to a string message for easier logging and debugging.
+ * @param error The error object to convert
+ * @returns A string representation of the error message
+ */
+export function errorToString(error: unknown): string {
+	if (error instanceof Error) {
+		return error.message;
+	}
+	return String(error);
+}
