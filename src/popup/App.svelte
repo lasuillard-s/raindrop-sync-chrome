@@ -4,8 +4,8 @@
 	import { A, Toggle } from 'flowbite-svelte';
 	import { RefreshOutline } from 'flowbite-svelte-icons';
 	import { onMount } from 'svelte';
-	import { App } from '~/app';
-	import { type SyncEvent, type SyncEventListener } from '~/services/sync';
+	import { App } from '$app';
+	import { type SyncEvent, type SyncEventListener } from '$services/sync';
 
 	const app = App.getInstance();
 	const settings = app.settings;

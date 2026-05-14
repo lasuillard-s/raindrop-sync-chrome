@@ -1,8 +1,8 @@
-import { App } from '~/app';
-import { doMigrate } from '~/migrations';
-import type { MigrationContext } from '~/migrations/types';
-import { SYNC_BOOKMARKS_ALARM_NAME } from '~/services/sync';
-import { defaultBrowserProxy } from './lib/browser';
+import { App } from '$app';
+import { doMigrate } from '$migrations';
+import type { MigrationContext } from '$migrations/types';
+import { SYNC_BOOKMARKS_ALARM_NAME } from '$services/sync';
+import { defaultBrowserProxy } from '$lib/browser';
 
 const app = App.getInstance();
 const browserProxy = defaultBrowserProxy;

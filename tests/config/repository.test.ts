@@ -1,6 +1,6 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { BrowserSettingsRepository, DEFAULT_SETTINGS } from '~/config';
-import { defaultBrowserProxy } from '~/lib/browser/proxy';
+import { BrowserSettingsRepository, DEFAULT_SETTINGS } from '$config';
+import { defaultBrowserProxy } from '$lib/browser/proxy';
 
 describe('BrowserSettingsRepository', () => {
 	let repository: BrowserSettingsRepository;

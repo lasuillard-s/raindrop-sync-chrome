@@ -1,5 +1,5 @@
 import { defaultBrowserProxy } from '$lib/browser';
-import { BrowserSettingsRepository, Settings } from '~/config';
+import { BrowserSettingsRepository, Settings } from '$config';
 import { MigrationBase, type MigrationContext } from './types';
 
 export class Migration extends MigrationBase {

@@ -1,4 +1,4 @@
-import { defaultBrowserProxy, type BrowserProxy } from '~/lib/browser';
+import { defaultBrowserProxy, type BrowserProxy } from '$lib/browser';
 import { DEFAULT_SETTINGS, Settings } from './settings';
 
 export abstract class SettingsRepository {

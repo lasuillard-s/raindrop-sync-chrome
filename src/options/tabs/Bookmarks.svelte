@@ -21,10 +21,10 @@
 		CirclePlusSolid,
 		ExclamationCircleSolid
 	} from 'flowbite-svelte-icons';
-	import { App } from '~/app';
-	import PathBreadcrumb from '~/components/PathBreadcrumb.svelte';
-	import Tree from '~/components/Tree.svelte';
-	import type { SyncEvent, SyncEventListener } from '~/services/sync';
+	import { App } from '$app';
+	import PathBreadcrumb from '$components/PathBreadcrumb.svelte';
+	import Tree from '$components/Tree.svelte';
+	import type { SyncEvent, SyncEventListener } from '$services/sync';
 
 	const app = App.getInstance();
 	const settings = app.settings;
