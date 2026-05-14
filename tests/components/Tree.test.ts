@@ -136,6 +136,23 @@ it('should display node title from nodeTitleOverride or treeNode.getName()', () 
 	expect(folder1Node.textContent).toContain('Folder 1');
 });
 
+it('should display recursive descendant counts for folder nodes', () => {
+	// Arrange
+	const { getByTestId } = render(Tree, {
+		props: {
+			treeNode: tree,
+			propagatingDefaults: {
+				collapsed: false
+			}
+		}
+	});
+
+	// Assert
+	expect(getByTestId('/').textContent).toContain('(5)');
+	expect(getByTestId('/Folder 1').textContent).toContain('(3)');
+	expect(getByTestId('/Folder 1/Folder 1-2').textContent).toContain('(1)');
+});
+
 it('should show/hide children with collapse toggle', async () => {
 	// Arrange
 	const user = userEvent.setup();

@@ -32,6 +32,7 @@
 		"src/**/*.svelte",
 		"tests/**/*.ts",
 		"tests/**/*.d.ts",
+		"tests/**/*.svelte",
 		"e2e/**/*.ts",
 		"e2e/**/*.d.ts"
 	],

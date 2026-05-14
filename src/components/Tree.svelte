@@ -19,7 +19,7 @@
 	const isFolder: boolean = $derived(treeNode.isFolder());
 	const href: string | null = $derived(treeNode.url);
 	const nodeTitle: string = $derived(nodeTitleOverride || treeNode.title || '');
-	const childCount: number = $derived(treeNode.children?.length ?? 0);
+	const childCount: number = $derived(treeNode.countDescendants());
 	const pathString: string = $derived(treeNode.getPath().toString());
 
 	const toggleCollapse = () => {

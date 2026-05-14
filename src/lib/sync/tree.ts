@@ -81,6 +81,23 @@ export abstract class TreeNode {
 	}
 
 	/**
+	 * Count all descendant nodes below this node.
+	 * @returns Number of descendants, excluding this node itself.
+	 */
+	countDescendants(): number {
+		if (!this.children?.length) {
+			return 0;
+		}
+
+		let count = 0;
+		for (const child of this.children) {
+			count += 1;
+			count += child.countDescendants();
+		}
+		return count;
+	}
+
+	/**
 	 * Depth-first traversal of the tree, applying the callback to each node.
 	 * @param callback The function to apply to each node. If the callback returns a truthy value, the traversal will stop.
 	 */
