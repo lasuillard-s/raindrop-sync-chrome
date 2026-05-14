@@ -1,4 +1,4 @@
-import { AssertionError, InvalidSearchQueryError, NodeNotFoundError } from '$lib/browser';
+import { AssertionError, InvalidSearchQueryError, NodeNotFoundError } from '$lib/sync';
 import { ChromeBookmarkRepository } from '$lib/sync/providers/chrome';
 import { Path } from '$lib/util/path';
 import { beforeEach, describe, expect, it } from 'vitest';
@@ -104,12 +104,12 @@ describe('createFolderByPath', () => {
 			}),
 			{ createParentsIfNotExists: true }
 		);
-		expect(chrome.bookmarks.create).toHaveBeenCalledTimes(2);
-		expect(chrome.bookmarks.create).toHaveBeenCalledWith({
+		expect(browser.bookmarks.create).toHaveBeenCalledTimes(2);
+		expect(browser.bookmarks.create).toHaveBeenCalledWith({
 			parentId: '1',
 			title: 'New Parent Folder'
 		});
-		expect(chrome.bookmarks.create).toHaveBeenCalledWith({
+		expect(browser.bookmarks.create).toHaveBeenCalledWith({
 			parentId: expect.any(String),
 			title: 'New Folder'
 		});
@@ -124,7 +124,7 @@ describe('createFolderByPath', () => {
 				{ createParentsIfNotExists: false }
 			)
 		).rejects.toThrow(NodeNotFoundError);
-		expect(chrome.bookmarks.create).not.toHaveBeenCalled();
+		expect(browser.bookmarks.create).not.toHaveBeenCalled();
 	});
 });
 
@@ -137,12 +137,12 @@ describe('createBookmarkByPath', () => {
 			{ url: 'https://example.com' },
 			{ createParentsIfNotExists: true }
 		);
-		expect(chrome.bookmarks.create).toHaveBeenCalledTimes(2);
-		expect(chrome.bookmarks.create).toHaveBeenCalledWith({
+		expect(browser.bookmarks.create).toHaveBeenCalledTimes(2);
+		expect(browser.bookmarks.create).toHaveBeenCalledWith({
 			parentId: '1',
 			title: 'New Parent Folder'
 		});
-		expect(chrome.bookmarks.create).toHaveBeenCalledWith({
+		expect(browser.bookmarks.create).toHaveBeenCalledWith({
 			parentId: expect.any(String),
 			title: 'New Bookmark',
 			url: 'https://example.com'
@@ -159,19 +159,19 @@ describe('createBookmarkByPath', () => {
 				{ createParentsIfNotExists: false }
 			)
 		).rejects.toThrow(NodeNotFoundError);
-		expect(chrome.bookmarks.create).not.toHaveBeenCalled();
+		expect(browser.bookmarks.create).not.toHaveBeenCalled();
 	});
 });
 
 describe('delete', () => {
 	it('deletes node when found by id', async () => {
 		await repository.delete('6');
-		expect(chrome.bookmarks.remove).toHaveBeenCalledWith('6');
+		expect(browser.bookmarks.remove).toHaveBeenCalledWith('6');
 	});
 
 	it('deletes folder trees recursively when found by id', async () => {
 		await repository.delete('5');
-		expect(chrome.bookmarks.removeTree).toHaveBeenCalledWith('5');
+		expect(browser.bookmarks.removeTree).toHaveBeenCalledWith('5');
 	});
 
 	it('throws NodeNotFoundError when target does not exist', async () => {
@@ -182,7 +182,7 @@ describe('delete', () => {
 describe('updateFolder', () => {
 	it('updates folder when found by id', async () => {
 		await repository.updateFolder('5', { title: 'Updated Folder' });
-		expect(chrome.bookmarks.update).toHaveBeenCalledWith('5', {
+		expect(browser.bookmarks.update).toHaveBeenCalledWith('5', {
 			title: 'Updated Folder'
 		});
 	});
@@ -200,7 +200,7 @@ describe('updateBookmark', () => {
 			title: 'Updated Title',
 			url: 'https://updated-url.com'
 		});
-		expect(chrome.bookmarks.update).toHaveBeenCalledWith('6', {
+		expect(browser.bookmarks.update).toHaveBeenCalledWith('6', {
 			title: 'Updated Title',
 			url: 'https://updated-url.com'
 		});
@@ -213,20 +213,20 @@ describe('updateBookmark', () => {
 				url: 'https://updated-url.com'
 			})
 		).rejects.toThrow(AssertionError);
-		expect(chrome.bookmarks.update).not.toHaveBeenCalled();
+		expect(browser.bookmarks.update).not.toHaveBeenCalled();
 	});
 });
 
 describe('move', () => {
 	it('moves node to new parent folder', async () => {
 		await repository.move('6', { parentId: '1' });
-		expect(chrome.bookmarks.move).toHaveBeenCalledWith('6', { parentId: '1' });
+		expect(browser.bookmarks.move).toHaveBeenCalledWith('6', { parentId: '1' });
 	});
 
 	it('throws NodeNotFoundError when target node does not exist', async () => {
 		await expect(repository.move('non-existent-id', { parentId: '1' })).rejects.toThrow(
 			NodeNotFoundError
 		);
-		expect(chrome.bookmarks.move).not.toHaveBeenCalled();
+		expect(browser.bookmarks.move).not.toHaveBeenCalled();
 	});
 });

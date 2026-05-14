@@ -23,7 +23,11 @@ export default ts.config(
 	prettier,
 	...svelte.configs.recommended,
 	jsdoc.configs['flat/recommended-typescript'],
-	{ languageOptions: { globals: { ...globals.browser, ...globals.node, chrome: 'readonly' } } },
+	{
+		languageOptions: {
+			globals: { ...globals.browser, ...globals.node, browser: 'readonly' }
+		}
+	},
 	{
 		files: ['**/*.svelte', '**/*.svelte.ts', '**/*.svelte.js'],
 		languageOptions: {

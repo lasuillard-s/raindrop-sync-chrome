@@ -26,7 +26,9 @@
 		"e2e-docker:ui": "./e2e/run.sh test --ui --ui-host 0.0.0.0 --ui-port 8888"
 	},
 	"type": "module",
-	"dependencies": {},
+	"dependencies": {
+		"webextension-polyfill": "^0.12.0"
+	},
 	"devDependencies": {
 		"@codecov/vite-plugin": "1.9.1",
 		"@crxjs/vite-plugin": "2.4.0",
@@ -42,8 +44,10 @@
 		"@testing-library/svelte": "5.3.1",
 		"@testing-library/user-event": "14.6.1",
 		"@tsconfig/svelte": "5.0.8",
-		"@types/chrome": "0.1.40",
+		"@types/firefox-webext-browser": "^143.0.0",
+		"@types/webextension-polyfill": "^0.12.5",
 		"@types/node": "25.6.0",
+		"@types/webextension-polyfill": "^0.12.5",
 		"@vitest/coverage-v8": "4.1.4",
 		"@vitest/ui": "4.1.4",
 		"axios": "1.15.0",

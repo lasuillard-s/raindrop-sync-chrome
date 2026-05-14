@@ -1,5 +1,4 @@
 <script lang="ts">
-	import { defaultBrowserProxy } from '$lib/browser';
 	import { format, formatDistanceToNow } from 'date-fns';
 	import { A, Toggle } from 'flowbite-svelte';
 	import { RefreshOutline } from 'flowbite-svelte-icons';
@@ -84,7 +83,7 @@
 		}
 	};
 
-	const openOptionsPage = () => defaultBrowserProxy.runtime.openOptionsPage();
+	const openOptionsPage = () => browser.runtime.openOptionsPage();
 </script>
 
 <main class="flex w-72 flex-col bg-white">
