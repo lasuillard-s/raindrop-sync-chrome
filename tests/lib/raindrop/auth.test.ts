@@ -14,10 +14,10 @@ describe(launchWebAuthFlow, () => {
 	const rd = new Raindrop();
 
 	beforeEach(() => {
-		vi.mocked(chrome.identity.getRedirectURL).mockReturnValue(
+		vi.mocked(browser.identity.getRedirectURL).mockReturnValue(
 			'https://extension-id.chromiumapp.org/'
 		);
-		vi.mocked(chrome.identity.launchWebAuthFlow).mockImplementation(async () => {
+		vi.mocked(browser.identity.launchWebAuthFlow).mockImplementation(async () => {
 			return 'https://extension-id.chromiumapp.org/?code=authorization-code';
 		});
 	});
@@ -49,8 +49,8 @@ describe(launchWebAuthFlow, () => {
 
 	it('throws an error if `responseURL` not provided', async () => {
 		// Arrange
-		vi.mocked(chrome.identity.launchWebAuthFlow).mockImplementationOnce(async () => {
-			return undefined;
+		vi.mocked(browser.identity.launchWebAuthFlow).mockImplementationOnce(async () => {
+			return undefined as never;
 		});
 
 		// Act + Assert
@@ -64,7 +64,7 @@ describe(launchWebAuthFlow, () => {
 
 	it('throws an error if `code` not provided', async () => {
 		// Arrange
-		vi.mocked(chrome.identity.launchWebAuthFlow).mockImplementationOnce(async () => {
+		vi.mocked(browser.identity.launchWebAuthFlow).mockImplementationOnce(async () => {
 			return 'https://extension-id.chromiumapp.org/?_code=authorization-code';
 		});
 

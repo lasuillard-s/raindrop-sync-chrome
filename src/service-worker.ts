@@ -1,27 +1,26 @@
+import browserPolyfill from 'webextension-polyfill';
 import { App } from '~/app';
 import { doMigrate } from '~/migrations';
 import type { MigrationContext } from '~/migrations/types';
 import { SYNC_BOOKMARKS_ALARM_NAME } from '~/services/sync';
-import { defaultBrowserProxy } from './lib/browser';
+
+globalThis.browser = browserPolyfill as unknown as typeof browser;
 
 const app = App.getInstance();
-const browserProxy = defaultBrowserProxy;
 
-browserProxy.runtime.onInstalledAddListener(async (details) => {
-	const installedReason = browserProxy.runtime.getOnInstalledReason();
-
+browser.runtime.onInstalled.addListener(async (details) => {
 	switch (details.reason) {
-		case installedReason.INSTALL: {
+		case 'install': {
 			console.debug('Extension installed');
 			break;
 		}
-		case installedReason.UPDATE: {
+		case 'update': {
 			console.debug('Extension updated');
 
 			// Run migrations on extension update
 			const context: MigrationContext = {
 				previousVersion: details.previousVersion || '0.0.0',
-				installedVersion: (await browserProxy.management.getSelf()).version
+				installedVersion: (await browser.management.getSelf()).version
 			};
 			await doMigrate(context);
 
@@ -32,7 +31,7 @@ browserProxy.runtime.onInstalledAddListener(async (details) => {
 	await app.sync.scheduleAutoSync();
 });
 
-browserProxy.alarms.onAlarmAddListener(async (alarm) => {
+browser.alarms.onAlarm.addListener(async (alarm) => {
 	console.debug('Alarm fired:', alarm.name);
 	switch (alarm.name) {
 		case SYNC_BOOKMARKS_ALARM_NAME: {

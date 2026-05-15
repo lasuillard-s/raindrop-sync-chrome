@@ -3,9 +3,9 @@ import { normalizeUrl } from '$lib/util/string';
 import { ChromeBookmarkRepository } from './repository';
 
 export class ChromeBookmarkTreeNode extends TreeNode {
-	declare protected readonly raw: chrome.bookmarks.BookmarkTreeNode | null;
+	declare protected readonly raw: browser.bookmarks.BookmarkTreeNode | null;
 
-	get rawData(): chrome.bookmarks.BookmarkTreeNode | null {
+	get rawData(): browser.bookmarks.BookmarkTreeNode | null {
 		return this.raw;
 	}
 
@@ -15,7 +15,7 @@ export class ChromeBookmarkTreeNode extends TreeNode {
 		title: string;
 		url: string | null;
 		type: 'folder' | 'bookmark';
-		raw: chrome.bookmarks.BookmarkTreeNode | null;
+		raw: browser.bookmarks.BookmarkTreeNode | null;
 	}) {
 		super(args);
 	}

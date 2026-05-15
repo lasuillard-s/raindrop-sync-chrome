@@ -1,4 +1,3 @@
-import { defaultBrowserProxy } from '$lib/browser';
 import { BrowserSettingsRepository, Settings } from '~/config';
 import { MigrationBase, type MigrationContext } from './types';
 
@@ -12,7 +11,9 @@ export class Migration extends MigrationBase {
 
 		// Check if new settings key already exists and is valid
 		try {
-			existing = await defaultBrowserProxy.storage.get(BrowserSettingsRepository.STORAGE_KEY);
+			existing = (await browser.storage.sync.get(BrowserSettingsRepository.STORAGE_KEY))[
+				BrowserSettingsRepository.STORAGE_KEY
+			];
 			if (!existing) {
 				console.debug('New settings key does not exist, proceeding with migration');
 				return true;
@@ -56,7 +57,7 @@ export class Migration extends MigrationBase {
 		for (const [key, oldKey] of keysToMigrate) {
 			const oldKeyToUse = oldKey ?? key;
 			console.debug(`Migrating setting "${key}" from old key "${oldKeyToUse}"`);
-			const value = await defaultBrowserProxy.storage.get(oldKeyToUse);
+			const value = (await browser.storage.sync.get(oldKeyToUse))[oldKeyToUse];
 			if (value !== undefined) {
 				try {
 					newObj[key] = JSON.parse(value as string);
@@ -69,7 +70,7 @@ export class Migration extends MigrationBase {
 		}
 		const newSettings = Settings.parse(newObj);
 		const serialized = JSON.stringify(newSettings);
-		await defaultBrowserProxy.storage.set(BrowserSettingsRepository.STORAGE_KEY, serialized);
+		await browser.storage.sync.set({ [BrowserSettingsRepository.STORAGE_KEY]: serialized });
 		console.debug('Migration completed, new settings saved');
 
 		// * Leave old keys in place for now

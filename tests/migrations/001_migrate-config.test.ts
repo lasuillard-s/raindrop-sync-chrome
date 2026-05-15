@@ -1,6 +1,5 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { BrowserSettingsRepository, DEFAULT_SETTINGS } from '~/config';
-import { defaultBrowserProxy } from '~/lib/browser';
 import { Migration } from '~/migrations/001_migrate-config';
 
 let migration: Migration;
@@ -12,9 +11,9 @@ beforeEach(() => {
 describe('shouldMigrate', () => {
 	it('returns false when new settings already exist', async () => {
 		// Arrange
-		vi.spyOn(defaultBrowserProxy.storage, 'get').mockResolvedValue(
-			JSON.stringify(DEFAULT_SETTINGS)
-		);
+		vi.spyOn(browser.storage.sync, 'get').mockResolvedValue({
+			[BrowserSettingsRepository.STORAGE_KEY]: JSON.stringify(DEFAULT_SETTINGS)
+		});
 
 		// Act
 		const shouldMigrate = await migration.shouldMigrate({
@@ -28,7 +27,7 @@ describe('shouldMigrate', () => {
 
 	it('returns true when unified settings do not exist yet', async () => {
 		// Arrange
-		vi.spyOn(defaultBrowserProxy.storage, 'get').mockResolvedValue(undefined);
+		vi.spyOn(browser.storage.sync, 'get').mockResolvedValue({});
 
 		// Act
 		const shouldMigrate = await migration.shouldMigrate({
@@ -42,7 +41,9 @@ describe('shouldMigrate', () => {
 
 	it('returns true when unified settings cannot be parsed', async () => {
 		// Arrange
-		vi.spyOn(defaultBrowserProxy.storage, 'get').mockResolvedValue('not a valid json');
+		vi.spyOn(browser.storage.sync, 'get').mockResolvedValue({
+			[BrowserSettingsRepository.STORAGE_KEY]: 'not a valid json'
+		});
 
 		// Act
 		const shouldMigrate = await migration.shouldMigrate({
@@ -69,10 +70,13 @@ describe('run', () => {
 			autoSyncIntervalInMinutes: '15',
 			autoSyncExecOnStartup: 'true'
 		};
-		vi.spyOn(defaultBrowserProxy.storage, 'get').mockImplementation((key) => {
-			return Promise.resolve(oldSettings[key as keyof typeof oldSettings]);
+		vi.spyOn(browser.storage.sync, 'get').mockImplementation(async (key) => {
+			if (typeof key !== 'string') {
+				return {};
+			}
+			return { [key]: oldSettings[key as keyof typeof oldSettings] };
 		});
-		const mockSet = vi.spyOn(defaultBrowserProxy.storage, 'set');
+		const mockSet = vi.spyOn(browser.storage.sync, 'set');
 
 		// Act
 		await migration.run({
@@ -81,9 +85,8 @@ describe('run', () => {
 		});
 
 		// Assert
-		expect(mockSet).toHaveBeenCalledExactlyOnceWith(
-			BrowserSettingsRepository.STORAGE_KEY,
-			JSON.stringify({
+		expect(mockSet).toHaveBeenCalledExactlyOnceWith({
+			[BrowserSettingsRepository.STORAGE_KEY]: JSON.stringify({
 				clientId: 'client-123',
 				clientSecret: 'secret-raw',
 				accessToken: 'access-token',
@@ -94,6 +97,6 @@ describe('run', () => {
 				autoSyncIntervalInMinutes: 15,
 				autoSyncExecOnStartup: true
 			})
-		);
+		});
 	});
 });
