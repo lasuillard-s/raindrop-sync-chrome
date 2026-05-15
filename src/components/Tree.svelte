@@ -19,6 +19,7 @@
 	const isFolder: boolean = $derived(treeNode.isFolder());
 	const href: string | null = $derived(treeNode.url);
 	const nodeTitle: string = $derived(nodeTitleOverride || treeNode.title || '');
+	const hasChildren: boolean = $derived(treeNode.children ? treeNode.children.length > 0 : false);
 	const descendantCount: number = $derived(treeNode.countDescendants());
 	const pathString: string = $derived(treeNode.getPath().toString());
 
@@ -36,7 +37,7 @@
 <div class="leading-relaxed" data-testid={pathString}>
 	{#if isFolder}
 		<div class="inline-flex items-center gap-1.5">
-			{#if descendantCount > 0}
+			{#if hasChildren}
 				<button
 					type="button"
 					onclick={toggleCollapse}
@@ -71,7 +72,7 @@
 			>
 		</div>
 	{/if}
-	{#if descendantCount > 0 && !collapsed}
+	{#if hasChildren && !collapsed}
 		<div class="mt-0.5 ml-6">
 			{#each treeNode.children ?? [] as child (child.id)}
 				<Self treeNode={child} {propagatingDefaults} />
