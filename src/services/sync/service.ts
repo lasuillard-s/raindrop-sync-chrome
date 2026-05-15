@@ -132,7 +132,7 @@ export class SyncService {
 		syncFolder = syncFolder as NeutralTreeNode;
 
 		// In-place update the sync folder node in the desired state tree with the
-		syncFolder.children?.splice(0, syncFolder.children.length);
+		syncFolder.clearChildren();
 		sourceTree.children?.forEach((child) => {
 			syncFolder!.addChild(NeutralTreeNode.cloneFrom(child));
 		});
