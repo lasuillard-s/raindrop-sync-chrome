@@ -17,14 +17,14 @@ repos:
         name: prettier
         language: system
         types_or: [javascript, ts, svelte, json, yaml]
-        entry: yarn run prettier
+        entry: yarn exec -- prettier
         args: [--write]
 
       - id: eslint
         name: eslint
         language: system
         types_or: [javascript, ts, svelte]
-        entry: yarn run eslint
+        entry: yarn exec -- eslint
         args: [--fix]
 
       - id: typescript
@@ -32,7 +32,7 @@ repos:
         language: system
         types_or: [javascript, ts, svelte]
         pass_filenames: false
-        entry: yarn run tsc
+        entry: yarn exec -- tsc
         args: [--noEmit]
 
       - id: vitest
