@@ -53,6 +53,72 @@ describe('TreeNode', () => {
 		expect(() => bookmark.addChild(child)).toThrow(new BookmarkIsNotAFolderError(bookmark.id));
 	});
 
+	it('computes descendant bookmark counts and updates them correctly after adding children', () => {
+		// Tree structure:
+		// Root (1)
+		// └── Folder (1)
+		//     └── Bookmark
+		const root = new TestTreeNode({ id: '0', title: '', type: 'folder' });
+		const folder = new TestTreeNode({ id: '1', title: 'Folder', type: 'folder', parent: root });
+		const bookmark = new TestTreeNode({
+			id: '2',
+			title: 'Bookmark',
+			type: 'bookmark',
+			url: 'https://example.com',
+			parent: folder
+		});
+
+		expect(bookmark.countDescendants()).toBe(0);
+		expect(folder.countDescendants()).toBe(1);
+		expect(root.countDescendants()).toBe(1);
+
+		// Add another bookmark under the Folder, now structure is:
+		// Root (2)
+		// └── Folder (2)
+		//     ├── Bookmark
+		//     └── Bookmark 2
+		new TestTreeNode({
+			id: '3',
+			title: 'Bookmark 2',
+			type: 'bookmark',
+			url: 'https://example.org',
+			parent: folder
+		});
+
+		expect(folder.countDescendants()).toBe(2);
+		expect(root.countDescendants()).toBe(2);
+	});
+
+	it('clears children and invalidates cached descendant counts', () => {
+		// Tree structure:
+		// Root (1)
+		// └── Folder (1)
+		//     └── Bookmark
+		const root = new TestTreeNode({ id: '0', title: '', type: 'folder' });
+		const folder = new TestTreeNode({ id: '1', title: 'Folder', type: 'folder', parent: root });
+		const bookmark = new TestTreeNode({
+			id: '2',
+			title: 'Bookmark',
+			type: 'bookmark',
+			url: 'https://example.com',
+			parent: folder
+		});
+
+		expect(root.countDescendants()).toBe(1);
+		expect(folder.countDescendants()).toBe(1);
+
+		// Clear children of the folder, which should also update descendant counts
+		// After this, the structure is:
+		// Root (0)
+		// └── Folder (0)
+		folder.clearChildren();
+
+		expect(folder.children).toHaveLength(0);
+		expect(bookmark.getPath().toString()).toBe('/Bookmark');
+		expect(folder.countDescendants()).toBe(0);
+		expect(root.countDescendants()).toBe(0);
+	});
+
 	it('traverses nodes in depth-first order', () => {
 		// Tree structure:
 		// Root

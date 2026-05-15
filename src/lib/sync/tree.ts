@@ -9,7 +9,8 @@ export abstract class TreeNode {
 	readonly type: 'folder' | 'bookmark';
 	protected readonly raw: unknown;
 	protected parent: TreeNode | null;
-	readonly children?: TreeNode[];
+	private readonly childNodes?: TreeNode[];
+	private descendantCountCache: number | null = null;
 
 	constructor(args: {
 		id: string;
@@ -25,10 +26,14 @@ export abstract class TreeNode {
 		this.type = args.type;
 		this.raw = args.raw;
 		this.parent = null;
-		this.children = this.isFolder() ? [] : undefined;
+		this.childNodes = this.isFolder() ? [] : undefined;
 		if (args.parent) {
 			args.parent.addChild(this);
 		}
+	}
+
+	get children(): readonly TreeNode[] | undefined {
+		return this.childNodes;
 	}
 
 	/**
@@ -76,8 +81,60 @@ export abstract class TreeNode {
 		if (this.type !== 'folder') {
 			throw new BookmarkIsNotAFolderError(this.id);
 		}
-		this.children!.push(child);
+		this.childNodes!.push(child);
 		child.parent = this;
+		this.invalidateDescendantCountCache();
+	}
+
+	/**
+	 * Remove all child nodes from this folder.
+	 */
+	clearChildren(): void {
+		if (this.type !== 'folder') {
+			throw new BookmarkIsNotAFolderError(this.id);
+		}
+		if (!this.childNodes?.length) {
+			return;
+		}
+		for (const child of this.childNodes) {
+			child.parent = null;
+		}
+		this.childNodes.splice(0, this.childNodes.length);
+		this.invalidateDescendantCountCache();
+	}
+
+	/**
+	 * Count all descendant bookmark nodes below this node.
+	 * @returns Number of descendants, excluding this node itself.
+	 */
+	countDescendants(): number {
+		if (this.descendantCountCache !== null) {
+			return this.descendantCountCache;
+		}
+
+		const children = this.childNodes;
+		if (!children?.length) {
+			this.descendantCountCache = 0;
+		} else {
+			let count = 0;
+			for (const child of children) {
+				if (child.type === 'bookmark') {
+					count += 1;
+				}
+				count += child.countDescendants();
+			}
+			this.descendantCountCache = count;
+		}
+
+		return this.descendantCountCache;
+	}
+
+	private invalidateDescendantCountCache(): void {
+		if (this.descendantCountCache === null) {
+			return;
+		}
+		this.descendantCountCache = null;
+		this.parent?.invalidateDescendantCountCache();
 	}
 
 	/**

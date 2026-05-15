@@ -1,16 +1,16 @@
 // @vitest-environment happy-dom
+import Tree from '$components/Tree.svelte';
 import { TestTreeNode } from '$test-helpers/tree';
 import { render } from '@testing-library/svelte';
 import userEvent from '@testing-library/user-event';
 import { beforeEach, expect, it } from 'vitest';
-import Tree from '$components/Tree.svelte';
 
 let tree: TestTreeNode;
 
 beforeEach(() => {
 	/* Example data structure:
 
-    Root (2)
+    Root (3)
     ├── Folder 1 (2)
     │   ├── Bookmark 1-1
     │   └── Folder 1-2 (1)
@@ -134,6 +134,23 @@ it('should display node title from nodeTitleOverride or treeNode.getName()', () 
 	const folder1Node = getByTestId('/Folder 1');
 	expect(folder1Node.textContent).not.toContain('Custom Root Title');
 	expect(folder1Node.textContent).toContain('Folder 1');
+});
+
+it('should display recursive descendant bookmark counts for folder nodes', () => {
+	// Arrange
+	const { getByTestId } = render(Tree, {
+		props: {
+			treeNode: tree,
+			propagatingDefaults: {
+				collapsed: false
+			}
+		}
+	});
+
+	// Assert
+	expect(getByTestId('/').textContent).toContain('(3)');
+	expect(getByTestId('/Folder 1').textContent).toContain('(2)');
+	expect(getByTestId('/Folder 1/Folder 1-2').textContent).toContain('(1)');
 });
 
 it('should show/hide children with collapse toggle', async () => {
