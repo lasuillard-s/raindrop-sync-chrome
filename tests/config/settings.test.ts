@@ -1,5 +1,5 @@
 import { expect, it } from 'vitest';
-import { Settings } from '~/config';
+import { Settings } from '$config';
 
 it('defaults', () => {
 	expect(Settings.parse({})).toEqual({

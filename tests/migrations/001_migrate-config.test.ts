@@ -1,6 +1,6 @@
+import { BrowserSettingsRepository, DEFAULT_SETTINGS } from '$config';
+import { Migration } from '$migrations/001_migrate-config';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { BrowserSettingsRepository, DEFAULT_SETTINGS } from '~/config';
-import { Migration } from '~/migrations/001_migrate-config';
 
 let migration: Migration;
 

@@ -13,8 +13,16 @@
 		"module": "ESNext",
 		"moduleResolution": "Bundler",
 		"paths": {
-			"~/*": ["./src/*"],
 			"^/*": ["./*"],
+			"$app": ["./src/app.ts"],
+			"$app.css": ["./src/app.css"],
+			"$assets/*": ["./src/assets/*"],
+			"$components/*": ["./src/components/*"],
+			"$config": ["./src/config/index.ts"],
+			"$config/*": ["./src/config/*"],
+			"$migrations": ["./src/migrations/index.ts"],
+			"$migrations/*": ["./src/migrations/*"],
+			"$services/*": ["./src/services/*"],
 			"$lib/*": ["./src/lib/*"],
 			"$fixtures/*": ["./tests/fixtures/*"],
 			"$test-helpers/*": ["./tests/helpers/*"]

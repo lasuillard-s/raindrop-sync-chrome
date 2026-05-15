@@ -1,7 +1,7 @@
 import { ChromeAdapter } from '$lib/sync/providers/chrome';
 import { RaindropAdapter } from '$lib/sync/providers/raindrop';
-import { SettingsStore } from '~/config';
-import { SyncService } from '~/services/sync';
+import { SettingsStore } from '$config';
+import { SyncService } from '$services/sync';
 
 /**
  * Main application class that composes services and provides access to global state.

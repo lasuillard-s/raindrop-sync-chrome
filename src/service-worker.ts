@@ -1,8 +1,8 @@
+import { App } from '$app';
+import { doMigrate } from '$migrations';
+import type { MigrationContext } from '$migrations/types';
+import { SYNC_BOOKMARKS_ALARM_NAME } from '$services/sync';
 import browserPolyfill from 'webextension-polyfill';
-import { App } from '~/app';
-import { doMigrate } from '~/migrations';
-import type { MigrationContext } from '~/migrations/types';
-import { SYNC_BOOKMARKS_ALARM_NAME } from '~/services/sync';
 
 globalThis.browser = browserPolyfill as unknown as typeof browser;
 

@@ -1,6 +1,6 @@
 import browserPolyfill from 'webextension-polyfill';
 import { mount } from 'svelte';
-import '~/app.css';
+import '$app.css';
 import App from './App.svelte';
 
 globalThis.browser = browserPolyfill as unknown as typeof browser;

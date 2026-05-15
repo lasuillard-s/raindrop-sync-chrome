@@ -41,7 +41,13 @@ export default defineConfig(({ mode }) => {
 		resolve: {
 			conditions: mode === 'test' ? ['browser'] : undefined,
 			alias: [
-				{ find: '~', replacement: path.resolve(__dirname, 'src') },
+				{ find: '$app.css', replacement: path.resolve(__dirname, 'src/app.css') },
+				{ find: '$app', replacement: path.resolve(__dirname, 'src/app.ts') },
+				{ find: '$assets', replacement: path.resolve(__dirname, 'src/assets') },
+				{ find: '$components', replacement: path.resolve(__dirname, 'src/components') },
+				{ find: '$config', replacement: path.resolve(__dirname, 'src/config') },
+				{ find: '$migrations', replacement: path.resolve(__dirname, 'src/migrations') },
+				{ find: '$services', replacement: path.resolve(__dirname, 'src/services') },
 				{ find: '$lib', replacement: path.resolve(__dirname, 'src/lib') },
 				{ find: '$fixtures', replacement: path.resolve(__dirname, 'tests/fixtures') },
 				{ find: '$test-helpers', replacement: path.resolve(__dirname, 'tests/helpers') }

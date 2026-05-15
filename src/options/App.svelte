@@ -7,8 +7,8 @@
 		QuestionCircleOutline,
 		SearchOutline
 	} from 'flowbite-svelte-icons';
-	import '~/app.css';
-	import Message from '~/components/Message.svelte';
+	import '$app.css';
+	import Message from '$components/Message.svelte';
 	import About from './tabs/About.svelte';
 	import Bookmarks from './tabs/Bookmarks.svelte';
 	import Integration from './tabs/Integration.svelte';
