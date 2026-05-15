@@ -1,4 +1,3 @@
-import { defaultBrowserProxy } from '$lib/browser';
 import type { ReadableAdapter, SyncPlan, SyncReport, WritableAdapter } from '$lib/sync';
 import { SyncDiffAnalyzer, SyncExecutor, SyncPlanner, SyncPlanOptimizer } from '$lib/sync';
 import { NeutralTreeNode, type TreeNode } from '$lib/sync/tree';
@@ -250,7 +249,7 @@ export class SyncService {
 	 */
 	async scheduleAutoSync(): Promise<void> {
 		const settingsSnapshot = await this.appSettings.snapshotReady();
-		await defaultBrowserProxy.alarms.clearAll();
+		await browser.alarms.clearAll();
 
 		if (!settingsSnapshot.autoSyncEnabled) {
 			return;
@@ -260,7 +259,7 @@ export class SyncService {
 			? 0
 			: settingsSnapshot.autoSyncIntervalInMinutes;
 
-		await defaultBrowserProxy.alarms.create(SYNC_BOOKMARKS_ALARM_NAME, {
+		await browser.alarms.create(SYNC_BOOKMARKS_ALARM_NAME, {
 			delayInMinutes,
 			periodInMinutes: settingsSnapshot.autoSyncIntervalInMinutes
 		});

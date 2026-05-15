@@ -9,7 +9,7 @@ export class AppSettingsFixture {
 
 	async get(): Promise<AppSettings | null> {
 		return await this.serviceWorker.evaluate(async (storageKey) => {
-			const stored = await chrome.storage.sync.get(storageKey);
+			const stored = await browser.storage.sync.get(storageKey);
 			const raw = stored[storageKey];
 			if (raw === undefined) {
 				return null;
@@ -24,7 +24,7 @@ export class AppSettingsFixture {
 	async set(patch: AppSettings): Promise<void> {
 		await this.serviceWorker.evaluate(
 			async ({ storageKey, nextPatch }) => {
-				const stored = await chrome.storage.sync.get(storageKey);
+				const stored = await browser.storage.sync.get(storageKey);
 				const currentRaw = stored[storageKey];
 				const current =
 					typeof currentRaw === 'string'
@@ -34,7 +34,7 @@ export class AppSettingsFixture {
 					...current,
 					...nextPatch
 				};
-				await chrome.storage.sync.set({
+				await browser.storage.sync.set({
 					[storageKey]: JSON.stringify(merged)
 				});
 			},
@@ -44,7 +44,7 @@ export class AppSettingsFixture {
 
 	async clear(): Promise<void> {
 		await this.serviceWorker.evaluate(async (storageKey) => {
-			await chrome.storage.sync.remove(storageKey);
+			await browser.storage.sync.remove(storageKey);
 		}, APP_SETTINGS_STORAGE_KEY);
 	}
 }

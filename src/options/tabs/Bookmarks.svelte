@@ -1,5 +1,4 @@
 <script lang="ts">
-	import { defaultBrowserProxy } from '$lib/browser';
 	import { putMessage } from '$lib/messages';
 	import { SyncDiff, SyncDiffAnalyzer, SyncPlan, SyncPlanner } from '$lib/sync';
 	import { ChromeAdapter, type ChromeBookmarkTreeNode } from '$lib/sync/providers/chrome';
@@ -181,7 +180,7 @@
 		void (async () => {
 			// Load bookmark folders for sync location selection.
 			await settings.init();
-			const bookmarksTree = (await defaultBrowserProxy.bookmarks.getTree()) || [];
+			const bookmarksTree = (await browser.bookmarks.getTree()) || [];
 			if (!bookmarksTree[0]?.children) {
 				putMessage({ type: 'error', message: 'No bookmark folders found.' });
 				console.error('No bookmark folders found.');
@@ -189,7 +188,7 @@
 			}
 
 			const folders: { id: string; title: string; depth: number }[] = [];
-			const dfs = (arr: chrome.bookmarks.BookmarkTreeNode[], depth: number = 0) => {
+			const dfs = (arr: browser.bookmarks.BookmarkTreeNode[], depth: number = 0) => {
 				for (const node of arr) {
 					if (depth != 0 /* Ignore virtual root */ && node.url === undefined) {
 						folders.push({ id: node.id, title: node.title, depth });

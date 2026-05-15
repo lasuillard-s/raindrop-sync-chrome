@@ -3,9 +3,9 @@ import type { Worker } from '@playwright/test';
 export class BookmarkFixture {
 	constructor(private readonly serviceWorker: Worker) {}
 
-	async getTree(): Promise<chrome.bookmarks.BookmarkTreeNode[]> {
+	async getTree(): Promise<browser.bookmarks.BookmarkTreeNode[]> {
 		return await this.serviceWorker.evaluate(async () => {
-			return await chrome.bookmarks.getTree();
+			return await browser.bookmarks.getTree();
 		});
 	}
 
@@ -23,11 +23,11 @@ export class BookmarkFixture {
 	 */
 	async getTreeRepr(): Promise<string> {
 		return await this.serviceWorker.evaluate(async () => {
-			const [root] = await chrome.bookmarks.getTree();
+			const [root] = await browser.bookmarks.getTree();
 
 			// DFS to flatten the tree structure
 			let result = '';
-			const dfs = (node: chrome.bookmarks.BookmarkTreeNode, depth: number) => {
+			const dfs = (node: browser.bookmarks.BookmarkTreeNode, depth: number) => {
 				result += `${'  '.repeat(depth)}${node.title}`;
 				if (node.url) {
 					result += ` (${node.url})`;
@@ -50,20 +50,20 @@ export class BookmarkFixture {
 
 	async removeTree(id: string): Promise<void> {
 		await this.serviceWorker.evaluate(async (nodeId) => {
-			await chrome.bookmarks.removeTree(nodeId);
+			await browser.bookmarks.removeTree(nodeId);
 		}, id);
 	}
 
 	async clearAllBookmarks(): Promise<void> {
 		await this.serviceWorker.evaluate(async () => {
-			const [root] = await chrome.bookmarks.getTree();
+			const [root] = await browser.bookmarks.getTree();
 			const rootFolders = root?.children ?? [];
 			for (const folder of rootFolders) {
 				for (const child of folder.children ?? []) {
 					if (child.url === undefined) {
-						await chrome.bookmarks.removeTree(child.id);
+						await browser.bookmarks.removeTree(child.id);
 					} else {
-						await chrome.bookmarks.remove(child.id);
+						await browser.bookmarks.remove(child.id);
 					}
 				}
 			}
@@ -74,9 +74,9 @@ export class BookmarkFixture {
 		title: string;
 		url: string;
 		parentId?: string;
-	}): Promise<chrome.bookmarks.BookmarkTreeNode> {
+	}): Promise<browser.bookmarks.BookmarkTreeNode> {
 		return await this.serviceWorker.evaluate(async (createArgs) => {
-			return await chrome.bookmarks.create({
+			return await browser.bookmarks.create({
 				title: createArgs.title,
 				url: createArgs.url,
 				parentId: createArgs.parentId
@@ -88,7 +88,7 @@ export class BookmarkFixture {
 		title: string
 	): Promise<{ id: string; title: string; url: string; parentId: string | null } | null> {
 		return await this.serviceWorker.evaluate(async (bookmarkTitle) => {
-			const [root] = await chrome.bookmarks.getTree();
+			const [root] = await browser.bookmarks.getTree();
 			const queue = [...(root?.children ?? [])];
 			while (queue.length > 0) {
 				const node = queue.shift()!;
@@ -109,9 +109,9 @@ export class BookmarkFixture {
 	async createFolder(args: {
 		title: string;
 		parentId?: string;
-	}): Promise<chrome.bookmarks.BookmarkTreeNode> {
+	}): Promise<browser.bookmarks.BookmarkTreeNode> {
 		return await this.serviceWorker.evaluate(async (createArgs) => {
-			return await chrome.bookmarks.create({
+			return await browser.bookmarks.create({
 				title: createArgs.title,
 				parentId: createArgs.parentId
 			});
@@ -122,7 +122,7 @@ export class BookmarkFixture {
 		title: string
 	): Promise<{ id: string; title: string; parentId: string | null } | null> {
 		return await this.serviceWorker.evaluate(async (folderTitle) => {
-			const [root] = await chrome.bookmarks.getTree();
+			const [root] = await browser.bookmarks.getTree();
 			const queue = [...(root?.children ?? [])];
 			while (queue.length > 0) {
 				const node = queue.shift()!;

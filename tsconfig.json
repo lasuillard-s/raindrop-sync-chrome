@@ -30,7 +30,7 @@
 		"isolatedModules": true,
 		"useDefineForClassFields": true,
 		"allowSyntheticDefaultImports": true,
-		"types": ["vitest/importMeta", "@types/chrome"]
+		"types": ["vitest/importMeta", "@types/firefox-webext-browser", "@types/webextension-polyfill"]
 	},
 	"include": [
 		"vite.config.ts",

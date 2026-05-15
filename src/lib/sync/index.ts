@@ -14,7 +14,12 @@ export {
 } from './action';
 export { ReadableAdapter, WritableAdapter } from './adapter';
 export { SyncDiff, SyncDiffAnalyzer } from './diff';
-export { BookmarkIsNotAFolderError } from './errors';
+export {
+	AssertionError,
+	BookmarkIsNotAFolderError,
+	InvalidSearchQueryError,
+	NodeNotFoundError
+} from './errors';
 export { SyncExecutor, SyncReport } from './executor';
 export { SyncPlan, SyncPlanner, SyncPlanOptimizer } from './plan';
 export { TreeNode } from './tree';
