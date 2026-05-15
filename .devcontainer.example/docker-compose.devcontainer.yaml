@@ -4,7 +4,7 @@ services:
       context: .
       dockerfile: ./Dockerfile
     volumes:
-      - google-chrome:/home/node/.config/google-chrome/Default
+      - google-chrome:/home/node/.config/google-chrome-for-testing
     environment:
       CONTAINER: 1
       DISPLAY: ${DISPLAY:-novnc:0.0}
