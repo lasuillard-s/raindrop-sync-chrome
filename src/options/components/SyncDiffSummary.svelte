@@ -32,7 +32,7 @@
 				{/snippet}
 				{#if diff.onlyInLeft.length > 0}
 					<div class="max-h-75 space-y-2 overflow-y-auto">
-						{#each diff.onlyInLeft as node (node.getPath().toString())}
+						{#each diff.onlyInLeft as node (node.getHash())}
 							<PathBreadcrumb pathSegments={node.getPath().getSegments()} />
 						{/each}
 					</div>
@@ -59,7 +59,7 @@
 				{/snippet}
 				{#if diff.onlyInRight.length > 0}
 					<div class="max-h-75 space-y-2 overflow-y-auto">
-						{#each diff.onlyInRight as node (node.getPath().toString())}
+						{#each diff.onlyInRight as node (node.getHash())}
 							<PathBreadcrumb pathSegments={node.getPath().getSegments()} />
 						{/each}
 					</div>
@@ -86,7 +86,7 @@
 				{/snippet}
 				{#if diff.inBothButDifferent.length > 0}
 					<div class="max-h-75 space-y-2 overflow-y-auto">
-						{#each diff.inBothButDifferent as pair (pair.left.getPath().toString())}
+						{#each diff.inBothButDifferent as pair (`${pair.left.getHash()}:${pair.right.getHash()}`)}
 							<PathBreadcrumb pathSegments={pair.left.getPath().getSegments()} />
 						{/each}
 					</div>
@@ -113,7 +113,7 @@
 				{/snippet}
 				{#if diff.unchanged.length > 0}
 					<div class="max-h-75 space-y-2 overflow-y-auto">
-						{#each diff.unchanged as pair (pair.left.getPath().toString())}
+						{#each diff.unchanged as pair (`${pair.left.getHash()}:${pair.right.getHash()}`)}
 							<PathBreadcrumb pathSegments={pair.left.getPath().getSegments()} />
 						{/each}
 					</div>

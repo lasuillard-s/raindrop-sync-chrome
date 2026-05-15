@@ -9,6 +9,7 @@
 	import type { SyncEvent, SyncEventListener } from '$services/sync';
 	import { Button, Heading, P, Radio, Spinner, Toggle } from 'flowbite-svelte';
 	import { ArrowDownOutline } from 'flowbite-svelte-icons';
+	import { onMount } from 'svelte';
 	import SyncDiffSummary from '../components/SyncDiffSummary.svelte';
 
 	const app = App.getInstance();
@@ -97,6 +98,8 @@
 	function calculateStates() {
 		try {
 			isCalculatingStates = true;
+			currentState = null;
+			desiredState = null;
 			if (!sourceTree || !targetTree) {
 				throw new Error('Must fetch both source and target trees before constructing states.');
 			}
@@ -106,8 +109,6 @@
 				sourceTree,
 				syncLocationId
 			});
-			diff = null;
-			plan = null;
 		} catch (err) {
 			putMessage({ type: 'error', message: `Failed to calculate preview states: ${err}` });
 		} finally {
@@ -147,8 +148,8 @@
 	}
 
 	const runSync = async () => {
-		isSyncing = true;
 		try {
+			isSyncing = true;
 			await makeSourceTree({ skipIfExists: true });
 			await makeTargetTree({ skipIfExists: true });
 			calculateStates();
@@ -182,7 +183,7 @@
 		putMessage({ type: 'success', message: 'Sync settings saved.' });
 	};
 
-	$effect(() => {
+	onMount(() => {
 		const listener = new SyncEventListenerImpl();
 		app.sync.addEventListener(listener);
 
