@@ -19,7 +19,7 @@ help: Makefile  ## Show this help message
 # =============================================================================
 install:  ## Install deps and tools
 	yarn install
-	yarn run playwright install --with-deps
+	yarn exec -- playwright install --with-deps chromium
 .PHONY: install
 
 init:  ## Initialize the project workspace
@@ -33,21 +33,23 @@ update:  ## Update deps and tools
 
 # Note, --user-data-dir flag is required for debugger to work properly
 # https://stackoverflow.com/questions/56326924/debugging-a-chrome-instance-with-remote-debugging-port-flag
-browser:  ## Launch browser with extensions loaded
-	google-chrome \
+browser:  ## Launch Chrome for Testing with extension loaded
+	cft_path="$$(node --eval 'const { chromium } = require("playwright"); console.log(chromium.executablePath());')"
+	"$$cft_path" \
 		--no-first-run \
 		--disable-gpu \
-		--load-extension="${PWD}/dist" \
+		--load-extension="$(CURDIR)/dist" \
+		--disable-extensions-except="$(CURDIR)/dist" \
 		--no-sandbox \
 		--remote-debugging-port=9222 \
-		--user-data-dir=./chrome-dev-profile \
+		--user-data-dir="$(CURDIR)/chrome-dev-profile" \
 		--enable-logging \
 		--v=1 \
-		--log-file=./chrome.log
+		--log-file="$(CURDIR)/chrome.log"
 .PHONY: browser
 
 run:  ## Run browser with development server
-	yarn run concurrently \
+	yarn exec -- concurrently \
 		--kill-others \
 		--kill-signal SIGKILL \
 		--raw \
