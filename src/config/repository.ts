@@ -1,4 +1,3 @@
-import { defaultBrowserProxy, type BrowserProxy } from '~/lib/browser';
 import { DEFAULT_SETTINGS, Settings } from './settings';
 
 export abstract class SettingsRepository {
@@ -10,16 +9,11 @@ export abstract class SettingsRepository {
 export class BrowserSettingsRepository extends SettingsRepository {
 	static readonly STORAGE_KEY = 'appSettings';
 
-	protected browserProxy: BrowserProxy;
-
-	constructor(browserProxy?: BrowserProxy) {
-		super();
-		this.browserProxy = browserProxy ?? defaultBrowserProxy;
-	}
-
 	async load(): Promise<Settings> {
 		try {
-			const stored = await this.browserProxy.storage.get(BrowserSettingsRepository.STORAGE_KEY);
+			const stored = (await browser.storage.sync.get(BrowserSettingsRepository.STORAGE_KEY))[
+				BrowserSettingsRepository.STORAGE_KEY
+			];
 			if (!stored) {
 				console.debug('No settings found in storage, using default settings');
 				return DEFAULT_SETTINGS;
@@ -35,7 +29,7 @@ export class BrowserSettingsRepository extends SettingsRepository {
 	async save(settings: Settings): Promise<void> {
 		try {
 			const serialized = JSON.stringify(settings);
-			await this.browserProxy.storage.set(BrowserSettingsRepository.STORAGE_KEY, serialized);
+			await browser.storage.sync.set({ [BrowserSettingsRepository.STORAGE_KEY]: serialized });
 			console.debug('Settings saved to storage successfully');
 		} catch (err) {
 			console.error('Failed to save settings:', err);
@@ -45,7 +39,7 @@ export class BrowserSettingsRepository extends SettingsRepository {
 
 	async clear(): Promise<void> {
 		try {
-			await this.browserProxy.storage.remove(BrowserSettingsRepository.STORAGE_KEY);
+			await browser.storage.sync.remove(BrowserSettingsRepository.STORAGE_KEY);
 			console.debug('Settings cleared from storage successfully');
 		} catch (err) {
 			console.error('Failed to clear settings from storage:', err);

@@ -1,4 +1,6 @@
 <script lang="ts">
+	import '$app.css';
+	import Message from '$components/Message.svelte';
 	import { messageBox } from '$lib/messages';
 	import { TabItem, Tabs } from 'flowbite-svelte';
 	import {
@@ -8,8 +10,6 @@
 		SearchOutline
 	} from 'flowbite-svelte-icons';
 	import { onMount } from 'svelte';
-	import '~/app.css';
-	import Message from '~/components/Message.svelte';
 	import About from './tabs/About.svelte';
 	import Bookmarks from './tabs/Bookmarks.svelte';
 	import { OptionsTab, optionTabKeys } from './tabs/enums';

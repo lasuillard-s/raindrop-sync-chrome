@@ -1,4 +1,5 @@
 <script lang="ts">
+	import PathBreadcrumb from '$components/PathBreadcrumb.svelte';
 	import type { SyncDiff } from '$lib/sync';
 	import { Accordion, AccordionItem, P } from 'flowbite-svelte';
 	import {
@@ -7,7 +8,6 @@
 		CirclePlusSolid,
 		ExclamationCircleSolid
 	} from 'flowbite-svelte-icons';
-	import PathBreadcrumb from '~/components/PathBreadcrumb.svelte';
 
 	interface Props {
 		diff: SyncDiff;

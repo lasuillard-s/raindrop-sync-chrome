@@ -22,7 +22,7 @@ vi.mock(
 	async () => await import('./__mocks__/options/StubTab.svelte')
 );
 
-import App from '~/options/App.svelte';
+import App from '../../src/options/App.svelte';
 
 beforeEach(() => {
 	window.location.hash = '';

@@ -1,4 +1,4 @@
-import { errorToString } from '~/lib/util/string';
+import { errorToString } from '$lib/util/string';
 
 export interface SyncEventListener {
 	onEvent(event: SyncEvent): void;

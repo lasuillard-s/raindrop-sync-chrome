@@ -3,7 +3,7 @@ import { TestTreeNode } from '$test-helpers/tree';
 import { render } from '@testing-library/svelte';
 import userEvent from '@testing-library/user-event';
 import { beforeEach, expect, it } from 'vitest';
-import Tree from '~/components/Tree.svelte';
+import Tree from '$components/Tree.svelte';
 
 let tree: TestTreeNode;
 

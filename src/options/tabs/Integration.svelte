@@ -1,20 +1,19 @@
 <script lang="ts">
-	import { defaultBrowserProxy } from '$lib/browser';
 	import { putMessage } from '$lib/messages';
 	import { launchWebAuthFlow as _launchWebAuthFlow } from '$lib/raindrop/auth';
 	import { Accordion, AccordionItem, Button, Heading, P } from 'flowbite-svelte';
 	import { onMount } from 'svelte';
-	import { App } from '~/app';
-	import imgCNA1 from '~/assets/raindrop-create-new-app-1.png';
-	import imgCNA2 from '~/assets/raindrop-create-new-app-2.png';
-	import SecretInput from '~/components/SecretInput.svelte';
+	import { App } from '$app';
+	import imgCNA1 from '$assets/raindrop-create-new-app-1.png';
+	import imgCNA2 from '$assets/raindrop-create-new-app-2.png';
+	import SecretInput from '$components/SecretInput.svelte';
 
 	const app = App.getInstance();
 	const settings = app.settings;
 	const settingsSnapshot = settings.snapshot;
 
-	const extensionId = defaultBrowserProxy.runtime.getId();
-	const extensionDescription = defaultBrowserProxy.runtime.getManifest().description;
+	const extensionId = browser.runtime.id;
+	const extensionDescription = browser.runtime.getManifest().description ?? '';
 
 	// Create reactive bindings from unified settings store
 	let clientId = $state(settingsSnapshot.clientId);

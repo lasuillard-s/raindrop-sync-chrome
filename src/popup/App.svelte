@@ -1,11 +1,10 @@
 <script lang="ts">
-	import { defaultBrowserProxy } from '$lib/browser';
 	import { format, formatDistanceToNow } from 'date-fns';
 	import { A, Toggle } from 'flowbite-svelte';
 	import { RefreshOutline } from 'flowbite-svelte-icons';
 	import { onMount } from 'svelte';
-	import { App } from '~/app';
-	import { type SyncEvent, type SyncEventListener } from '~/services/sync';
+	import { App } from '$app';
+	import { type SyncEvent, type SyncEventListener } from '$services/sync';
 
 	const app = App.getInstance();
 	const settings = app.settings;
@@ -84,7 +83,7 @@
 		}
 	};
 
-	const openOptionsPage = () => defaultBrowserProxy.runtime.openOptionsPage();
+	const openOptionsPage = () => browser.runtime.openOptionsPage();
 </script>
 
 <main class="flex w-72 flex-col bg-white">

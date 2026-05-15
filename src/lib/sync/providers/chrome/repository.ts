@@ -1,14 +1,7 @@
-import {
-	AssertionError,
-	defaultBrowserProxy,
-	InvalidSearchQueryError,
-	NodeNotFoundError,
-	type BookmarkService,
-	type BrowserProxy
-} from '$lib/browser';
+import { AssertionError, InvalidSearchQueryError, NodeNotFoundError } from '$lib/sync';
 import { Path } from '$lib/util/path';
 
-type NodeType = chrome.bookmarks.BookmarkTreeNode;
+type NodeType = browser.bookmarks.BookmarkTreeNode;
 
 export type SearchQuery = {
 	id?: string;
@@ -16,17 +9,11 @@ export type SearchQuery = {
 };
 
 export class ChromeBookmarkRepository {
-	protected readonly bookmarks: BookmarkService;
-
-	constructor(browserProxy: BrowserProxy = defaultBrowserProxy) {
-		this.bookmarks = browserProxy.bookmarks;
-	}
-
 	// Internal base operations with no strict bookmark type checks.
 	// ! These operations are not exposed publicly and should only be used internally with proper type checks.
 	// --------------------------------------------------------------------------
 	protected async getRoot(): Promise<NodeType> {
-		const tree = await this.bookmarks.getTree();
+		const tree = await browser.bookmarks.getTree();
 		return tree[0];
 	}
 
@@ -38,7 +25,7 @@ export class ChromeBookmarkRepository {
 	 */
 	protected async getById(id: string): Promise<NodeType> {
 		try {
-			const [node] = await this.bookmarks.getSubTree(id);
+			const [node] = await browser.bookmarks.getSubTree(id);
 			return node;
 		} catch (err) {
 			throw new NodeNotFoundError(`Node with ID ${id} not found: ${err}`, { cause: err });
@@ -266,7 +253,7 @@ export class ChromeBookmarkRepository {
 
 			// If the next node does not exist and createParentIfNotExists is true, create the folder.
 			if (createParentsIfNotExists) {
-				current = await this.bookmarks.create({
+				current = await browser.bookmarks.create({
 					parentId: current.id,
 					title: segment
 				});
@@ -310,7 +297,7 @@ export class ChromeBookmarkRepository {
 		}
 
 		// Create the bookmark under the parent folder
-		return await this.bookmarks.create({
+		return await browser.bookmarks.create({
 			parentId: parentFolder.id,
 			title: path.basename(),
 			url: args.url
@@ -327,10 +314,10 @@ export class ChromeBookmarkRepository {
 		const node = await this.getBy({ id });
 		const nodeType = this.getNodeType(node);
 		if (nodeType === 'folder') {
-			await this.bookmarks.removeTree(node.id);
+			await browser.bookmarks.removeTree(node.id);
 			return;
 		}
-		await this.bookmarks.remove(node.id);
+		await browser.bookmarks.remove(node.id);
 	}
 
 	/**
@@ -347,7 +334,7 @@ export class ChromeBookmarkRepository {
 		}
 	): Promise<NodeType> {
 		const folder = await this.getFolderBy({ id });
-		return await this.bookmarks.update(folder.id, {
+		return await browser.bookmarks.update(folder.id, {
 			...changes
 		});
 	}
@@ -368,7 +355,7 @@ export class ChromeBookmarkRepository {
 		}
 	): Promise<NodeType> {
 		const bookmark = await this.getBookmarkBy({ id });
-		return await this.bookmarks.update(bookmark.id, {
+		return await browser.bookmarks.update(bookmark.id, {
 			...changes
 		});
 	}
@@ -382,6 +369,6 @@ export class ChromeBookmarkRepository {
 	 */
 	async move(id: string, changes: { parentId: string }): Promise<NodeType> {
 		const node = await this.getById(id);
-		return await this.bookmarks.move(node.id, changes);
+		return await browser.bookmarks.move(node.id, changes);
 	}
 }

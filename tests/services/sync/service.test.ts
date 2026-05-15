@@ -1,14 +1,13 @@
-import { defaultBrowserProxy } from '$lib/browser';
 import { SyncReport, WritableAdapter, type SyncAction } from '$lib/sync';
 import { TestTreeNode } from '$test-helpers/tree';
 import { beforeEach, describe, expect, it, vi, type Mock } from 'vitest';
-import type { SettingsStore } from '~/config';
+import type { SettingsStore } from '$config';
 import {
 	SYNC_BOOKMARKS_ALARM_NAME,
 	SyncEvent,
 	SyncService,
 	type SyncEventListener
-} from '~/services/sync';
+} from '$services/sync';
 
 class TestWritableAdapter extends WritableAdapter<TestTreeNode> {
 	protected resolveBaseNodeId(baseNodeId?: string): string {
@@ -196,8 +195,8 @@ describe('SyncService.scheduleAutoSync', () => {
 	let spyCreate: Mock;
 
 	beforeEach(() => {
-		spyClearAll = vi.spyOn(defaultBrowserProxy.alarms, 'clearAll');
-		spyCreate = vi.spyOn(defaultBrowserProxy.alarms, 'create');
+		spyClearAll = vi.spyOn(browser.alarms, 'clearAll');
+		spyCreate = vi.spyOn(browser.alarms, 'create');
 	});
 
 	it('clears alarms and does not schedule when auto sync is disabled', async () => {

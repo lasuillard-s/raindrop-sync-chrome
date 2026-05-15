@@ -1,6 +1,6 @@
 import { client, generated } from '@lasuillard/raindrop-client';
 import axios, { AxiosError, type AxiosInstance, type AxiosRequestConfig } from 'axios';
-import { SettingsStore } from '~/config';
+import { SettingsStore } from '$config';
 
 type GetRootCollectionsResponseItem = generated.GetRootCollectionsResponse['items'][0];
 type GetChildCollectionsResponseItem = generated.GetChildCollectionsResponse['items'][0];
