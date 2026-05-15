@@ -2,16 +2,25 @@
 import { fireEvent, render } from '@testing-library/svelte';
 import { beforeEach, expect, it, vi } from 'vitest';
 
+// These tests only cover tab/hash synchronization. The real tab panels mount settings,
+// browser, and sync integrations that are unrelated to this behavior, so they are
+// replaced with a minimal Svelte stub to keep the assertions focused and deterministic.
 vi.mock(
 	'~/options/tabs/Bookmarks.svelte',
-	async () => await import('../mocks/options/StubTab.svelte')
+	async () => await import('./__mocks__/options/StubTab.svelte')
 );
-vi.mock('~/options/tabs/TryIt.svelte', async () => await import('../mocks/options/StubTab.svelte'));
+vi.mock(
+	'~/options/tabs/TryIt.svelte',
+	async () => await import('./__mocks__/options/StubTab.svelte')
+);
 vi.mock(
 	'~/options/tabs/Integration.svelte',
-	async () => await import('../mocks/options/StubTab.svelte')
+	async () => await import('./__mocks__/options/StubTab.svelte')
 );
-vi.mock('~/options/tabs/About.svelte', async () => await import('../mocks/options/StubTab.svelte'));
+vi.mock(
+	'~/options/tabs/About.svelte',
+	async () => await import('./__mocks__/options/StubTab.svelte')
+);
 
 import App from '~/options/App.svelte';
 
@@ -48,4 +57,13 @@ it('updates the URL hash when the selected tab changes', async () => {
 
 	expect(window.location.hash).toBe('#about');
 	expect(document.getElementById('about')?.getAttribute('aria-selected')).toBe('true');
+});
+
+it('updates the selected tab when the URL hash changes externally', async () => {
+	render(App);
+
+	window.location.hash = '#try-it';
+	await fireEvent(window, new Event('hashchange'));
+
+	expect(document.getElementById('try-it')?.getAttribute('aria-selected')).toBe('true');
 });

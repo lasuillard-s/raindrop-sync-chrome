@@ -7,44 +7,46 @@
 		QuestionCircleOutline,
 		SearchOutline
 	} from 'flowbite-svelte-icons';
+	import { onMount } from 'svelte';
 	import '~/app.css';
 	import Message from '~/components/Message.svelte';
 	import About from './tabs/About.svelte';
 	import Bookmarks from './tabs/Bookmarks.svelte';
+	import { OptionsTab, optionTabKeys } from './tabs/enums';
 	import Integration from './tabs/Integration.svelte';
 	import TryIt from './tabs/TryIt.svelte';
 
-	const DEFAULT_TAB = 'bookmarks';
-	const optionTabKeys = ['bookmarks', 'try-it', 'integration', 'about'] as const;
+	const DEFAULT_TAB = OptionsTab.Bookmarks;
+
+	/**
+	 * Check whether a string matches a supported options tab.
+	 * @param tabKey Candidate tab key.
+	 * @returns True when the value maps to a known options tab.
+	 */
+	function isOptionsTab(tabKey: string): tabKey is OptionsTab {
+		return optionTabKeys.some((supportedTabKey) => supportedTabKey === tabKey);
+	}
 
 	/**
 	 * Normalize a URL hash to a supported options tab key.
 	 * @param hash URL fragment from the current options page location.
 	 * @returns The matching tab key, or the default tab when the hash is unknown.
 	 */
-	function resolveTabFromHash(hash: string): 'bookmarks' | 'try-it' | 'integration' | 'about' {
+	function resolveTabFromHash(hash: string): OptionsTab {
 		const normalizedHash = hash.replace(/^#/, '');
-		return optionTabKeys.find((tabKey) => tabKey === normalizedHash) ?? DEFAULT_TAB;
+		return isOptionsTab(normalizedHash) ? normalizedHash : DEFAULT_TAB;
 	}
 
-	/**
-	 * Select an options tab and keep the URL fragment in sync.
-	 * @param tabKey Supported tab key to activate.
-	 */
-	function selectTab(tabKey: 'bookmarks' | 'try-it' | 'integration' | 'about') {
-		selectedTab = tabKey;
+	let selectedTab = $state<OptionsTab>(resolveTabFromHash(window.location.hash));
 
-		const nextHash = `#${tabKey}`;
+	$effect(() => {
+		const nextHash = `#${selectedTab}`;
 		if (window.location.hash !== nextHash) {
 			window.location.hash = nextHash;
 		}
-	}
+	});
 
-	let selectedTab = $state<'bookmarks' | 'try-it' | 'integration' | 'about'>(
-		resolveTabFromHash(window.location.hash)
-	);
-
-	$effect(() => {
+	onMount(() => {
 		const syncSelectedTab = () => {
 			selectedTab = resolveTabFromHash(window.location.hash);
 		};
@@ -63,7 +65,7 @@
 
 <main class="mx-4 mt-4 self-center">
 	<Tabs style="underline" bind:selected={selectedTab}>
-		<TabItem key="bookmarks" onclick={() => selectTab('bookmarks')}>
+		<TabItem key={OptionsTab.Bookmarks}>
 			{#snippet titleSlot()}
 				<div class="flex items-center gap-2">
 					<BookmarkOutline size="sm" class="focus:outline-hidden" />
@@ -72,7 +74,7 @@
 			{/snippet}
 			<Bookmarks />
 		</TabItem>
-		<TabItem key="try-it" onclick={() => selectTab('try-it')}>
+		<TabItem key={OptionsTab.TryIt}>
 			{#snippet titleSlot()}
 				<div class="flex items-center gap-2">
 					<SearchOutline size="sm" class="focus:outline-hidden" />
@@ -81,7 +83,7 @@
 			{/snippet}
 			<TryIt />
 		</TabItem>
-		<TabItem key="integration" onclick={() => selectTab('integration')}>
+		<TabItem key={OptionsTab.Integration}>
 			{#snippet titleSlot()}
 				<div class="flex items-center gap-2">
 					<LinkOutline size="sm" class="focus:outline-hidden" />
@@ -90,7 +92,7 @@
 			{/snippet}
 			<Integration />
 		</TabItem>
-		<TabItem key="about" onclick={() => selectTab('about')}>
+		<TabItem key={OptionsTab.About}>
 			{#snippet titleSlot()}
 				<div class="flex items-center gap-2">
 					<QuestionCircleOutline size="sm" class="focus:outline-hidden" />

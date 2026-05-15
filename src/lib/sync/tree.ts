@@ -10,6 +10,7 @@ export abstract class TreeNode {
 	protected readonly raw: unknown;
 	protected parent: TreeNode | null;
 	readonly children?: TreeNode[];
+	private descendantCountCache: number | null = null;
 
 	constructor(args: {
 		id: string;
@@ -78,6 +79,7 @@ export abstract class TreeNode {
 		}
 		this.children!.push(child);
 		child.parent = this;
+		this.invalidateDescendantCountCache();
 	}
 
 	/**
@@ -85,16 +87,27 @@ export abstract class TreeNode {
 	 * @returns Number of descendants, excluding this node itself.
 	 */
 	countDescendants(): number {
-		if (!this.children?.length) {
-			return 0;
+		if (this.descendantCountCache !== null) {
+			return this.descendantCountCache;
 		}
 
-		let count = 0;
-		for (const child of this.children) {
-			count += 1;
-			count += child.countDescendants();
+		if (!this.children?.length) {
+			this.descendantCountCache = 0;
+		} else {
+			let count = 0;
+			for (const child of this.children) {
+				count += 1;
+				count += child.countDescendants();
+			}
+			this.descendantCountCache = count;
 		}
-		return count;
+
+		return this.descendantCountCache;
+	}
+
+	private invalidateDescendantCountCache(): void {
+		this.descendantCountCache = null;
+		this.parent?.invalidateDescendantCountCache();
 	}
 
 	/**

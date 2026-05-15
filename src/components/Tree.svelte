@@ -19,7 +19,7 @@
 	const isFolder: boolean = $derived(treeNode.isFolder());
 	const href: string | null = $derived(treeNode.url);
 	const nodeTitle: string = $derived(nodeTitleOverride || treeNode.title || '');
-	const childCount: number = $derived(treeNode.countDescendants());
+	const descendantCount: number = $derived(treeNode.countDescendants());
 	const pathString: string = $derived(treeNode.getPath().toString());
 
 	const toggleCollapse = () => {
@@ -36,7 +36,7 @@
 <div class="leading-relaxed" data-testid={pathString}>
 	{#if isFolder}
 		<div class="inline-flex items-center gap-1.5">
-			{#if childCount > 0}
+			{#if descendantCount > 0}
 				<button
 					type="button"
 					onclick={toggleCollapse}
@@ -49,13 +49,13 @@
 						<ChevronDownOutline class="h-3.5 w-3.5 shrink-0 text-gray-600" />
 					{/if}
 					<strong class="text-sm">📁 {nodeTitle}</strong>
-					<span class="text-xs font-normal text-gray-500">({childCount})</span>
+					<span class="text-xs font-normal text-gray-500">({descendantCount})</span>
 				</button>
 			{:else}
 				<span class="inline-flex items-center gap-1.5 px-1.5 py-0.5">
 					<span class="h-3.5 w-3.5"></span>
 					<strong class="text-sm">📁 {nodeTitle}</strong>
-					<span class="text-xs font-normal text-gray-500">({childCount})</span>
+					<span class="text-xs font-normal text-gray-500">({descendantCount})</span>
 				</span>
 			{/if}
 		</div>
@@ -71,7 +71,7 @@
 			>
 		</div>
 	{/if}
-	{#if childCount > 0 && !collapsed}
+	{#if descendantCount > 0 && !collapsed}
 		<div class="mt-0.5 ml-6">
 			{#each treeNode.children ?? [] as child (child.id)}
 				<Self treeNode={child} {propagatingDefaults} />

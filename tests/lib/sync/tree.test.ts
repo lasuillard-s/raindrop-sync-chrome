@@ -53,6 +53,42 @@ describe('TreeNode', () => {
 		expect(() => bookmark.addChild(child)).toThrow(new BookmarkIsNotAFolderError(bookmark.id));
 	});
 
+	it('computes descendant counts and updates them correctly after adding children', () => {
+		// Tree structure:
+		// Root (2)
+		// └── Folder (1)
+		//     └── Bookmark
+		const root = new TestTreeNode({ id: '0', title: '', type: 'folder' });
+		const folder = new TestTreeNode({ id: '1', title: 'Folder', type: 'folder', parent: root });
+		const bookmark = new TestTreeNode({
+			id: '2',
+			title: 'Bookmark',
+			type: 'bookmark',
+			url: 'https://example.com',
+			parent: folder
+		});
+
+		expect(bookmark.countDescendants()).toBe(0);
+		expect(folder.countDescendants()).toBe(1);
+		expect(root.countDescendants()).toBe(2);
+
+		// Add another bookmark under the Folder, now structure is:
+		// Root (3)
+		// └── Folder (2)
+		//     ├── Bookmark
+		//     └── Bookmark 2
+		new TestTreeNode({
+			id: '3',
+			title: 'Bookmark 2',
+			type: 'bookmark',
+			url: 'https://example.org',
+			parent: folder
+		});
+
+		expect(folder.countDescendants()).toBe(2);
+		expect(root.countDescendants()).toBe(3);
+	});
+
 	it('traverses nodes in depth-first order', () => {
 		// Tree structure:
 		// Root

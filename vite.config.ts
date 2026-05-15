@@ -64,7 +64,7 @@ export default defineConfig(({ mode }) => {
 				enabled: true,
 				include: ['src/**'],
 				exclude: [
-					'tests/**/*.{test,spec}.ts',
+					'tests/*',
 					// Not source files
 					'src/**/*.d.ts',
 					'src/assets/*',
