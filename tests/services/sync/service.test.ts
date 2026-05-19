@@ -215,7 +215,7 @@ describe('SyncService.scheduleAutoSync', () => {
 		expect(spyCreate).not.toHaveBeenCalled();
 	});
 
-	it('schedules recurring alarm with immediate startup delay when enabled', async () => {
+	it('schedules recurring alarm', async () => {
 		// Arrange
 		const service = createService({
 			autoSyncEnabled: true,

@@ -38,11 +38,11 @@ browser.runtime.onStartup.addListener(async () => {
 	console.debug('Browser startup detected');
 	const settings = app.settings;
 	await settings.ready();
-	if (settings.snapshot.autoSyncExecOnStartup) {
-		console.debug('Auto-sync on startup is enabled, scheduling sync...');
+	if (settings.snapshot.autoSyncEnabled && settings.snapshot.autoSyncExecOnStartup) {
+		console.debug('Auto-sync is enabled and startup sync is enabled, running sync now...');
 		await app.sync.runFullSync();
 	} else {
-		console.debug('Auto-sync on startup is disabled, skipping sync.');
+		console.debug('Auto-sync is disabled or startup sync is disabled, skipping sync.');
 	}
 });
 
