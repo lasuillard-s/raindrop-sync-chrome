@@ -16,6 +16,9 @@ import {
 
 export const SYNC_BOOKMARKS_ALARM_NAME = 'sync-bookmarks';
 
+/** Key used for acquiring a lock during synchronization to prevent concurrent sync operations. */
+const SYNC_LOCK_KEY = 'sync';
+
 export class SyncService {
 	source: ReadableAdapter;
 	target: WritableAdapter;
@@ -211,38 +214,54 @@ export class SyncService {
 		args?: { plan?: SyncPlan },
 		options?: { dryRun?: boolean; force?: boolean }
 	): Promise<void> {
-		try {
-			this.emitEvent(new SyncEventStart());
-			await this.appSettings.ready();
-
-			// Validate configurations
-			const isValid = await this.validateConfig();
-			if (!isValid) {
-				console.error('Sync configuration is invalid');
-				throw new ConfigValidationError('Sync configuration is invalid');
-			}
-
-			// Check if synchronization is needed (unless forced)
-			if (!options?.force) {
-				const shouldSync = await this.checkShouldSync();
-				if (!shouldSync) {
-					console.info('No synchronization needed - target is already up to date');
-					this.emitEvent(new SyncEventSkipped());
+		await navigator.locks.request(
+			SYNC_LOCK_KEY,
+			{ mode: 'exclusive', ifAvailable: true },
+			async (lock) => {
+				if (!lock) {
+					console.warn('Could not acquire sync lock, another sync operation may be in progress');
+					this.emitEvent(
+						new SyncEventSkipped(
+							'Could not acquire sync lock, another sync operation may be in progress'
+						)
+					);
 					return;
 				}
-			}
 
-			// Perform the synchronization
-			const report = await this.doSync({ plan: args?.plan }, { dryRun: options?.dryRun });
-			if (!options?.dryRun && report && report.errors.length === 0) {
-				await this.appSettings.update({ clientLastSync: new Date() });
-			}
+				try {
+					this.emitEvent(new SyncEventStart());
+					await this.appSettings.ready();
 
-			this.emitEvent(new SyncEventComplete());
-		} catch (error) {
-			console.error('Sync configuration validation failed:', error);
-			this.emitEvent(new SyncEventError(error));
-		}
+					// Validate configurations
+					const isValid = await this.validateConfig();
+					if (!isValid) {
+						console.error('Sync configuration is invalid');
+						throw new ConfigValidationError('Sync configuration is invalid');
+					}
+
+					// Check if synchronization is needed (unless forced)
+					if (!options?.force) {
+						const shouldSync = await this.checkShouldSync();
+						if (!shouldSync) {
+							console.info('No synchronization needed - source and target are already in sync');
+							this.emitEvent(new SyncEventSkipped('Source and target are already in sync'));
+							return;
+						}
+					}
+
+					// Perform the synchronization
+					const report = await this.doSync({ plan: args?.plan }, { dryRun: options?.dryRun });
+					if (!options?.dryRun && report && report.errors.length === 0) {
+						await this.appSettings.update({ clientLastSync: new Date() });
+					}
+
+					this.emitEvent(new SyncEventComplete());
+				} catch (error) {
+					console.error('Sync configuration validation failed:', error);
+					this.emitEvent(new SyncEventError(error));
+				}
+			}
+		);
 	}
 
 	/**

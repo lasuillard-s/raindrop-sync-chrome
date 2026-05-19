@@ -133,6 +133,31 @@ describe('SyncService', () => {
 		expect(desiredState.children?.[0].children?.[0].title).toBe('Bookmark');
 	});
 
+	it('skips synchronization when it cannot acquire the lock', async () => {
+		// Arrange
+		const eventListener = new TestEventListenerImpl();
+		const service = createService(
+			{
+				autoSyncEnabled: false,
+				autoSyncExecOnStartup: false,
+				autoSyncIntervalInMinutes: 5
+			},
+			eventListener
+		);
+		vi.spyOn(navigator.locks, 'request').mockImplementationOnce(async (key, options, callback) => {
+			return callback(null);
+		});
+
+		// Act
+		const result = await service.runFullSync({ plan: { actions: [] } as any }, { force: false });
+
+		// Assert
+		expect(result).toBeUndefined();
+		expect(eventListener.receivedEvents.map((event) => event.toMessage())).toEqual([
+			'Synchronization was skipped: Could not acquire sync lock, another sync operation may be in progress'
+		]);
+	});
+
 	it('skips synchronization when checkShouldSync returns false', async () => {
 		// Arrange
 		const eventListener = new TestEventListenerImpl();
@@ -155,7 +180,7 @@ describe('SyncService', () => {
 		expect(eventListener.receivedEvents.map((event) => event.toMessage())).toEqual([
 			'Synchronization started.',
 			'Validating configuration...',
-			'Synchronization was skipped.'
+			'Synchronization was skipped: Source and target are already in sync'
 		]);
 	});
 
