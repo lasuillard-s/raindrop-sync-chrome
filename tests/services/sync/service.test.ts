@@ -1,13 +1,13 @@
-import { SyncReport, WritableAdapter, type SyncAction } from '$lib/sync';
-import { TestTreeNode } from '$test-helpers/tree';
-import { beforeEach, describe, expect, it, vi, type Mock } from 'vitest';
 import type { SettingsStore } from '$config';
+import { SyncReport, WritableAdapter, type SyncAction } from '$lib/sync';
 import {
 	SYNC_BOOKMARKS_ALARM_NAME,
 	SyncEvent,
 	SyncService,
 	type SyncEventListener
 } from '$services/sync';
+import { TestTreeNode } from '$test-helpers/tree';
+import { beforeEach, describe, expect, it, vi, type Mock } from 'vitest';
 
 class TestWritableAdapter extends WritableAdapter<TestTreeNode> {
 	protected resolveBaseNodeId(baseNodeId?: string): string {
@@ -133,6 +133,31 @@ describe('SyncService', () => {
 		expect(desiredState.children?.[0].children?.[0].title).toBe('Bookmark');
 	});
 
+	it('skips synchronization when it cannot acquire the lock', async () => {
+		// Arrange
+		const eventListener = new TestEventListenerImpl();
+		const service = createService(
+			{
+				autoSyncEnabled: false,
+				autoSyncExecOnStartup: false,
+				autoSyncIntervalInMinutes: 5
+			},
+			eventListener
+		);
+		vi.spyOn(navigator.locks, 'request').mockImplementationOnce(async (key, options, callback) => {
+			return callback(null);
+		});
+
+		// Act
+		const result = await service.runFullSync({ plan: { actions: [] } as any }, { force: false });
+
+		// Assert
+		expect(result).toBeUndefined();
+		expect(eventListener.receivedEvents.map((event) => event.toMessage())).toEqual([
+			'Synchronization was skipped: Could not acquire sync lock, another sync operation may be in progress'
+		]);
+	});
+
 	it('skips synchronization when checkShouldSync returns false', async () => {
 		// Arrange
 		const eventListener = new TestEventListenerImpl();
@@ -155,7 +180,7 @@ describe('SyncService', () => {
 		expect(eventListener.receivedEvents.map((event) => event.toMessage())).toEqual([
 			'Synchronization started.',
 			'Validating configuration...',
-			'Synchronization was skipped.'
+			'Synchronization was skipped: Source and target are already in sync'
 		]);
 	});
 
@@ -215,7 +240,7 @@ describe('SyncService.scheduleAutoSync', () => {
 		expect(spyCreate).not.toHaveBeenCalled();
 	});
 
-	it('schedules recurring alarm with immediate startup delay when enabled', async () => {
+	it('schedules recurring alarm', async () => {
 		// Arrange
 		const service = createService({
 			autoSyncEnabled: true,
@@ -229,7 +254,6 @@ describe('SyncService.scheduleAutoSync', () => {
 		// Assert
 		expect(spyClearAll).toHaveBeenCalledTimes(1);
 		expect(spyCreate).toHaveBeenCalledWith(SYNC_BOOKMARKS_ALARM_NAME, {
-			delayInMinutes: 0,
 			periodInMinutes: 10
 		});
 	});

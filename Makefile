@@ -48,6 +48,20 @@ browser:  ## Launch Chrome for Testing with extension loaded
 		--log-file="$(CURDIR)/chrome.log"
 .PHONY: browser
 
+# ? Some lifecycle events (e.g. onInstalled) are not triggered when extension is loaded, so this target is useful for testing such scenarios
+browser-noext:  ## Launch the browser without loading the extension
+	cft_path="$$(node --eval 'const { chromium } = require("playwright"); console.log(chromium.executablePath());')"
+	"$$cft_path" \
+		--no-first-run \
+		--disable-gpu \
+		--no-sandbox \
+		--remote-debugging-port=9222 \
+		--user-data-dir="$(CURDIR)/chrome-dev-profile" \
+		--enable-logging \
+		--v=1 \
+		--log-file="$(CURDIR)/chrome.log"
+.PHONY: browser-noext
+
 run:  ## Run browser with development server
 	yarn exec -- concurrently \
 		--kill-others \

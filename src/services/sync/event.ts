@@ -80,8 +80,12 @@ export class SyncEventComplete extends SyncEvent {
 export class SyncEventSkipped extends SyncEvent {
 	type = SyncEventType.Skipped;
 
+	constructor(public readonly reason: string) {
+		super();
+	}
+
 	toMessage(): string {
-		return 'Synchronization was skipped.';
+		return `Synchronization was skipped: ${this.reason}`;
 	}
 }
 
