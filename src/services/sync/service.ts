@@ -1,7 +1,7 @@
+import type { SettingsStore } from '$config';
 import type { ReadableAdapter, SyncPlan, SyncReport, WritableAdapter } from '$lib/sync';
 import { SyncDiffAnalyzer, SyncExecutor, SyncPlanner, SyncPlanOptimizer } from '$lib/sync';
 import { NeutralTreeNode, type TreeNode } from '$lib/sync/tree';
-import type { SettingsStore } from '$config';
 import { ConfigValidationError } from './errors';
 import {
 	SyncEventComplete,
@@ -250,18 +250,20 @@ export class SyncService {
 	 */
 	async scheduleAutoSync(): Promise<void> {
 		const settingsSnapshot = await this.appSettings.snapshotReady();
+
+		console.debug('Clearing existing sync alarms before scheduling new one');
 		await browser.alarms.clearAll();
 
 		if (!settingsSnapshot.autoSyncEnabled) {
+			console.debug('Auto-sync is disabled, not scheduling sync alarm');
 			return;
 		}
 
-		const delayInMinutes = settingsSnapshot.autoSyncExecOnStartup
-			? 0
-			: settingsSnapshot.autoSyncIntervalInMinutes;
-
+		console.debug(
+			'Scheduling auto-sync alarm with interval (minutes):',
+			settingsSnapshot.autoSyncIntervalInMinutes
+		);
 		await browser.alarms.create(SYNC_BOOKMARKS_ALARM_NAME, {
-			delayInMinutes,
 			periodInMinutes: settingsSnapshot.autoSyncIntervalInMinutes
 		});
 	}

@@ -1,13 +1,13 @@
-import { SyncReport, WritableAdapter, type SyncAction } from '$lib/sync';
-import { TestTreeNode } from '$test-helpers/tree';
-import { beforeEach, describe, expect, it, vi, type Mock } from 'vitest';
 import type { SettingsStore } from '$config';
+import { SyncReport, WritableAdapter, type SyncAction } from '$lib/sync';
 import {
 	SYNC_BOOKMARKS_ALARM_NAME,
 	SyncEvent,
 	SyncService,
 	type SyncEventListener
 } from '$services/sync';
+import { TestTreeNode } from '$test-helpers/tree';
+import { beforeEach, describe, expect, it, vi, type Mock } from 'vitest';
 
 class TestWritableAdapter extends WritableAdapter<TestTreeNode> {
 	protected resolveBaseNodeId(baseNodeId?: string): string {
@@ -229,7 +229,6 @@ describe('SyncService.scheduleAutoSync', () => {
 		// Assert
 		expect(spyClearAll).toHaveBeenCalledTimes(1);
 		expect(spyCreate).toHaveBeenCalledWith(SYNC_BOOKMARKS_ALARM_NAME, {
-			delayInMinutes: 0,
 			periodInMinutes: 10
 		});
 	});
