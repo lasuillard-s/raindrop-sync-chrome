@@ -49,7 +49,7 @@ browser:  ## Launch Chrome for Testing with extension loaded
 .PHONY: browser
 
 # ? Some lifecycle events (e.g. onInstalled) are not triggered when extension is loaded, so this target is useful for testing such scenarios
-browser-noext:  ## Launch the browser without extension loaded
+browser-noext:  ## Launch the browser without loading the extension
 	cft_path="$$(node --eval 'const { chromium } = require("playwright"); console.log(chromium.executablePath());')"
 	"$$cft_path" \
 		--no-first-run \
