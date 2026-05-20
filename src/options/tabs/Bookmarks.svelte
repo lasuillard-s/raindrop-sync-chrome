@@ -229,6 +229,12 @@
 					Back up your Chrome bookmarks before syncing. This extension is still early in
 					development, unstable, and may make breaking bookmark changes at any time.
 				</P>
+				<P class="text-sm text-amber-800">
+					To back up your bookmarks, go to <b>Bookmarks Manager (chrome://bookmarks)</b>, click the
+					<b>⋮</b>
+					symbol at the top right, and select <b>Export bookmarks</b>. Save the file somewhere safe
+					so you can restore if needed.
+				</P>
 			</div>
 		</div>
 	</div>
@@ -290,8 +296,7 @@
 					<div class="mt-2 rounded-md border border-red-200 bg-red-50 p-3">
 						<P class="text-xs font-medium text-red-700">
 							⚠️ <b>Warning:</b> Existing bookmarks in the selected folder might be removed or modified
-							during sync. Back up your Chrome bookmarks before syncing. This extension is still early
-							in development, unstable, and may make breaking bookmark changes at any time.
+							during sync.
 						</P>
 					</div>
 				</div>
@@ -539,8 +544,8 @@
 			<div class="rounded-lg border border-amber-200 bg-white p-4">
 				<P class="text-sm font-semibold text-amber-900">Safety reminder</P>
 				<P class="mt-1 text-sm text-amber-800">
-					Back up your Chrome bookmarks before syncing. This extension is still early in
-					development, unstable, and may make breaking bookmark changes at any time.
+					Back up your Chrome bookmarks before syncing. This extension is still early in development
+					and not stable.
 				</P>
 			</div>
 
