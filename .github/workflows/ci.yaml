@@ -84,6 +84,16 @@ jobs:
           aws-region: ${{ vars.AWS_REGION }}
           role-to-assume: ${{ secrets.AWS_ROLE_TO_ASSUME }}
 
+      - name: Build end-to-end test environment
+        uses: docker/bake-action@v7
+        with:
+          push: false
+          load: true
+          source: ./e2e
+          set: |
+            playwright.cache-from=type=gha,scope=playwright
+            playwright.cache-to=type=gha,scope=playwright
+
       - name: Set up Node
         uses: actions/setup-node@48b55a011bda9f5d6aeb4c2d9c7362e8dae4041e # v6
         with:

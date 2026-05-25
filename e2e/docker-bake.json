@@ -1,8 +1,0 @@
-{
-	"target": {
-		"playwright": {
-			"cache-from": ["type=gha,ignore-error=true,mode=max,scope=playwright"],
-			"cache-to": ["type=gha,scope=playwright"]
-		}
-	}
-}

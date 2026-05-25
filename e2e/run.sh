@@ -18,15 +18,6 @@ cd "$e2e_dir"
 
 docker compose config >> "$log_file"
 
-# Pull the base images and build the services, while logging the output.
-docker compose pull --ignore-buildable --include-deps >> "$log_file" 2>&1
-docker buildx bake \
-    --file ./docker-compose.yaml \
-    --file ./docker-bake.json \
-    --allow=fs.read=.. \
-    --load \
-    2>&1 | tee --append "$log_file"
-
 # Register a cleanup function
 function cleanup() {
     docker compose logs --timestamps >> "$log_file"
