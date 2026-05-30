@@ -26,6 +26,7 @@
 		"e2e-docker:ui": "./e2e/run.sh test --ui --ui-host 0.0.0.0 --ui-port 8888"
 	},
 	"type": "module",
+	"packageManager": "yarn@1.22.22",
 	"dependencies": {
 		"webextension-polyfill": "^0.12.0"
 	},
