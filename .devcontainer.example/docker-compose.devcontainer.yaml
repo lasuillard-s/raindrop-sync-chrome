@@ -15,7 +15,7 @@ services:
     shm_size: 2gb
 
   novnc:
-    image: theasp/novnc@sha256:49a5f119fe356d32dbcf21c037f174275a69067e890fb067c995a245833a2fee
+    image: theasp/novnc@sha256:345ad13780dd08859b1228c3490e25e1522e2c9bd9ea361a2fad04933ab97658
     profiles:
       - novnc
     environment:
