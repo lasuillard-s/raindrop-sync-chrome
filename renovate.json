@@ -9,7 +9,8 @@
       "matchPackageNames": [
         "@playwright/test",
         "mcr.microsoft.com/playwright"
-      ]
+      ],
+      "minimumGroupSize": 2
     }
   ]
 }
