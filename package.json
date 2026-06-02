@@ -37,7 +37,7 @@
 		"@eslint/js": "10.0.1",
 		"@faker-js/faker": "10.4.0",
 		"@floating-ui/dom": "1.7.6",
-		"@lasuillard/raindrop-client": "0.7.7",
+		"@lasuillard/raindrop-client": "0.8.1",
 		"@playwright/test": "1.59.1",
 		"@sveltejs/vite-plugin-svelte": "7.1.2",
 		"@tailwindcss/postcss": "4.3.0",
@@ -50,7 +50,7 @@
 		"@types/webextension-polyfill": "0.12.5",
 		"@vitest/coverage-v8": "4.1.7",
 		"@vitest/ui": "4.1.7",
-		"axios": "1.15.0",
+		"axios": "1.16.0",
 		"concurrently": "10.0.0",
 		"date-fns": "4.4.0",
 		"eslint": "10.4.1",
@@ -76,5 +76,8 @@
 		"vite-plugin-zip-pack": "1.2.4",
 		"vitest": "4.1.7",
 		"zod": "4.4.3"
+	},
+	"resolutions": {
+		"axios": "1.16.0"
 	}
 }
