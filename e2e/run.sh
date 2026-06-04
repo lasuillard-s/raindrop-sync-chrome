@@ -21,8 +21,8 @@ export PLAYWRIGHT_VERSION="$(yarn exec --silent -- playwright --version | awk '{
 echo "Using Playwright version ${PLAYWRIGHT_VERSION}"
 
 # Print the docker compose configuration for debugging
-docker compose config >> "$log_file"
-docker buildx bake --print >> "$log_file"
+docker compose config | tee --append "$log_file"
+docker buildx bake --print | tee --append "$log_file"
 
 # Register a cleanup function
 function cleanup() {
