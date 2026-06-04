@@ -17,12 +17,13 @@ log_file="${e2e_dir}/run-$(date +"%Y%m%dT%H%M%S").log"
 cd "$e2e_dir"
 
 # Get the Playwright version
-export PLAYWRIGHT_VERSION="$(yarn exec --silent -- playwright --version | awk '{print $2}')"
+if [ -z "${PLAYWRIGHT_VERSION:-}" ]; then
+  export PLAYWRIGHT_VERSION="$(yarn exec --silent -- playwright --version | awk '{print $2}')"
+fi
 echo "Using Playwright version ${PLAYWRIGHT_VERSION}"
 
 # Print the docker compose configuration for debugging
 docker compose config | tee --append "$log_file"
-docker buildx bake --print | tee --append "$log_file"
 
 # Register a cleanup function
 function cleanup() {
@@ -32,7 +33,7 @@ function cleanup() {
 trap cleanup EXIT
 
 # Start the services and wait for them to be healthy
-COMPOSE_BAKE=true docker compose up --wait --wait-timeout 600 | tee --append "$log_file"
+docker compose up --wait --wait-timeout 600 | tee --append "$log_file"
 
 # Run the e2e tests, passing specified host environment variables to the container
 pass_envvars=( CI )

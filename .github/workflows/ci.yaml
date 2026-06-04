@@ -99,6 +99,21 @@ jobs:
       - name: Build the application
         run: yarn run build
 
+      - name: Get Playwright version
+        run: |
+          PLAYWRIGHT_VERSION="$(yarn exec --silent -- playwright --version | awk '{print $2}')"
+          echo "PLAYWRIGHT_VERSION=${PLAYWRIGHT_VERSION}" >> $GITHUB_ENV
+
+      - name: Build end-to-end test environment
+        uses: docker/bake-action@a66e1c87e2eca0503c343edf1d208c716d54b8a8 # v7.1.0
+        with:
+          push: false
+          load: true
+          source: ./e2e
+          set: |
+            playwright.cache-from=type=gha,scope=playwright
+            playwright.cache-to=type=gha,scope=playwright
+
       - name: Run end-to-end tests
         run: yarn run e2e-docker
 
