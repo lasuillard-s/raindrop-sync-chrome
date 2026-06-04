@@ -1,0 +1,17 @@
+**
+
+# Allowed things
+!e2e/**
+!package.json
+!playwright.config.ts
+!yarn.lock
+
+# Extra exclude from allowed things
+**/*~
+**/*.log
+**/.DS_Store
+**/Thumbs.db
+**/__pycache__
+**/*.md
+**/*.rst
+**/node_modules/
