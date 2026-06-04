@@ -102,7 +102,7 @@ jobs:
       - name: Get Playwright version
         run: |
           PLAYWRIGHT_VERSION="$(yarn exec --silent -- playwright --version | awk '{print $2}')"
-          echo "PLAYWRIGHT_VERSION=${PLAYWRIGHT_VERSION}" >> $GITHUB_ENV
+          echo "PLAYWRIGHT_VERSION=${PLAYWRIGHT_VERSION}" | tee --append "$GITHUB_ENV"
 
       - name: Build end-to-end test environment
         uses: docker/bake-action@a66e1c87e2eca0503c343edf1d208c716d54b8a8 # v7.1.0
