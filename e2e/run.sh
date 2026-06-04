@@ -22,14 +22,7 @@ echo "Using Playwright version ${PLAYWRIGHT_VERSION}"
 
 # Print the docker compose configuration for debugging
 docker compose config >> "$log_file"
-
-# Pull the base images and build the services, while logging the output.
-docker buildx bake \
-    --file ./docker-compose.yaml \
-    --file ./docker-bake.json \
-    --allow=fs.read=.. \
-    --load \
-    2>&1 | tee --append "$log_file"
+docker buildx bake --print >> "$log_file"
 
 # Register a cleanup function
 function cleanup() {
@@ -39,7 +32,7 @@ function cleanup() {
 trap cleanup EXIT
 
 # Start the services and wait for them to be healthy
-docker compose up --wait --wait-timeout 600 | tee --append "$log_file"
+COMPOSE_BAKE=true docker compose up --wait --wait-timeout 600 | tee --append "$log_file"
 
 # Run the e2e tests, passing specified host environment variables to the container
 pass_envvars=( CI )
