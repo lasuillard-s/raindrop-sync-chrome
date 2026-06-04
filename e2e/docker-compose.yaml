@@ -5,6 +5,8 @@ services:
       # ! Be sure to match the version of @playwright/test in package.json file
       context: ..
       dockerfile: ./e2e/Dockerfile
+      args:
+        PLAYWRIGHT_VERSION: ${PLAYWRIGHT_VERSION:?}
     ports:
       - 127.0.0.1:8888:8888 # Playwright UI
       - 127.0.0.1:9323:9323 # Playwright reports

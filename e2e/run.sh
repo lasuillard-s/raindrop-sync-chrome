@@ -7,7 +7,7 @@ set -o nounset
 : '
 Set up the environment for end-to-end testing using Docker Compose.
 
-Logs will be saved to e2e-*.log files.
+Logs will be saved to e2e/run-*.log files.
 '
 
 root_dir="$(realpath "$(dirname "${0}")/..")"
@@ -16,6 +16,11 @@ log_file="${e2e_dir}/run-$(date +"%Y%m%dT%H%M%S").log"
 
 cd "$e2e_dir"
 
+# Get the Playwright version
+export PLAYWRIGHT_VERSION="$(yarn exec --silent -- playwright --version | awk '{print $2}')"
+echo "Using Playwright version ${PLAYWRIGHT_VERSION}"
+
+# Print the docker compose configuration for debugging
 docker compose config >> "$log_file"
 
 # Pull the base images and build the services, while logging the output.
