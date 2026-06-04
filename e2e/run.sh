@@ -24,7 +24,6 @@ echo "Using Playwright version ${PLAYWRIGHT_VERSION}"
 docker compose config >> "$log_file"
 
 # Pull the base images and build the services, while logging the output.
-docker compose pull --ignore-buildable --include-deps 2>&1 | tee --append "$log_file"
 docker buildx bake \
     --file ./docker-compose.yaml \
     --file ./docker-bake.json \
