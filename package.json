@@ -50,7 +50,7 @@
 		"@types/webextension-polyfill": "0.12.5",
 		"@vitest/coverage-v8": "4.1.8",
 		"@vitest/ui": "4.1.8",
-		"axios": "1.16.1",
+		"axios": "1.17.0",
 		"concurrently": "10.0.3",
 		"date-fns": "4.4.0",
 		"eslint": "10.4.1",
@@ -76,8 +76,5 @@
 		"vite-plugin-zip-pack": "1.2.4",
 		"vitest": "4.1.8",
 		"zod": "4.4.3"
-	},
-	"resolutions": {
-		"axios": "1.16.1"
 	}
 }
