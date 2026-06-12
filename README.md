@@ -70,10 +70,10 @@ You can install any version of the extension (including older releases or develo
 
     ![Chrome Manage Extensions Page](docs/images/chrome-manage-extensions.png)
 
-2. Click the **Load Unpacked** button and select the directory where you extracted the extension.
+1. Click the **Load Unpacked** button and select the directory where you extracted the extension.
 
     ![Chrome Load Unpacked Extension](docs/images/chrome-load-unpacked-extension.png)
 
-3. You should now see the extension listed among your installed extensions.
+1. You should now see the extension listed among your installed extensions.
 
     ![Chrome Extension Installed](docs/images/chrome-extension-installed.png)
