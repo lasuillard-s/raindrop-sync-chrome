@@ -41,7 +41,7 @@ This repository uses [Nix Flakes](https://nix.dev/concepts/flakes.html) for the 
 
 Run `nix develop` to enter the development shell and `just install` to install JavaScript dependencies and Playwright's Chromium build.
 
-If you prefer a containerized setup, a Dev Container configuration is available in the checked-in `.devcontainer.example` folder.
+If you prefer a containerized setup, copy the checked-in `.devcontainer.example` folder to `.devcontainer` and use that local directory.
 
 ## ✅ Verifying changes
 

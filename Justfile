@@ -34,7 +34,7 @@ lint:
 
 # Run all tests
 test:
-    yarn run test:all
+    yarn run test
 
 # Run end-to-end tests
 e2e:
