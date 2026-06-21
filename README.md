@@ -41,23 +41,23 @@ Visit [Chrome Web Store](https://chromewebstore.google.com/detail/raindrop-sync-
 
 1. Visit the Options page
 
-    Open the extension's options page (right-click the extension icon, then click Options).
+   Open the extension's options page (right-click the extension icon, then click Options).
 
 2. Navigate to the **Integration** tab
 
 3. Follow the instructions to set up the integration
 
-    ![Integration Guide](docs/images/integration-guide.png)
+   ![Integration Guide](docs/images/integration-guide.png)
 
 4. Go to the **Bookmarks** tab
 
-    You can trigger the sync manually by clicking **Start sync**.
+   You can trigger the sync manually by clicking **Start sync**.
 
-    ![Options page Start sync button](docs/images/options-trigger-sync.png)
+   ![Options page Start sync button](docs/images/options-trigger-sync.png)
 
-    You can also trigger a sync from the popup.
+   You can also trigger a sync from the popup.
 
-    ![Popup Start sync button](docs/images/popup-trigger-sync.png)
+   ![Popup Start sync button](docs/images/popup-trigger-sync.png)
 
 ### 📦 Installing the development version
 
@@ -68,12 +68,18 @@ You can install any version of the extension (including older releases or develo
 1. Navigate to `chrome://extensions` in your Chrome browser.
 1. Turn on **Developer Mode** on in the top-right corner of the page.
 
-    ![Chrome Manage Extensions Page](docs/images/chrome-manage-extensions.png)
+   ![Chrome Manage Extensions Page](docs/images/chrome-manage-extensions.png)
 
 1. Click the **Load Unpacked** button and select the directory where you extracted the extension.
 
-    ![Chrome Load Unpacked Extension](docs/images/chrome-load-unpacked-extension.png)
+   ![Chrome Load Unpacked Extension](docs/images/chrome-load-unpacked-extension.png)
 
 1. You should now see the extension listed among your installed extensions.
 
-    ![Chrome Extension Installed](docs/images/chrome-extension-installed.png)
+   ![Chrome Extension Installed](docs/images/chrome-extension-installed.png)
+
+## 📜 License
+
+Copyright (C) 2026 Yuchan Lee
+
+This project is licensed under the GNU General Public License v3.0. See the [LICENSE](./LICENSE) file for more details.

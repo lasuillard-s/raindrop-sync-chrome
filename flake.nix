@@ -18,13 +18,13 @@
       {
         devShells.default = pkgs.mkShell {
           packages = with pkgs; [
-            git
-            gnumake
             pre-commit
+            just
             nodejs_24
+            yarn
           ];
           shellHook = ''
-
+            pre-commit install
           '';
         };
       }
