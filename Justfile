@@ -53,7 +53,7 @@ build:
 _IS_CONTAINER := `[[ -n "${CONTAINER:-}" ]] && echo "yes" || echo "no"`
 
 # NOTE: --user-data-dir flag is required for debugger to work properly; https://stackoverflow.com/questions/56326924/debugging-a-chrome-instance-with-remote-debugging-port-flag
-# Launch browser via Playwright
+# Launch browser via Playwright (--load-extension to load extension)
 [arg("load-extension", long="load-extension", value="yes")]
 browser load-extension="no":
     #!/usr/bin/env bash
@@ -68,7 +68,7 @@ browser load-extension="no":
         --v=1 \
         --log-file=./chromium.log
 
-# Run browser with development server
+# Run development server (--browser to run browser concurrently)
 [arg("browser", long="browser", value="yes")]
 run browser="no":
     #!/usr/bin/env bash
