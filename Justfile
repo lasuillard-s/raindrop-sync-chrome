@@ -92,5 +92,9 @@ clean:
     rm --recursive --force \
         coverage/ \
         junit.xml \
+        .svelte-kit/ \
         dist/ \
+        .tmp/ \
+        playwright-report/ \
+        dummy-non-existing-folder/
     find . -path '*.log*' -delete
