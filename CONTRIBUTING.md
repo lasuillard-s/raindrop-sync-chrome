@@ -39,7 +39,7 @@ This repository uses [Nix Flakes](https://nix.dev/concepts/flakes.html) for the 
 - `nodejs_24`
 - `yarn`
 
-Run `nix develop` to enter the development shell and `just install` to install JavaScript dependencies and Playwright's Chromium build.
+Run `nix develop` to enter the development shell and `just install` to install JavaScript dependencies and Playwright's Chromium build. Note that containerized end-to-end testing (`yarn run e2e-docker`) requires Docker and Docker Compose which is not managed by the Nix Flakes environment. You may need to install them separately.
 
 If you prefer a containerized setup, copy the checked-in `.devcontainer.example` folder to `.devcontainer` and use that local directory.
 
