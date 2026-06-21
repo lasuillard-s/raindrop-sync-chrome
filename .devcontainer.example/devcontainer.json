@@ -1,22 +1,17 @@
 {
 	"name": "lasuillard-s/raindrop-sync-chrome",
-	"dockerComposeFile": ["./docker-compose.devcontainer.yaml"],
-	"service": "workspace",
-	"mounts": [
-		"source=${localWorkspaceFolder},target=/workspaces/${localWorkspaceFolderBasename},type=bind,consistency=cached"
-	],
-	"workspaceFolder": "/workspaces/${localWorkspaceFolderBasename}",
-	"shutdownAction": "stopCompose",
+	"image": "mcr.microsoft.com/devcontainers/base:dev-trixie",
 	"features": {
-		"ghcr.io/devcontainers-extra/features/pre-commit:2": {},
-		"ghcr.io/devcontainers/features/docker-in-docker:2": {
+		"ghcr.io/devcontainers/features/nix:1": {
+			"extraNixConfig": "extra-experimental-features = nix-command flakes"
+		},
+		"ghcr.io/devcontainers/features/docker-in-docker:3": {
 			"moby": false
 		}
 	},
-	"overrideCommand": true,
-	"onCreateCommand": "./.devcontainer/onCreateCommand.sh",
-	"postStartCommand": "./.devcontainer/postStartCommand.sh",
-	"updateContentCommand": "./.devcontainer/updateContentCommand.sh",
+	"containerEnv": {
+		"CONTAINER": "1"
+	},
 	"customizations": {
 		"vscode": {
 			"extensions": [

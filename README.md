@@ -8,11 +8,11 @@ A Chrome browser extension for syncing bookmarks with Raindrop.io.
 
 ## ✨ Features
 
-Core features supported:
+Raindrop Sync for Chrome keeps a local copy of your Raindrop.io bookmarks in Chrome's native bookmark store.
 
-- [x] One-way sync from Raindrop.io to Chrome Bookmarks
-- [x] Background sync on startup and periodically
-- [x] Publish the extension to the Chrome Web Store
+- One-way sync from Raindrop.io to Chrome Bookmarks
+- Background sync on startup and periodically
+- Release builds are published for installation from the Chrome Web Store
 
 Planned features:
 
@@ -20,11 +20,11 @@ Planned features:
 - [ ] Two-way sync between Raindrop.io and Chrome Bookmarks
 - [ ] Support for additional browsers
 
-### 📱 Use cases
+## 📱 Use cases
 
-The primary purpose of this extension is to retrieve your Raindrop.io bookmarks much **faster** than the official extension allows. By storing them directly within Chrome's native bookmark system, you can find what you need instantly and efficiently.
+The main reason to use this extension is speed. By storing your Raindrop.io bookmarks directly in Chrome, you can search and browse them without waiting for the official extension's UI.
 
-Additionally, this enables seamless integration with desktop launcher utilities. You can easily browse your synced bookmarks through apps like Raycast, Flow Launcher, and Alfred.
+It also works well with desktop launcher apps. You can browse synced bookmarks through apps like Raycast, Flow Launcher, and Alfred.
 
 For example, you can use the Raycast [Browser Bookmarks](https://www.raycast.com/raycast/browser-bookmarks) plugin to search through Chrome bookmarks directly:
 
@@ -33,47 +33,59 @@ For example, you can use the Raycast [Browser Bookmarks](https://www.raycast.com
 ## 🚀 Getting started
 
 > [!WARNING]
-> This project is in the early stages of development. Many features are incomplete or buggy, and there is a risk of breaking your bookmarks due to poor implementation. It is strongly recommend backing up your bookmarks before using this extension.
+> This project is still early. Some workflows are incomplete or buggy, and there is a risk of breaking your bookmarks. Back up your bookmarks before using the extension.
 
-Visit [Chrome Web Store](https://chromewebstore.google.com/detail/raindrop-sync-for-chrome/iacjnnndmkebkjdcdedfbmccofnmaojf) and install the extension. If you want to install the development version or specific version, see the **Installing the development version** section below.
+### 🛠️ Install from the Chrome Web Store
 
-### 👟 Initializing the application
+For the normal release flow, install the extension from the [Chrome Web Store](https://chromewebstore.google.com/detail/raindrop-sync-for-chrome/iacjnnndmkebkjdcdedfbmccofnmaojf).
 
-1. Visit the Options page
+### 👟 Setting up the extension
 
-    Open the extension's options page (right-click the extension icon, then click Options).
+1. Open the extension's Options page.
 
-2. Navigate to the **Integration** tab
+   Right-click the extension icon, then click Options.
 
-3. Follow the instructions to set up the integration
+1. Navigate to the **Integration** tab.
 
-    ![Integration Guide](docs/images/integration-guide.png)
+1. Follow the instructions to set up the integration.
 
-4. Go to the **Bookmarks** tab
+   ![Integration Guide](docs/images/integration-guide.png)
 
-    You can trigger the sync manually by clicking **Start sync**.
+1. Go to the **Bookmarks** tab.
 
-    ![Options page Start sync button](docs/images/options-trigger-sync.png)
+   You can trigger the sync manually by clicking **Start sync**.
 
-    You can also trigger a sync from the popup.
+   ![Options page Start sync button](docs/images/options-trigger-sync.png)
 
-    ![Popup Start sync button](docs/images/popup-trigger-sync.png)
+   You can also trigger a sync from the popup.
 
-### 📦 Installing the development version
+   ![Popup Start sync button](docs/images/popup-trigger-sync.png)
 
-You can install any version of the extension (including older releases or development builds) by following the steps below:
+### 📦 Installing a release build
 
-1. Download the `.zip` file from the [releases page](https://github.com/lasuillard-s/raindrop-sync-chrome/releases) or build it yourself (`make build`).
-1. Extract the contents of the downloaded archive to your desired location, then open Chrome.
-1. Navigate to `chrome://extensions` in your Chrome browser.
-1. Turn on **Developer Mode** on in the top-right corner of the page.
+You can install any published version of the extension, including older releases, by following these steps:
 
-    ![Chrome Manage Extensions Page](docs/images/chrome-manage-extensions.png)
+1. Download the prebuilt `.zip` file from the [releases page](https://github.com/lasuillard-s/raindrop-sync-chrome/releases).
+1. Extract the archive to a local directory, then open Chrome.
+1. Navigate to `chrome://extensions`.
+1. Turn on **Developer Mode** in the top-right corner.
 
-1. Click the **Load Unpacked** button and select the directory where you extracted the extension.
+   ![Chrome Manage Extensions Page](docs/images/chrome-manage-extensions.png)
 
-    ![Chrome Load Unpacked Extension](docs/images/chrome-load-unpacked-extension.png)
+1. Click **Load unpacked** and select the directory where you extracted the extension.
 
-1. You should now see the extension listed among your installed extensions.
+   ![Chrome Load Unpacked Extension](docs/images/chrome-load-unpacked-extension.png)
 
-    ![Chrome Extension Installed](docs/images/chrome-extension-installed.png)
+1. Confirm the extension appears in your installed extensions list.
+
+   ![Chrome Extension Installed](docs/images/chrome-extension-installed.png)
+
+## 💖 Contributing
+
+Please refer to [CONTRIBUTING.md](./CONTRIBUTING.md) for more information on how to contribute to this project.
+
+## 📜 License
+
+Copyright (C) 2026 Yuchan Lee
+
+This project is licensed under the GNU General Public License v3.0. See the [LICENSE](./LICENSE) file for more details.

@@ -2,7 +2,7 @@
 	"version": "0.2.0",
 	"configurations": [
 		{
-			"name": "Attach to Chrome",
+			"name": "Node.js: Attach to Chrome",
 			"port": 9222,
 			"request": "attach",
 			"type": "chrome",

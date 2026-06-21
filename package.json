@@ -1,18 +1,26 @@
 {
 	"name": "raindrop-sync-chrome",
 	"version": "0.7.1",
+	"private": true,
+	"license": "GPL-3.0-only",
+	"repository": {
+		"type": "git",
+		"url": "git+https://github.com/lasuillard-s/raindrop-sync-chrome.git"
+	},
 	"author": {
 		"name": "Yuchan Lee",
 		"url": "https://github.com/lasuillard",
 		"email": "lasuillard@gmail.com"
 	},
 	"homepage": "https://github.com/lasuillard-s/raindrop-sync-chrome",
-	"private": true,
+	"bugs": {
+		"url": "https://github.com/lasuillard-s/raindrop-sync-chrome/issues"
+	},
 	"scripts": {
 		"dev": "vite dev",
 		"build": "vite build",
 		"build:watch": "vite build --watch",
-		"fmt": "prettier --write .",
+		"fmt": "prettier --write --list-different .",
 		"fmt:check": "prettier --check .",
 		"lint": "eslint .",
 		"lint:fix": "eslint . --fix",
@@ -26,9 +34,20 @@
 		"e2e-docker:ui": "./e2e/run.sh test --ui --ui-host 0.0.0.0 --ui-port 8888"
 	},
 	"type": "module",
-	"packageManager": "yarn@1.22.22",
 	"dependencies": {
-		"webextension-polyfill": "^0.12.0"
+		"webextension-polyfill": "0.12.0"
+	},
+	"devEngines": {
+		"runtime": {
+			"name": "node",
+			"version": ">=24",
+			"onFail": "error"
+		},
+		"packageManager": {
+			"name": "yarn",
+			"version": ">=1,<2",
+			"onFail": "error"
+		}
 	},
 	"devDependencies": {
 		"@codecov/vite-plugin": "2.0.1",

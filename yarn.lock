@@ -3124,7 +3124,7 @@ vitest@4.1.9:
     vite "^6.0.0 || ^7.0.0 || ^8.0.0"
     why-is-node-running "^2.3.0"
 
-webextension-polyfill@^0.12.0:
+webextension-polyfill@0.12.0:
   version "0.12.0"
   resolved "https://registry.yarnpkg.com/webextension-polyfill/-/webextension-polyfill-0.12.0.tgz#f62c57d2cd42524e9fbdcee494c034cae34a3d69"
   integrity sha512-97TBmpoWJEE+3nFBQ4VocyCdLKfw54rFaJ6EVQYLBCXqCIpLSZkwGgASpv4oPt9gdKCJ80RJlcmNzNn008Ag6Q==
