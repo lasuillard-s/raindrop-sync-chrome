@@ -2,7 +2,7 @@ idl/
 coverage/
 playwright-report/
 test-results/
-chrome-dev-profile/
+.chromium-user-data/
 renovate.json
 
 .DS_Store

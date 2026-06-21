@@ -30,7 +30,7 @@ alias fmt := format
 # Run all linters
 lint:
     yarn run lint
-    yarn run typecheck
+    yarn run check
 
 # Run all tests
 test:
