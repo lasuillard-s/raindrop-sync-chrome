@@ -37,7 +37,7 @@ test:
     yarn run test
 
 # Run end-to-end tests
-e2e:
+e2e: build
     yarn run e2e-docker
 
 # Apply autofixes
