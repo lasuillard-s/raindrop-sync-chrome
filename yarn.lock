@@ -120,26 +120,25 @@
     "@codecov/bundler-plugin-core" "^2.0.1"
     unplugin "^1.10.1"
 
-"@crxjs/vite-plugin@2.6.1":
-  version "2.6.1"
-  resolved "https://registry.yarnpkg.com/@crxjs/vite-plugin/-/vite-plugin-2.6.1.tgz#12a67fe5f384a2afdb5a8c4be4e43e9273a32fe2"
-  integrity sha512-0RmYlUtQGvHXCz3B/FW7P5j+RBZUc4mk3GIRPXCx5a52N8AQ0e35GvE+Pcap/TKuI09PJgcRTdXeBOavtLVyYg==
+"@crxjs/vite-plugin@2.7.0":
+  version "2.7.0"
+  resolved "https://registry.yarnpkg.com/@crxjs/vite-plugin/-/vite-plugin-2.7.0.tgz#ed138c259958128189f64c3a9c774b4d309d34e7"
+  integrity sha512-NN98fUgJOEiVBshELJnYCW54+K2Yy067++/K+RdxclHsyG08ea+Em3lJJTubtPTCl2bECyp4+K69oT+izilnNw==
   dependencies:
     "@webcomponents/custom-elements" "^1.5.0"
-    acorn-walk "^8.2.0"
+    acorn-walk "^8.3.5"
     convert-source-map "^1.7.0"
     debug "^4.3.3"
     es-module-lexer "^0.10.0"
     fs-extra "^10.0.1"
     jsesc "^3.0.2"
     magic-string "^0.30.12"
-    node-html-parser "^7.0.2"
+    node-html-parser "^7.1.0"
     pathe "^2.0.1"
     picocolors "^1.1.1"
-    react-refresh "^0.13.0"
     rollup "2.80.0"
     rxjs "7.5.7"
-    tinyglobby "^0.2.15"
+    tinyglobby "^0.2.17"
 
 "@emnapi/core@1.10.0", "@emnapi/core@^1.10.0":
   version "1.10.0"
@@ -247,10 +246,10 @@
     "@eslint/core" "^1.2.1"
     levn "^0.4.1"
 
-"@faker-js/faker@10.4.0":
-  version "10.4.0"
-  resolved "https://registry.yarnpkg.com/@faker-js/faker/-/faker-10.4.0.tgz#2dc84d1bc32a2eef3c4658985ca7692a0c5c51b3"
-  integrity sha512-sDBWI3yLy8EcDzgobvJTWq1MJYzAkQdpjXuPukga9wXonhpMRvd1Izuo2Qgwey2OiEoRIBr35RMU9HJRoOHzpw==
+"@faker-js/faker@10.5.0":
+  version "10.5.0"
+  resolved "https://registry.yarnpkg.com/@faker-js/faker/-/faker-10.5.0.tgz#d2f6a8c7f08d087ac5f077d6babd0821edf24c03"
+  integrity sha512-bsxD8WLS5lIj7aaoCx1YJkktqYj5vlBUE6HWzu2Q51ksrGJ0H737ECCKlFU7Yf8Br45z9t99frBp/J7kzbMPAg==
 
 "@floating-ui/core@^1.7.5":
   version "1.7.5"
@@ -903,10 +902,10 @@
   dependencies:
     undici-types ">=7.24.0 <7.24.7"
 
-"@types/node@25.9.3":
-  version "25.9.3"
-  resolved "https://registry.yarnpkg.com/@types/node/-/node-25.9.3.tgz#11dfe7a33e68fa5c560f0aa76cc5595621ef26b9"
-  integrity sha512-603BddQMv3pUcr4U2dhujk83N2tTDVr/34wII2B6bJy6g+8WD6yUb11jszNs0gdi4PesVWl7ABt8nYMVpnLUcg==
+"@types/node@25.9.4":
+  version "25.9.4"
+  resolved "https://registry.yarnpkg.com/@types/node/-/node-25.9.4.tgz#18b63c47f88c1fbbed9d55ea2b66ffd494a47001"
+  integrity sha512-dszCsrKb5U7ZsVZBWiHFklTloVl0mSEnWH/iZXfZUlI4rzCUnsvGmgqfuVRHL54ugE7/wRuxEIXRa2iMZ+BG6g==
   dependencies:
     undici-types ">=7.24.0 <7.24.7"
 
@@ -1137,7 +1136,7 @@ acorn-jsx@^5.3.2:
   resolved "https://registry.yarnpkg.com/acorn-jsx/-/acorn-jsx-5.3.2.tgz#7ed5bb55908b3b2f1bc55c6af1653bada7f07937"
   integrity sha512-rq9s+JNhf0IChjtDXxllJ7g41oZk5SlXtp0LHwyA5cejwn7vKmKp4pPri6YEePv2PU65sAsegbXtIinmDFDXgQ==
 
-acorn-walk@^8.2.0:
+acorn-walk@^8.3.5:
   version "8.3.5"
   resolved "https://registry.yarnpkg.com/acorn-walk/-/acorn-walk-8.3.5.tgz#8a6b8ca8fc5b34685af15dabb44118663c296496"
   integrity sha512-HEHNfbars9v4pgpW6SO1KSPkfoS0xVOM/9UzkJltjlsHZmJasxg8aXkuZa7SMf8vKGIBhpUsPluQSqhJFCqebw==
@@ -1618,10 +1617,10 @@ eslint-config-prettier@10.1.8:
   resolved "https://registry.yarnpkg.com/eslint-config-prettier/-/eslint-config-prettier-10.1.8.tgz#15734ce4af8c2778cc32f0b01b37b0b5cd1ecb97"
   integrity sha512-82GZUjRS0p/jganf6q1rEO25VSoHH0hKPCTrgillPjdI/3bgBhAE1QzHrHTizjpRvy6pGAvKjDJtk2pF9NDq8w==
 
-eslint-plugin-jsdoc@63.0.4:
-  version "63.0.4"
-  resolved "https://registry.yarnpkg.com/eslint-plugin-jsdoc/-/eslint-plugin-jsdoc-63.0.4.tgz#bbc3e29edc96d35b159a59b1f1fcaaf862a0118a"
-  integrity sha512-CzfD5nlKm91L0b4DQq47ERIlL4s4cK5+iQJMI99MDvVWLz+SkwUSGYcIr8ZYsyRw2gQ2MSKsE2StbT1CctdG0A==
+eslint-plugin-jsdoc@63.0.6:
+  version "63.0.6"
+  resolved "https://registry.yarnpkg.com/eslint-plugin-jsdoc/-/eslint-plugin-jsdoc-63.0.6.tgz#ae504659abf5e01fd1afb1051adb8e4309cd899a"
+  integrity sha512-qXMUdwQf+igjSLe/DZqyY1baVR0+snEJ3l/+2odJjeoAG43PrcpA0tSaLw2dC1iHvfKzo1YnZLGvgxrvAViyfQ==
   dependencies:
     "@es-joy/jsdoccomment" "~0.87.0"
     "@es-joy/resolve.exports" "1.2.0"
@@ -2022,10 +2021,10 @@ graceful-fs@^4.1.6, graceful-fs@^4.2.0, graceful-fs@^4.2.4:
   resolved "https://registry.yarnpkg.com/graceful-fs/-/graceful-fs-4.2.11.tgz#4183e4e8bf08bb6e05bbb2f7d2e0c8f712ca40e3"
   integrity sha512-RbJ5/jmFcNNCcDV5o9eTnBLJ/HszWV0P73bc+Ff4nS/rJj+YaS6IGyiOL0VoBYX+l1Wrl3k63h/KrH+nhJ0XvQ==
 
-happy-dom@20.10.4:
-  version "20.10.4"
-  resolved "https://registry.yarnpkg.com/happy-dom/-/happy-dom-20.10.4.tgz#0903ee2199929d6a8dbefaaea14f806d11d5172d"
-  integrity sha512-bKrsQnFNpcjZG0UPsH7UMN7Oyp3AB42LXk2GuiQmu7l4QFxH7lsw5T1eWEtE2+vbIFrTC45sbNSB2pkB8MTfKA==
+happy-dom@20.10.6:
+  version "20.10.6"
+  resolved "https://registry.yarnpkg.com/happy-dom/-/happy-dom-20.10.6.tgz#b92b92abab99f24dd5758b7dc5647f4e4d285707"
+  integrity sha512-6QD0ilzDDt93tX44y8tbmZdAcdTRYDhUP+Asgi6pC8Pp5IA3cvaZGyoVN/EGtlq9ziT65iPuBBn3ASLr6hCgVw==
   dependencies:
     "@types/node" ">=20.0.0"
     "@types/whatwg-mimetype" "^3.0.2"
@@ -2456,7 +2455,7 @@ natural-compare@^1.4.0:
   resolved "https://registry.yarnpkg.com/natural-compare/-/natural-compare-1.4.0.tgz#4abebfeed7541f2c27acfb29bdbbd15c8d5ba4f7"
   integrity sha512-OWND8ei3VtNC9h7V60qff3SVobHr996CTwgxubgyQYEpg290h9J0buyECNNJexkFm5sOajh5G116RYA1c8ZMSw==
 
-node-html-parser@^7.0.2:
+node-html-parser@^7.1.0:
   version "7.1.0"
   resolved "https://registry.yarnpkg.com/node-html-parser/-/node-html-parser-7.1.0.tgz#48e83bd705dd8b89415c00bf670aebfe267312d7"
   integrity sha512-iJo8b2uYGT40Y8BTyy5ufL6IVbN8rbm/1QK2xffXU/1a/v3AAa0d1YAoqBNYqaS4R/HajkWIpIfdE6KcyFh1AQ==
@@ -2658,11 +2657,6 @@ react-is@^17.0.1:
   version "17.0.2"
   resolved "https://registry.yarnpkg.com/react-is/-/react-is-17.0.2.tgz#e691d4a8e9c789365655539ab372762b0efb54f0"
   integrity sha512-w2GsyukL62IJnlaff/nRegPQR94C/XXamvMWmSHRJ4y7Ts/4ocGRmTHvOs8PSE6pB3dWOrD/nueuU5sduBsQ4w==
-
-react-refresh@^0.13.0:
-  version "0.13.0"
-  resolved "https://registry.yarnpkg.com/react-refresh/-/react-refresh-0.13.0.tgz#cbd01a4482a177a5da8d44c9755ebb1f26d5a1c1"
-  integrity sha512-XP8A9BT0CpRBD+NYLLeIhld/RqG9+gktUjW1FkE+Vm7OCinbG1SshcK5tb9ls4kzvjZr9mOQc7HYgBngEyPAXg==
 
 readable-stream@~2.3.6:
   version "2.3.8"
