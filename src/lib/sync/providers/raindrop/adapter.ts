@@ -9,9 +9,7 @@ type GetAllRaindropsResponseItem = generated.GetRaindropsResponse['items'][0];
 
 /** Raindrop collection or bookmark items. */
 export type RaindropItem =
-	| GetRootCollectionsResponseItem
-	| GetChildCollectionsResponseItem
-	| GetAllRaindropsResponseItem;
+	GetRootCollectionsResponseItem | GetChildCollectionsResponseItem | GetAllRaindropsResponseItem;
 
 export class RaindropBookmarkTreeNode extends TreeNode {
 	declare protected readonly raw: RaindropItem | null;
