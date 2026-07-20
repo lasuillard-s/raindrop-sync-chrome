@@ -26,13 +26,13 @@ repos:
         entry: yarn exec -- prettier
         args: [--write]
 
-      - id: typescript
-        name: typescript
+      - id: svelte-check
+        name: svelte-check
         language: system
         types_or: [javascript, ts, svelte]
         pass_filenames: false
-        entry: yarn exec -- tsc
-        args: [--noEmit]
+        entry: yarn exec -- svelte-check
+        args: [--tsconfig, ./tsconfig.json]
 
       - id: vitest
         name: vitest
