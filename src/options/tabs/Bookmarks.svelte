@@ -7,7 +7,7 @@
 	import { RaindropAdapter, type RaindropBookmarkTreeNode } from '$lib/sync/providers/raindrop';
 	import { NeutralTreeNode } from '$lib/sync/tree';
 	import type { SyncEvent, SyncEventListener } from '$services/sync';
-	import { Button, Heading, P, Radio, Spinner, Toggle } from 'flowbite-svelte';
+	import { Button, Heading, Input, P, Radio, Spinner, Toggle } from 'flowbite-svelte';
 	import { ArrowDownOutline } from 'flowbite-svelte-icons';
 	import { onMount } from 'svelte';
 	import SyncDiffSummary from '../components/SyncDiffSummary.svelte';
@@ -49,21 +49,24 @@
 	// --------------------------------------------------------------------------
 	let bookmarkFolders: { id: string; title: string; depth: number }[] = $state([]);
 
-	// Create reactive bindings to settings store
+	// Create local form state variables
 	let autoSyncEnabled = $state(settingsSnapshot.autoSyncEnabled);
 	let autoSyncExecOnStartup = $state(settingsSnapshot.autoSyncExecOnStartup);
 	let autoSyncIntervalInMinutes = $state(settingsSnapshot.autoSyncIntervalInMinutes);
 	let syncLocationId = $state(settingsSnapshot.syncLocation);
+	let syncQuery = $state(settingsSnapshot.syncQuery);
 
-	// Keep local state in sync with settings store
+	// Reset source tree preview whenever syncQuery changes so it rebuilds on next fetch/sync
+	let lastQuery = $state('');
 	$effect(() => {
-		const unsubscribe = settings.$data.subscribe((settings) => {
-			autoSyncEnabled = settings.autoSyncEnabled;
-			autoSyncExecOnStartup = settings.autoSyncExecOnStartup;
-			autoSyncIntervalInMinutes = settings.autoSyncIntervalInMinutes;
-			syncLocationId = settings.syncLocation;
-		});
-		return unsubscribe;
+		if (syncQuery !== lastQuery) {
+			lastQuery = syncQuery;
+			sourceTree = null;
+			currentState = null;
+			desiredState = null;
+			diff = null;
+			plan = null;
+		}
 	});
 
 	// User actions
@@ -75,7 +78,7 @@
 		}
 		try {
 			fetchingSourceTree = true;
-			sourceTree = await sourceAdapter.getTree();
+			sourceTree = await sourceAdapter.getTree(undefined, { query: syncQuery });
 		} finally {
 			fetchingSourceTree = false;
 		}
@@ -150,8 +153,9 @@
 	const runSync = async () => {
 		try {
 			isSyncing = true;
-			await makeSourceTree({ skipIfExists: true });
-			await makeTargetTree({ skipIfExists: true });
+			await saveSettings();
+			await makeSourceTree({ skipIfExists: false });
+			await makeTargetTree({ skipIfExists: false });
 			calculateStates();
 			compareDiff();
 			generatePlan();
@@ -177,7 +181,8 @@
 			autoSyncEnabled,
 			autoSyncExecOnStartup,
 			autoSyncIntervalInMinutes,
-			syncLocation: syncLocationId
+			syncLocation: syncLocationId,
+			syncQuery
 		});
 		await app.sync.scheduleAutoSync();
 		putMessage({ type: 'success', message: 'Sync settings saved.' });
@@ -190,6 +195,13 @@
 		void (async () => {
 			// Load bookmark folders for sync location selection.
 			await settings.init();
+			const snap = settings.snapshot;
+			autoSyncEnabled = snap.autoSyncEnabled;
+			autoSyncExecOnStartup = snap.autoSyncExecOnStartup;
+			autoSyncIntervalInMinutes = snap.autoSyncIntervalInMinutes;
+			syncLocationId = snap.syncLocation;
+			syncQuery = snap.syncQuery;
+
 			const bookmarksTree = (await browser.bookmarks.getTree()) || [];
 			if (!bookmarksTree[0]?.children) {
 				putMessage({ type: 'error', message: 'No bookmark folders found.' });
@@ -317,6 +329,21 @@
 						</label>
 					{/each}
 				</div>
+			</div>
+
+			<!-- Sync Query -->
+			<div class="rounded-lg bg-gray-50 p-4">
+				<div class="mb-3">
+					<P class="text-sm font-semibold text-gray-700">Sync Query</P>
+					<P class="mt-1 text-xs text-gray-500">
+						Filter bookmarks from Raindrop.io using search operators (e.g. #tag, folder, etc.)
+					</P>
+				</div>
+				<Input
+					type="text"
+					placeholder="e.g. #starred or collection:Unsorted"
+					bind:value={syncQuery}
+				/>
 			</div>
 
 			<!-- Save Button -->

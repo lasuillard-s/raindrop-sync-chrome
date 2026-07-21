@@ -162,7 +162,9 @@ export class SyncService {
 
 			// Build source tree (to-be)
 			this.emitEvent(new SyncEventProgress(SyncEventProgressDetail.FetchingSource));
-			const sourceTree = await this.source.getTree();
+			const sourceTree = await this.source.getTree(undefined, {
+				query: settingsSnapshot.syncQuery
+			});
 
 			// Build target tree (as-is)
 			this.emitEvent(new SyncEventProgress(SyncEventProgressDetail.FetchingTarget));

@@ -34,6 +34,9 @@ describe('TreeNode', () => {
 		expect(folder.children).toHaveLength(1);
 		expect(folder.children?.[0].id).toBe('2');
 		expect(bookmark.getPath().toString()).toBe('/Folder/Bookmark');
+
+		folder.removeChild(bookmark);
+		expect(folder.children).toHaveLength(0);
 	});
 
 	it('throws when adding child to bookmark', () => {
