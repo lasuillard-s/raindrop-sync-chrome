@@ -30,10 +30,10 @@ export default defineConfig({
 		],
 		['junit', { outputFile: 'junit.xml' }]
 	],
-	timeout: 30 * 1000,
+	timeout: 30 * 1_000,
 	retries: isCI ? 2 : 0,
 	expect: {
-		timeout: 5 * 1000,
+		timeout: 5 * 1_000,
 		toHaveScreenshot: {
 			maxDiffPixelRatio: 0.01 // 1%
 			// ? Perhaps `fullPage` option is not supported here?
