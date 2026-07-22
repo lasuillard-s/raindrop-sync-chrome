@@ -96,7 +96,7 @@ export class ChromeAdapter extends WritableAdapter<ChromeBookmarkTreeNode> {
 
 	async changedSince(date: Date, options?: { thresholdSeconds: number }): Promise<boolean> {
 		const baseDate = options?.thresholdSeconds
-			? new Date(date.getTime() - options.thresholdSeconds * 1000)
+			? new Date(date.getTime() - options.thresholdSeconds * 1_000)
 			: date;
 
 		const root = await this.getTree();

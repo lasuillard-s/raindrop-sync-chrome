@@ -1,10 +1,12 @@
 @import 'tailwindcss';
+@import '@fontsource-variable/inter/index.css';
 
 @plugin 'flowbite/plugin';
 
 @custom-variant dark (&:is(.dark *));
 
 @theme {
+	--font-sans: 'Inter Variable', sans-serif;
 	--color-primary-50: #fff5f2;
 	--color-primary-100: #fff1ee;
 	--color-primary-200: #ffe4de;
@@ -35,5 +37,11 @@
 	::backdrop,
 	::file-selector-button {
 		border-color: var(--color-gray-200, currentcolor);
+	}
+
+	* {
+		font-family: var(--font-sans);
+		-webkit-font-smoothing: antialiased;
+		-moz-osx-font-smoothing: grayscale;
 	}
 }

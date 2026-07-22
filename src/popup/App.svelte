@@ -44,7 +44,7 @@
 		}
 
 		// ... ago
-		const daysDiff = Math.floor((Date.now() - date.getTime()) / (1000 * 60 * 60 * 24));
+		const daysDiff = Math.floor((Date.now() - date.getTime()) / (1_000 * 60 * 60 * 24));
 		if (daysDiff < 7) {
 			return formatDistanceToNow(date, { addSuffix: true });
 		}
