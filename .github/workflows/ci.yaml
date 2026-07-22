@@ -91,9 +91,6 @@ jobs:
       - name: Checkout
         uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6.0.3
 
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@d7f5e7f509e45cec5c76c4d5afdd7de93d0b3df5 # v4.1.0
-
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@e7f100cf4c008499ea8adda475de1042d6975c7b # v6.2.0
         with:
@@ -113,22 +110,21 @@ jobs:
         run: yarn run build
 
       - name: Get Playwright version
+        id: playwright-version
         run: |
           PLAYWRIGHT_VERSION="$(yarn exec --silent -- playwright --version | awk '{print $2}')"
           echo "PLAYWRIGHT_VERSION=${PLAYWRIGHT_VERSION}" | tee --append "$GITHUB_ENV"
 
-      - name: Build end-to-end test environment
-        uses: docker/bake-action@6614cfa25eff9a0b2b2697efb0b6159e7680d584 # v7.2.0
+      - name: Playwright cache
+        id: playwright-cache
+        uses: actions/cache@v6
         with:
-          push: false
-          load: true
-          source: ./e2e
-          set: |
-            playwright.cache-from=type=gha,scope=playwright
-            playwright.cache-to=type=gha,scope=playwright
+          path: ~/.cache/ms-playwright
+          key: ${{ runner.os }}-playwright-${{ steps.playwright-version.outputs.playwright-version }}
+          restore-keys: ${{ runner.os }}-playwright-
 
       - name: Run end-to-end tests
-        run: yarn run e2e-docker
+        run: yarn run e2e
 
       - name: Upload Playwright report to GitHub
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
@@ -138,7 +134,6 @@ jobs:
           path: |
             playwright-report/
             test-results/
-            e2e/run-*.log
           retention-days: 7
 
       - name: Upload Playwright report to S3

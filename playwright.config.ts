@@ -6,7 +6,16 @@ export default defineConfig({
 	use: {
 		screenshot: isCI ? 'on' : 'only-on-failure',
 		video: isCI ? 'on' : 'retain-on-failure',
-		trace: isCI ? 'on' : 'on-first-retry'
+		trace: isCI ? 'on' : 'on-first-retry',
+		channel: 'chromium',
+		launchOptions: {
+			args: [
+				'--font-render-hinting=none',
+				'--disable-skia-runtime-opts',
+				'--disable-font-subpixel-positioning',
+				'--disable-lcd-text'
+			]
+		}
 	},
 	testDir: 'e2e',
 	testMatch: /(.+\.)?(test|spec)\.[jt]s/,
