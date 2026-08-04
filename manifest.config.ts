@@ -17,11 +17,11 @@ export default defineManifest(async (env) => {
 			...(env.mode == 'development' ? ['http://localhost:5173/*'] : [])
 		],
 		icons: {
-			48: 'public/logo.png'
+			48: 'public/logo (48x48).png'
 		},
 		action: {
 			default_icon: {
-				48: 'public/logo.png'
+				48: 'public/logo (48x48).png'
 			},
 			default_title: 'Test',
 			default_popup: 'src/popup/index.html'
