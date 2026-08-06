@@ -26,8 +26,11 @@ jobs:
           node-version-file: package.json
           cache: yarn
 
+      - name: Enable Corepack
+        run: corepack enable
+
       - name: Install deps
-        run: yarn install --frozen-lockfile
+        run: yarn install --immutable
 
       - name: Build extension
         run: yarn run build

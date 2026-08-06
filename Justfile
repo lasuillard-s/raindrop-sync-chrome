@@ -8,7 +8,7 @@ install:
 
 # Update deps and tools
 update:
-    yarn upgrade
+    yarn up
     pre-commit autoupdate
 
 alias up := update

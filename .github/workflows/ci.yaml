@@ -28,7 +28,7 @@ jobs:
           cache: yarn
 
       - name: Install deps
-        run: yarn install --frozen-lockfile
+        run: yarn install --immutable
 
       - name: Check code formatting
         run: yarn run fmt:check
@@ -57,7 +57,7 @@ jobs:
           cache: yarn
 
       - name: Install deps
-        run: yarn install --frozen-lockfile
+        run: yarn install --immutable
 
       - name: Run tests
         run: yarn run test
@@ -103,8 +103,11 @@ jobs:
           node-version-file: package.json
           cache: yarn
 
+      - name: Enable Corepack
+        run: corepack enable
+
       - name: Install deps
-        run: yarn install --frozen-lockfile
+        run: yarn install --immutable
 
       - name: Build the application
         run: yarn run build
@@ -112,7 +115,7 @@ jobs:
       - name: Get Playwright version
         id: playwright-version
         run: |
-          version="$(yarn exec --silent -- playwright --version | awk '{print $2}')"
+          version="$(yarn exec -- playwright --version | awk '{print $2}')"
           echo "playwright-version=${version}" | tee --append "$GITHUB_OUTPUT"
 
       - name: Playwright cache

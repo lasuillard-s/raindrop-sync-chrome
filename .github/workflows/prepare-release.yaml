@@ -37,6 +37,9 @@ jobs:
           node-version-file: package.json
           cache: yarn
 
+      - name: Enable Corepack
+        run: corepack enable
+
       # https://github.com/killercup/cargo-edit/issues/864
       - name: Set version
         run: |

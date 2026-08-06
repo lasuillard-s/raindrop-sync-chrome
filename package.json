@@ -43,8 +43,8 @@
 		},
 		"packageManager": {
 			"name": "yarn",
-			"version": ">=1,<2",
-			"onFail": "error"
+			"version": "4.14.1",
+			"onFail": "warn"
 		}
 	},
 	"devDependencies": {
