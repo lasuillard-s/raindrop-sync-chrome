@@ -21,7 +21,6 @@
             pre-commit
             just
             nodejs_24
-            yarn-berry
           ];
           shellHook = ''
             pre-commit install

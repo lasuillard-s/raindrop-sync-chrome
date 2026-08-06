@@ -35,13 +35,13 @@ jobs:
         uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
         with:
           node-version-file: package.json
-          cache: yarn
+          cache: npm
 
       - name: Set version
         run: |
           tag="${{ inputs.tag }}"
           tag_no_v="${tag#v}"
-          yarn version --new-version "$tag_no_v" --no-git-tag-version
+          npm version "$tag_no_v" --no-git-tag-version
 
       - name: Generate GitHub App token
         uses: actions/create-github-app-token@bcd2ba49218906704ab6c1aa796996da409d3eb1 # v3.2.0

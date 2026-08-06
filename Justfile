@@ -3,12 +3,12 @@ _default:
 
 # Install deps and tools
 install:
-    yarn install
-    yarn exec -- playwright install --with-deps chromium
+    npm install
+    npm exec -- playwright install --with-deps chromium
 
 # Update deps and tools
 update:
-    yarn up
+    npm update
     pre-commit autoupdate
 
 alias up := update
@@ -23,32 +23,32 @@ ci: (format "yes") lint test e2e
 # Autoformat code
 [arg("check", long="check", value="yes")]
 format check="no":
-    yarn run {{ if check == "yes" { "fmt:check" } else { "fmt" } }}
+    npm run {{ if check == "yes" { "fmt:check" } else { "fmt" } }}
 
 alias fmt := format
 
 # Run all linters
 lint:
-    yarn run lint
-    yarn run check
+    npm run lint
+    npm run check
 
 # Run all tests
 test:
-    yarn run test
+    npm run test
 
 # Run end-to-end tests
 e2e:
-    yarn run build
-    PLAYWRIGHT_HTML_OPEN='on-failure' yarn run e2e --update-snapshots
+    npm run build
+    PLAYWRIGHT_HTML_OPEN='on-failure' npm run e2e --update-snapshots
 
 # Apply autofixes
 fix:
-    yarn run lint:fix
-    yarn run fmt
+    npm run lint:fix
+    npm run fmt
 
 # Build extension
 build:
-    yarn run build
+    npm run build
 
 [private]
 _IS_CONTAINER := `[[ -n "${CONTAINER:-}" ]] && echo "yes" || echo "no"`
@@ -74,14 +74,14 @@ browser load-extension="no":
 run browser="no":
     #!/usr/bin/env bash
     if [ "{{ browser }}" = "yes" ]; then
-        yarn exec -- concurrently \
+        npm exec -- concurrently \
             --kill-others \
             --kill-signal SIGKILL \
             --raw \
-            "yarn run dev" \
+            "npm run dev" \
             "just browser --load-extension"
     else
-        yarn run dev
+        npm run dev
     fi
 
 # =============================================================================
