@@ -24,7 +24,7 @@ export default defineConfig({
 		[
 			'html',
 			{
-				open: isCI ? 'never' : 'on-failure',
+				open: 'never',
 				host: process.env.CONTAINER ? '0.0.0.0' : '127.0.0.1'
 			}
 		],

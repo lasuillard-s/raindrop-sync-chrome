@@ -37,7 +37,6 @@ This repository uses [Nix Flakes](https://nix.dev/concepts/flakes.html) for the 
 - `pre-commit`
 - `just`
 - `nodejs_24`
-- `yarn`
 
 Run `nix develop` to enter the development shell and `just install` to install JavaScript dependencies and Playwright's Chromium build.
 

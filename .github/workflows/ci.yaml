@@ -22,22 +22,22 @@ jobs:
         uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6.1.0
 
       - name: Set up Node.js
-        uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38 # v6.5.0
+        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
         with:
           node-version-file: package.json
-          cache: yarn
+          cache: npm
 
       - name: Install deps
-        run: yarn install --frozen-lockfile
+        run: npm ci
 
       - name: Check code formatting
-        run: yarn run fmt:check
+        run: npm run fmt:check
 
       - name: Lint code
-        run: yarn run lint
+        run: npm run lint
 
       - name: Run check
-        run: yarn run check
+        run: npm run check
 
   test:
     name: Test
@@ -51,16 +51,16 @@ jobs:
         uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6.1.0
 
       - name: Set up Node.js
-        uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38 # v6.5.0
+        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
         with:
           node-version-file: package.json
-          cache: yarn
+          cache: npm
 
       - name: Install deps
-        run: yarn install --frozen-lockfile
+        run: npm ci
 
       - name: Run tests
-        run: yarn run test
+        run: npm run test
 
       - name: Upload test results to codecov
         uses: codecov/codecov-action@fb8b3582c8e4def4969c97caa2f19720cb33a72f # v7.0.0
@@ -98,21 +98,21 @@ jobs:
           role-to-assume: ${{ secrets.AWS_ROLE_TO_ASSUME }}
 
       - name: Set up Node
-        uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38 # v6.5.0
+        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
         with:
           node-version-file: package.json
-          cache: yarn
+          cache: npm
 
       - name: Install deps
-        run: yarn install --frozen-lockfile
+        run: npm ci
 
       - name: Build the application
-        run: yarn run build
+        run: npm run build
 
       - name: Get Playwright version
         id: playwright-version
         run: |
-          version="$(yarn exec --silent -- playwright --version | awk '{print $2}')"
+          version="$(npm exec -- playwright --version | awk '{print $2}')"
           echo "playwright-version=${version}" | tee --append "$GITHUB_OUTPUT"
 
       - name: Playwright cache
@@ -124,10 +124,10 @@ jobs:
 
       - name: Install Playwright dependencies
         if: steps.playwright-cache.outputs.cache-hit != 'true'
-        run: yarn exec -- playwright install --with-deps chromium
+        run: npm exec -- playwright install --with-deps chromium
 
       - name: Run end-to-end tests
-        run: yarn run e2e
+        run: npm run e2e
 
       - name: Upload Playwright report to GitHub
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
