@@ -1,0 +1,11 @@
+{
+	"include": ["vite.config.ts", "playwright.config.ts"],
+	"compilerOptions": {
+		"composite": true,
+		"module": "ESNext",
+		"resolveJsonModule": true,
+		"allowSyntheticDefaultImports": true,
+		"types": ["node"],
+		"checkJs": true
+	}
+}
