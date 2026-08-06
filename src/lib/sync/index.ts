@@ -12,7 +12,7 @@ export {
 	type SyncActionUpdateBookmarkArgs,
 	type SyncActionUpdateFolderArgs
 } from './action';
-export { ReadableAdapter, WritableAdapter } from './adapter';
+export { ReadableAdapter, WritableAdapter, type FetchTreeOptions } from './adapter';
 export { SyncDiff, SyncDiffAnalyzer } from './diff';
 export {
 	AssertionError,

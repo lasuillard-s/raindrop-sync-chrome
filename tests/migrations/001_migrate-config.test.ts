@@ -93,6 +93,7 @@ describe('run', () => {
 				refreshToken: 'refresh-token',
 				clientLastSync: '2026-01-01T00:00:00.000Z',
 				syncLocation: 'folder-id',
+				syncQuery: '',
 				autoSyncEnabled: true,
 				autoSyncIntervalInMinutes: 15,
 				autoSyncExecOnStartup: true

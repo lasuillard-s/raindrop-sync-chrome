@@ -49,7 +49,7 @@ describe('RaindropAdapter', () => {
 
 		expect(client.collection.getRootCollections).toHaveBeenCalledOnce();
 		expect(client.collection.getChildCollections).toHaveBeenCalledOnce();
-		expect(client.getAllRaindrops).toHaveBeenCalledWith(0);
+		expect(client.getAllRaindrops).toHaveBeenCalledWith(0, { search: undefined });
 		expect(paths).toEqual([
 			'/Raindrop.io',
 			'/Raindrop.io/Collection',
@@ -81,8 +81,23 @@ describe('RaindropAdapter', () => {
 			paths.push(node.getPath().toString());
 		});
 
-		expect(client.getAllRaindrops).toHaveBeenCalledWith(42);
+		expect(client.getAllRaindrops).toHaveBeenCalledWith(42, { search: undefined });
 		expect(client.collection.getRootCollections).not.toHaveBeenCalled();
 		expect(paths).toEqual(['/Raindrop.io', '/Raindrop.io/Bookmark-42']);
+	});
+
+	it('passes search query option when provided', async () => {
+		const client = {
+			collection: {
+				getRootCollections: vi.fn(async () => ({ data: { items: [] } })),
+				getChildCollections: vi.fn(async () => ({ data: { items: [] } }))
+			},
+			getAllRaindrops: vi.fn(async () => [])
+		} as any;
+
+		const adapter = new RaindropAdapter(client);
+		await adapter.getTree(undefined, { query: '#starred' });
+
+		expect(client.getAllRaindrops).toHaveBeenCalledWith(0, { search: '#starred' });
 	});
 });

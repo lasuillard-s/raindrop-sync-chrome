@@ -38,7 +38,8 @@ describe('BrowserSettingsRepository', () => {
 			clientLastSync: new Date(0),
 			clientSecret: '',
 			refreshToken: '',
-			syncLocation: ''
+			syncLocation: '',
+			syncQuery: ''
 		});
 	});
 
