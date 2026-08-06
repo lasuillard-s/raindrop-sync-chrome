@@ -32,6 +32,7 @@
 		"e2e:watch": "playwright test --ui"
 	},
 	"type": "module",
+	"packageManager": "yarn@4.14.1",
 	"dependencies": {
 		"webextension-polyfill": "0.12.0"
 	},
@@ -40,11 +41,6 @@
 			"name": "node",
 			"version": ">=24",
 			"onFail": "error"
-		},
-		"packageManager": {
-			"name": "yarn",
-			"version": "4.14.1",
-			"onFail": "warn"
 		}
 	},
 	"devDependencies": {
