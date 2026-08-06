@@ -32,19 +32,15 @@
 		"e2e:watch": "playwright test --ui"
 	},
 	"type": "module",
-	"packageManager": "npm@11.12.1",
-	"overrides": {
-		"@codecov/vite-plugin": {
-			"vite": "$vite"
-		}
-	},
-	"dependencies": {
-		"webextension-polyfill": "0.12.0"
-	},
 	"devEngines": {
 		"runtime": {
 			"name": "node",
 			"version": ">=24",
+			"onFail": "error"
+		},
+		"packageManager": {
+			"name": "npm",
+			"version": ">=11",
 			"onFail": "error"
 		}
 	},
@@ -94,6 +90,12 @@
 		"vite": "8.2.0",
 		"vite-plugin-zip-pack": "1.2.4",
 		"vitest": "4.1.10",
+		"webextension-polyfill": "0.12.0",
 		"zod": "4.4.3"
+	},
+	"overrides": {
+		"@codecov/vite-plugin": {
+			"vite": "$vite"
+		}
 	}
 }
