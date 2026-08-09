@@ -2,22 +2,16 @@ import js from '@eslint/js';
 import prettier from 'eslint-config-prettier/flat';
 import jsdoc from 'eslint-plugin-jsdoc';
 import svelte from 'eslint-plugin-svelte';
+import { includeIgnoreFile } from 'eslint/config';
 import globals from 'globals';
+import { fileURLToPath } from 'node:url';
 import ts from 'typescript-eslint';
 import svelteConfig from './svelte.config.js';
 
+const gitignorePath = fileURLToPath(new URL('.gitignore', import.meta.url));
+
 export default ts.config(
-	{
-		ignores: [
-			'coverage/*',
-			'playwright-report/*',
-			'test-results/*',
-			'dist/*',
-			'.svelte-kit/*',
-			'vite.config.{js,ts}.timestamp-*',
-			'.chromium-user-data/*'
-		]
-	},
+	includeIgnoreFile(gitignorePath, { gitignoreResolution: true }),
 	js.configs.recommended,
 	...ts.configs.recommended,
 	prettier,
