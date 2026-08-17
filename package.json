@@ -70,7 +70,7 @@
 		"date-fns": "4.4.0",
 		"eslint": "10.8.0",
 		"eslint-config-prettier": "10.1.8",
-		"eslint-plugin-jsdoc": "63.3.2",
+		"eslint-plugin-jsdoc": "64.1.0",
 		"eslint-plugin-svelte": "3.22.0",
 		"flowbite": "4.0.2",
 		"flowbite-svelte": "1.33.1",
