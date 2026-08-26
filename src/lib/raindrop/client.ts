@@ -1,6 +1,6 @@
+import { SettingsStore } from '$config';
 import { client, generated } from '@lasuillard/raindrop-client';
 import axios, { AxiosError, type AxiosInstance, type AxiosRequestConfig } from 'axios';
-import { SettingsStore } from '$config';
 
 type GetRootCollectionsResponseItem = generated.GetRootCollectionsResponse['items'][0];
 type GetChildCollectionsResponseItem = generated.GetChildCollectionsResponse['items'][0];
@@ -130,7 +130,7 @@ export function getAxiosClient(settings: SettingsStore): AxiosInstance {
 					return Promise.reject(error);
 				}
 
-				// TODO: It does enqueue requests AFTER error response from server; it would be better to block requests
+				// NOTE: It does enqueue requests AFTER error response from server; it would be better to block requests
 				//       until access token is refreshed at the request interceptor level.
 				//       But the impact is minor in current implementation, so leaving it as is for now.
 				if (isRefreshing) {
@@ -165,7 +165,6 @@ export function getAxiosClient(settings: SettingsStore): AxiosInstance {
 	return instance;
 }
 
-// TODO: Consider refactoring token management with FSM
 /**
  * Try to get new access token using refresh token.
  * If successful, updates access token in settings. Otherwise, clears tokens.
