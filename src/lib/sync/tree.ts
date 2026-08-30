@@ -87,6 +87,23 @@ export abstract class TreeNode {
 	}
 
 	/**
+	 * Remove a specific child node from this folder.
+	 * @param child The child node to remove
+	 */
+	removeChild(child: TreeNode): void {
+		if (this.type !== 'folder') {
+			throw new BookmarkIsNotAFolderError(this.id);
+		}
+		if (!this.childNodes) return;
+		const index = this.childNodes.indexOf(child);
+		if (index !== -1) {
+			this.childNodes.splice(index, 1);
+			child.parent = null;
+			this.invalidateDescendantCountCache();
+		}
+	}
+
+	/**
 	 * Remove all child nodes from this folder.
 	 */
 	clearChildren(): void {

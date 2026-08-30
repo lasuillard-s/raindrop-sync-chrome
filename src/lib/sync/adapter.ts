@@ -1,6 +1,11 @@
 import type { SyncAction } from './action';
 import type { TreeNode } from './tree';
 
+export interface FetchTreeOptions {
+	/** Search query or filter string for fetching nodes. */
+	query?: string;
+}
+
 export abstract class ReadableAdapter<T extends TreeNode = TreeNode> {
 	/**
 	 * Resolves the base node ID to fetch. If `baseNodeId` is not provided, implementations should return the source-specific root node ID.
@@ -11,7 +16,7 @@ export abstract class ReadableAdapter<T extends TreeNode = TreeNode> {
 	/**
 	 * Fetches nodes from the data source. If `baseNodeId` is provided, only fetches the subtree at that node.
 	 */
-	protected abstract fetchNodes(baseNodeId: string): Promise<T[]>;
+	protected abstract fetchNodes(baseNodeId: string, options?: FetchTreeOptions): Promise<T[]>;
 
 	/**
 	 * Builds a tree structure from the flat list of nodes. The `baseNodeId` is provided to identify the root of the subtree being built.
@@ -21,11 +26,12 @@ export abstract class ReadableAdapter<T extends TreeNode = TreeNode> {
 	/**
 	 * Fetches the tree structure from the data source. If `baseNodeId` is provided, fetches the subtree at that node; otherwise, fetches the entire tree.
 	 * @param baseNodeId The base node ID to fetch the tree from.
+	 * @param options Additional options for fetching tree nodes, such as a search query.
 	 * @returns The root node of the fetched tree.
 	 */
-	async getTree(baseNodeId?: string): Promise<T> {
+	async getTree(baseNodeId?: string, options?: FetchTreeOptions): Promise<T> {
 		const resolvedBaseNodeId = this.resolveBaseNodeId(baseNodeId);
-		const nodes = await this.fetchNodes(resolvedBaseNodeId);
+		const nodes = await this.fetchNodes(resolvedBaseNodeId, options);
 		console.debug(`Fetched ${nodes.length} nodes`);
 		return this.buildTree(nodes, resolvedBaseNodeId);
 	}
