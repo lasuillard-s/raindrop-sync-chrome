@@ -62,7 +62,7 @@
 		"@tsconfig/svelte": "5.0.8",
 		"@types/firefox-webext-browser": "143.0.0",
 		"@types/node": "25.9.5",
-		"@types/webextension-polyfill": "0.12.6",
+		"@types/webextension-polyfill": "0.12.5",
 		"@vitest/coverage-v8": "5.0.0",
 		"@vitest/ui": "5.0.0",
 		"axios": "1.20.0",
