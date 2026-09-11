@@ -5,8 +5,8 @@ import tailwindcss from '@tailwindcss/vite';
 import path from 'path';
 import zip from 'vite-plugin-zip-pack';
 import { defineConfig } from 'vitest/config';
-import manifest from './manifest.config';
-import { name, version } from './package.json';
+import manifest from './manifest.config.js';
+import { name, version } from './package.json' with { type: 'json' };
 
 export default defineConfig(({ mode }) => {
 	const plugins = [
@@ -41,16 +41,16 @@ export default defineConfig(({ mode }) => {
 		resolve: {
 			conditions: mode === 'test' ? ['browser'] : undefined,
 			alias: [
-				{ find: '$app.css', replacement: path.resolve(__dirname, 'src/app.css') },
-				{ find: '$app', replacement: path.resolve(__dirname, 'src/app.ts') },
-				{ find: '$assets', replacement: path.resolve(__dirname, 'src/assets') },
-				{ find: '$components', replacement: path.resolve(__dirname, 'src/components') },
-				{ find: '$config', replacement: path.resolve(__dirname, 'src/config') },
-				{ find: '$migrations', replacement: path.resolve(__dirname, 'src/migrations') },
-				{ find: '$services', replacement: path.resolve(__dirname, 'src/services') },
-				{ find: '$lib', replacement: path.resolve(__dirname, 'src/lib') },
-				{ find: '$fixtures', replacement: path.resolve(__dirname, 'tests/fixtures') },
-				{ find: '$test-helpers', replacement: path.resolve(__dirname, 'tests/helpers') }
+				{ find: '$app.css', replacement: path.resolve(import.meta.dirname, 'src/app.css') },
+				{ find: '$app', replacement: path.resolve(import.meta.dirname, 'src/app.ts') },
+				{ find: '$assets', replacement: path.resolve(import.meta.dirname, 'src/assets') },
+				{ find: '$components', replacement: path.resolve(import.meta.dirname, 'src/components') },
+				{ find: '$config', replacement: path.resolve(import.meta.dirname, 'src/config') },
+				{ find: '$migrations', replacement: path.resolve(import.meta.dirname, 'src/migrations') },
+				{ find: '$services', replacement: path.resolve(import.meta.dirname, 'src/services') },
+				{ find: '$lib', replacement: path.resolve(import.meta.dirname, 'src/lib') },
+				{ find: '$fixtures', replacement: path.resolve(import.meta.dirname, 'tests/fixtures') },
+				{ find: '$test-helpers', replacement: path.resolve(import.meta.dirname, 'tests/helpers') }
 			]
 		},
 		server: {
