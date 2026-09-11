@@ -1,5 +1,5 @@
 import { defineManifest } from '@crxjs/vite-plugin';
-import packageManifest from './package.json';
+import packageManifest from './package.json' with { type: 'json' };
 
 // Chrome Manifest Version 3
 // https://developer.chrome.com/docs/extensions/mv3/intro/
