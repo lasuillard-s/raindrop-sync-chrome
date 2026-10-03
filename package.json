@@ -46,7 +46,7 @@
 	},
 	"devDependencies": {
 		"@codecov/vite-plugin": "2.0.1",
-		"@crxjs/vite-plugin": "2.7.1",
+		"@crxjs/vite-plugin": "3.0.0",
 		"@eslint/eslintrc": "3.3.7",
 		"@eslint/js": "10.0.1",
 		"@faker-js/faker": "10.6.0",
