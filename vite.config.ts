@@ -61,7 +61,7 @@ export default defineConfig(({ mode }) => {
 		test: {
 			expect: { requireAssertions: true },
 			include: ['tests/**/*.{test,spec}.{js,ts}'],
-			reporters: ['junit', 'default'],
+			reporters: ['junit', 'default', 'html'],
 			outputFile: {
 				junit: './junit.xml'
 			},
