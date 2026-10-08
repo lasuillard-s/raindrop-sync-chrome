@@ -2,183 +2,185 @@
  * Represents a normalized path for bookmarks.
  */
 export class Path {
-	private pathSegments: string[];
+  private pathSegments: string[];
 
-	constructor(args: { pathString?: string; segments?: string[] }) {
-		if (args.pathString && args.segments) {
-			throw new Error('Cannot provide both pathString and segments');
-		}
+  constructor(args: { pathString?: string; segments?: string[] }) {
+    if (args.pathString && args.segments) {
+      throw new Error("Cannot provide both pathString and segments");
+    }
 
-		let segments: string[];
-		if (args.pathString) {
-			segments = args.pathString.split(/(?<!\\)\//); // Split on unescaped slashes
-		} else if (args.segments) {
-			segments = args.segments;
-		} else {
-			throw new Error('Either pathString or segments must be provided');
-		}
+    let segments: string[];
+    if (args.pathString) {
+      segments = args.pathString.split(/(?<!\\)\//); // Split on unescaped slashes
+    } else if (args.segments) {
+      segments = args.segments;
+    } else {
+      throw new Error("Either pathString or segments must be provided");
+    }
 
-		// Strip leading empty segment if path starts with a slash
-		if (segments.length > 1 && segments[0] === '') {
-			segments = segments.slice(1);
-		}
+    // Strip leading empty segment if path starts with a slash
+    if (segments.length > 1 && segments[0] === "") {
+      segments = segments.slice(1);
+    }
 
-		this.pathSegments = segments;
-	}
+    this.pathSegments = segments;
+  }
 
-	static root(): Path {
-		return new Path({ segments: [] });
-	}
+  static root(): Path {
+    return new Path({ segments: [] });
+  }
 
-	/**
-	 * Get the segments of the path.
-	 * @returns An array of path segments.
-	 */
-	getSegments(): string[] {
-		return [...this.pathSegments];
-	}
+  /**
+   * Get the segments of the path.
+   * @returns An array of path segments.
+   */
+  getSegments(): string[] {
+    return [...this.pathSegments];
+  }
 
-	/**
-	 * Get the full path as a string.
-	 * @returns The full path string.
-	 */
-	toString(): string {
-		return '/' + this.pathSegments.join('/');
-	}
+  /**
+   * Get the full path as a string.
+   * @returns The full path string.
+   */
+  toString(): string {
+    return "/" + this.pathSegments.join("/");
+  }
 
-	/**
-	 * Get the parent path.
-	 * @returns The parent Path.
-	 */
-	getParent(): Path {
-		if (this.pathSegments.length <= 1) {
-			return Path.root();
-		}
-		const parentSegments = this.pathSegments.slice(0, -1);
-		return new Path({ segments: parentSegments });
-	}
+  /**
+   * Get the parent path.
+   * @returns The parent Path.
+   */
+  getParent(): Path {
+    if (this.pathSegments.length <= 1) {
+      return Path.root();
+    }
+    const parentSegments = this.pathSegments.slice(0, -1);
+    return new Path({ segments: parentSegments });
+  }
 
-	/**
-	 * Join additional segments to the current path.
-	 * @param segments The segments to join.
-	 * @returns A new Path with the joined segments.
-	 */
-	join(...segments: string[]): Path {
-		const newSegments = [...this.pathSegments, ...segments];
-		return new Path({ segments: newSegments });
-	}
+  /**
+   * Join additional segments to the current path.
+   * @param segments The segments to join.
+   * @returns A new Path with the joined segments.
+   */
+  join(...segments: string[]): Path {
+    const newSegments = [...this.pathSegments, ...segments];
+    return new Path({ segments: newSegments });
+  }
 
-	/**
-	 * Join another Path to the current path.
-	 * @param other The Path to join.
-	 * @returns A new Path with the joined segments.
-	 */
-	joinPath(other: Path): Path {
-		return this.join(...other.getSegments());
-	}
+  /**
+   * Join another Path to the current path.
+   * @param other The Path to join.
+   * @returns A new Path with the joined segments.
+   */
+  joinPath(other: Path): Path {
+    return this.join(...other.getSegments());
+  }
 
-	/**
-	 * Get the basename of the path (the last segment).
-	 * @returns The basename of the path, or an empty string if the path is empty.
-	 */
-	basename(): string {
-		if (this.pathSegments.length === 0) {
-			return '';
-		}
-		return this.pathSegments[this.pathSegments.length - 1];
-	}
+  /**
+   * Get the basename of the path (the last segment).
+   * @returns The basename of the path, or an empty string if the path is empty.
+   */
+  basename(): string {
+    if (this.pathSegments.length === 0) {
+      return "";
+    }
+    return this.pathSegments[this.pathSegments.length - 1];
+  }
 
-	/**
-	 * Get the number of segments in the path.
-	 * @returns Path depth from the root.
-	 */
-	depth(): number {
-		return this.pathSegments.length;
-	}
+  /**
+   * Get the number of segments in the path.
+   * @returns Path depth from the root.
+   */
+  depth(): number {
+    return this.pathSegments.length;
+  }
 
-	/**
-	 * Check whether this path (e.g. /a/b/c) is nested beneath another path (e.g. /a/b).
-	 * @param ancestor Candidate ancestor path.
-	 * @returns True when this path is a strict descendant of ancestor.
-	 */
-	isDescendantOf(ancestor: Path): boolean {
-		// A path cannot be a descendant of itself or of a shorter path
-		if (this.pathSegments.length <= ancestor.pathSegments.length) {
-			return false;
-		}
+  /**
+   * Check whether this path (e.g. /a/b/c) is nested beneath another path (e.g. /a/b).
+   * @param ancestor Candidate ancestor path.
+   * @returns True when this path is a strict descendant of ancestor.
+   */
+  isDescendantOf(ancestor: Path): boolean {
+    // A path cannot be a descendant of itself or of a shorter path
+    if (this.pathSegments.length <= ancestor.pathSegments.length) {
+      return false;
+    }
 
-		// Check if all segments of the ancestor match the corresponding segments of this path
-		return ancestor.pathSegments.every((segment, index) => this.pathSegments[index] === segment);
-	}
+    // Check if all segments of the ancestor match the corresponding segments of this path
+    return ancestor.pathSegments.every(
+      (segment, index) => this.pathSegments[index] === segment,
+    );
+  }
 }
 
 /**
  * A generic map where keys are Paths.
  */
 export class PathMap<Value> {
-	private map: Map<string, Value>;
+  private map: Map<string, Value>;
 
-	constructor() {
-		this.map = new Map<string, Value>();
-	}
+  constructor() {
+    this.map = new Map<string, Value>();
+  }
 
-	get size(): number {
-		return this.map.size;
-	}
+  get size(): number {
+    return this.map.size;
+  }
 
-	get(path: Path): Value | undefined {
-		return this.map.get(path.toString());
-	}
+  get(path: Path): Value | undefined {
+    return this.map.get(path.toString());
+  }
 
-	set(path: Path, value: Value): void {
-		this.map.set(path.toString(), value);
-	}
+  set(path: Path, value: Value): void {
+    this.map.set(path.toString(), value);
+  }
 
-	delete(path: Path): boolean {
-		return this.map.delete(path.toString());
-	}
+  delete(path: Path): boolean {
+    return this.map.delete(path.toString());
+  }
 
-	has(path: Path): boolean {
-		return this.map.has(path.toString());
-	}
+  has(path: Path): boolean {
+    return this.map.has(path.toString());
+  }
 
-	entries(): IterableIterator<[Path, Value]> {
-		// NOTE: `this.map.entries().map(([key, value]) => [new Path({ pathString: key }), value])`
-		//       will fail because Map's iterator does not have a `map` method.
-		const iterator = this.map.entries();
-		return {
-			[Symbol.iterator]() {
-				return this;
-			},
-			next(): IteratorResult<[Path, Value]> {
-				const result = iterator.next();
-				if (result.done) {
-					return { done: true, value: undefined };
-				}
-				const [key, value] = result.value;
-				return { done: false, value: [new Path({ pathString: key }), value] };
-			}
-		};
-	}
+  entries(): IterableIterator<[Path, Value]> {
+    // NOTE: `this.map.entries().map(([key, value]) => [new Path({ pathString: key }), value])`
+    //       will fail because Map's iterator does not have a `map` method.
+    const iterator = this.map.entries();
+    return {
+      [Symbol.iterator]() {
+        return this;
+      },
+      next(): IteratorResult<[Path, Value]> {
+        const result = iterator.next();
+        if (result.done) {
+          return { done: true, value: undefined };
+        }
+        const [key, value] = result.value;
+        return { done: false, value: [new Path({ pathString: key }), value] };
+      },
+    };
+  }
 
-	keys(): IterableIterator<Path> {
-		const iterator = this.map.keys();
-		return {
-			[Symbol.iterator]() {
-				return this;
-			},
-			next(): IteratorResult<Path> {
-				const result = iterator.next();
-				if (result.done) {
-					return { done: true, value: undefined };
-				}
-				const key = result.value;
-				return { done: false, value: new Path({ pathString: key }) };
-			}
-		};
-	}
+  keys(): IterableIterator<Path> {
+    const iterator = this.map.keys();
+    return {
+      [Symbol.iterator]() {
+        return this;
+      },
+      next(): IteratorResult<Path> {
+        const result = iterator.next();
+        if (result.done) {
+          return { done: true, value: undefined };
+        }
+        const key = result.value;
+        return { done: false, value: new Path({ pathString: key }) };
+      },
+    };
+  }
 
-	values(): IterableIterator<Value> {
-		return this.map.values();
-	}
+  values(): IterableIterator<Value> {
+    return this.map.values();
+  }
 }

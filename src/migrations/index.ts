@@ -1,2 +1,2 @@
-export { doMigrate } from './main';
-export type { MigrationBase, MigrationContext } from './types';
+export { doMigrate } from "./main";
+export type { MigrationBase, MigrationContext } from "./types";

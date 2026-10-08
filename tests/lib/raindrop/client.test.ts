@@ -1,3 +1,3 @@
-import { it } from 'vitest';
+import { it } from "vitest";
 
-it.todo('nothing to test yet');
+it.todo("nothing to test yet");

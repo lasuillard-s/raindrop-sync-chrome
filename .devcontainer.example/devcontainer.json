@@ -1,25 +1,25 @@
 {
-	"name": "lasuillard-s/raindrop-sync-chrome",
-	"image": "mcr.microsoft.com/devcontainers/base:dev-trixie",
-	"features": {
-		"ghcr.io/devcontainers/features/nix:1": {
-			"extraNixConfig": "extra-experimental-features = nix-command flakes"
-		}
-	},
-	"containerEnv": {
-		"CONTAINER": "1"
-	},
-	"customizations": {
-		"vscode": {
-			"extensions": [
-				"dbaeumer.vscode-eslint",
-				"esbenp.prettier-vscode",
-				"editorconfig.editorconfig",
-				"svelte.svelte-vscode",
-				"bradlc.vscode-tailwindcss",
-				"vitest.explorer",
-				"ms-playwright.playwright"
-			]
-		}
-	}
+  "name": "lasuillard-s/raindrop-sync-chrome",
+  "image": "mcr.microsoft.com/devcontainers/base:dev-trixie",
+  "features": {
+    "ghcr.io/devcontainers/features/nix:1": {
+      "extraNixConfig": "extra-experimental-features = nix-command flakes"
+    }
+  },
+  "containerEnv": {
+    "CONTAINER": "1"
+  },
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "dbaeumer.vscode-eslint",
+        "esbenp.prettier-vscode",
+        "editorconfig.editorconfig",
+        "svelte.svelte-vscode",
+        "bradlc.vscode-tailwindcss",
+        "vitest.explorer",
+        "ms-playwright.playwright"
+      ]
+    }
+  }
 }

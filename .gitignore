@@ -2,6 +2,7 @@
 .pnpm-store
 .tmp
 .vscode
+.vitest
 .chromium-user-data
 dummy-non-existing-folder
 playwright-report

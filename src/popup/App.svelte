@@ -1,146 +1,155 @@
 <script lang="ts">
-	import { format, formatDistanceToNow } from 'date-fns';
-	import { A, Toggle } from 'flowbite-svelte';
-	import { RefreshOutline } from 'flowbite-svelte-icons';
-	import { onMount } from 'svelte';
-	import { App } from '$app';
-	import { type SyncEvent, type SyncEventListener } from '$services/sync';
+  import { format, formatDistanceToNow } from "date-fns";
+  import { A, Toggle } from "flowbite-svelte";
+  import { RefreshOutline } from "flowbite-svelte-icons";
+  import { onMount } from "svelte";
+  import { App } from "$app";
+  import { type SyncEvent, type SyncEventListener } from "$services/sync";
 
-	const app = App.getInstance();
-	const settings = app.settings;
+  const app = App.getInstance();
+  const settings = app.settings;
 
-	let isSyncing = $state(false);
-	let forceSync = $state(false);
-	let rotation = $state(0);
-	let animationFrame: number | null = $state(null);
-	let lastSyncTime = $state(settings.snapshot.clientLastSync);
-	let latestSyncEvent: SyncEvent | null = $state(null);
+  let isSyncing = $state(false);
+  let forceSync = $state(false);
+  let rotation = $state(0);
+  let animationFrame: number | null = $state(null);
+  let lastSyncTime = $state(settings.snapshot.clientLastSync);
+  let latestSyncEvent: SyncEvent | null = $state(null);
 
-	class SyncEventListenerImpl implements SyncEventListener {
-		onEvent(event: SyncEvent) {
-			latestSyncEvent = event;
-		}
-	}
+  class SyncEventListenerImpl implements SyncEventListener {
+    onEvent(event: SyncEvent) {
+      latestSyncEvent = event;
+    }
+  }
 
-	onMount(() => {
-		const unsubscribe = settings.$data.subscribe((data) => {
-			lastSyncTime = data.clientLastSync;
-		});
-		const listener = new SyncEventListenerImpl();
-		app.sync.addEventListener(listener);
+  onMount(() => {
+    const unsubscribe = settings.$data.subscribe((data) => {
+      lastSyncTime = data.clientLastSync;
+    });
+    const listener = new SyncEventListenerImpl();
+    app.sync.addEventListener(listener);
 
-		void settings.ready();
+    void settings.ready();
 
-		return () => {
-			unsubscribe();
-			app.sync.removeEventListener(listener);
-		};
-	});
+    return () => {
+      unsubscribe();
+      app.sync.removeEventListener(listener);
+    };
+  });
 
-	const formatLastSync = (date: Date): string => {
-		// If never synced (epoch date)
-		if (date.getTime() === 0) {
-			return 'Never synced';
-		}
+  const formatLastSync = (date: Date): string => {
+    // If never synced (epoch date)
+    if (date.getTime() === 0) {
+      return "Never synced";
+    }
 
-		// ... ago
-		const daysDiff = Math.floor((Date.now() - date.getTime()) / (1_000 * 60 * 60 * 24));
-		if (daysDiff < 7) {
-			return formatDistanceToNow(date, { addSuffix: true });
-		}
+    // ... ago
+    const daysDiff = Math.floor(
+      (Date.now() - date.getTime()) / (1_000 * 60 * 60 * 24),
+    );
+    if (daysDiff < 7) {
+      return formatDistanceToNow(date, { addSuffix: true });
+    }
 
-		// MM/DD/YYYY
-		return format(date, 'P');
-	};
+    // MM/DD/YYYY
+    return format(date, "P");
+  };
 
-	const startRotation = () => {
-		const animate = () => {
-			rotation = (rotation + 8) % 360;
-			if (isSyncing) {
-				animationFrame = requestAnimationFrame(animate);
-			}
-		};
-		animationFrame = requestAnimationFrame(animate);
-	};
+  const startRotation = () => {
+    const animate = () => {
+      rotation = (rotation + 8) % 360;
+      if (isSyncing) {
+        animationFrame = requestAnimationFrame(animate);
+      }
+    };
+    animationFrame = requestAnimationFrame(animate);
+  };
 
-	const handleSync = async () => {
-		if (isSyncing) return;
+  const handleSync = async () => {
+    if (isSyncing) return;
 
-		isSyncing = true;
-		startRotation();
-		try {
-			await app.sync.runFullSync({}, { force: forceSync });
-		} catch (error) {
-			console.error('Sync error:', error);
-		} finally {
-			isSyncing = false;
-			if (animationFrame !== null) {
-				cancelAnimationFrame(animationFrame);
-				animationFrame = null;
-			}
-			// Reset rotation to 0 with smooth transition; to rewind it back, set it to 0
-			rotation = 360;
-		}
-	};
+    isSyncing = true;
+    startRotation();
+    try {
+      await app.sync.runFullSync({}, { force: forceSync });
+    } catch (error) {
+      console.error("Sync error:", error);
+    } finally {
+      isSyncing = false;
+      if (animationFrame !== null) {
+        cancelAnimationFrame(animationFrame);
+        animationFrame = null;
+      }
+      // Reset rotation to 0 with smooth transition; to rewind it back, set it to 0
+      rotation = 360;
+    }
+  };
 
-	const openOptionsPage = () => browser.runtime.openOptionsPage();
+  const openOptionsPage = () => browser.runtime.openOptionsPage();
 </script>
 
 <main class="flex w-72 flex-col bg-white">
-	<!-- Header -->
-	<div class="border-b border-gray-200 px-4 py-3">
-		<h1 class="text-center text-lg font-semibold text-gray-800">Raindrop Sync for Chrome</h1>
-	</div>
+  <!-- Header -->
+  <div class="border-b border-gray-200 px-4 py-3">
+    <h1 class="text-center text-lg font-semibold text-gray-800">
+      Raindrop Sync for Chrome
+    </h1>
+  </div>
 
-	<!-- Main Content -->
-	<div class="flex flex-col items-center px-4 py-6">
-		<!-- Sync Button -->
-		<button
-			onclick={handleSync}
-			disabled={isSyncing}
-			class="group flex h-36 w-36 items-center justify-center rounded-full border-2 border-blue-500 bg-white transition-all duration-200 hover:border-blue-600 hover:bg-blue-50 disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:bg-white"
-			aria-label="Sync bookmarks"
-		>
-			<RefreshOutline
-				class="h-18 w-18 text-blue-500 group-hover:text-blue-600"
-				style="transform: rotate({rotation}deg); transition: transform {isSyncing
-					? '0s'
-					: '0.5s ease-out'};"
-			/>
-		</button>
+  <!-- Main Content -->
+  <div class="flex flex-col items-center px-4 py-6">
+    <!-- Sync Button -->
+    <button
+      onclick={handleSync}
+      disabled={isSyncing}
+      class="group flex h-36 w-36 items-center justify-center rounded-full border-2 border-blue-500 bg-white transition-all duration-200 hover:border-blue-600 hover:bg-blue-50 disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:bg-white"
+      aria-label="Sync bookmarks"
+    >
+      <RefreshOutline
+        class="h-18 w-18 text-blue-500 group-hover:text-blue-600"
+        style="transform: rotate({rotation}deg); transition: transform {isSyncing
+          ? '0s'
+          : '0.5s ease-out'};"
+      />
+    </button>
 
-		<!-- Status Info -->
-		<p
-			class="mt-6 text-center text-sm {latestSyncEvent?.type === 'error'
-				? 'text-red-600'
-				: 'text-gray-600'}"
-		>
-			{latestSyncEvent?.toMessage() ?? ''}
-		</p>
-		<p class="mt-4 text-sm text-gray-600">
-			Last sync: <span class="font-medium text-gray-800">{formatLastSync(lastSyncTime)}</span>
-		</p>
+    <!-- Status Info -->
+    <p
+      class="mt-6 text-center text-sm {latestSyncEvent?.type === 'error'
+        ? 'text-red-600'
+        : 'text-gray-600'}"
+    >
+      {latestSyncEvent?.toMessage() ?? ""}
+    </p>
+    <p class="mt-4 text-sm text-gray-600">
+      Last sync: <span class="font-medium text-gray-800"
+        >{formatLastSync(lastSyncTime)}</span
+      >
+    </p>
 
-		<!-- Force Sync Toggle -->
-		<div class="mt-6 flex w-full justify-center">
-			<Toggle bind:checked={forceSync} disabled={isSyncing}>
-				<span class="text-sm text-gray-700">Force sync</span>
-			</Toggle>
-		</div>
-	</div>
+    <!-- Force Sync Toggle -->
+    <div class="mt-6 flex w-full justify-center">
+      <Toggle bind:checked={forceSync} disabled={isSyncing}>
+        <span class="text-sm text-gray-700">Force sync</span>
+      </Toggle>
+    </div>
+  </div>
 
-	<!-- Footer -->
-	<div class="border-t border-gray-200 px-4 py-3">
-		<div class="flex items-center justify-end">
-			<A onclick={openOptionsPage} class="text-sm text-blue-600 hover:text-blue-700">Settings</A>
-		</div>
-	</div>
+  <!-- Footer -->
+  <div class="border-t border-gray-200 px-4 py-3">
+    <div class="flex items-center justify-end">
+      <A
+        onclick={openOptionsPage}
+        class="text-sm text-blue-600 hover:text-blue-700">Settings</A
+      >
+    </div>
+  </div>
 </main>
 
 <style lang="postcss">
-	@reference '../app.css';
+  @reference '../app.css';
 
-	:root {
-		@apply mx-2 my-1 pb-2;
-	}
+  :root {
+    @apply mx-2 my-1 pb-2;
+  }
 </style>

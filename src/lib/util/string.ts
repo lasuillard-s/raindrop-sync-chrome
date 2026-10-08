@@ -7,20 +7,20 @@
  * @returns Normalized URL
  */
 export function normalizeUrl(url: string): string {
-	let normalized = url.trim();
+  let normalized = url.trim();
 
-	// Remove trailing slash
-	normalized = normalized.replace(/\/$/, '');
+  // Remove trailing slash
+  normalized = normalized.replace(/\/$/, "");
 
-	// Escape backslashes
-	normalized = normalized.replace(/\\/g, '\\\\');
+  // Escape backslashes
+  normalized = normalized.replace(/\\/g, "\\\\");
 
-	// Escape slashes
-	normalized = normalized.replace(/\//g, '\\/');
+  // Escape slashes
+  normalized = normalized.replace(/\//g, "\\/");
 
-	// ... add more processing code here
+  // ... add more processing code here
 
-	return normalized;
+  return normalized;
 }
 
 /**
@@ -29,10 +29,10 @@ export function normalizeUrl(url: string): string {
  * @returns True if the URL is safe, false otherwise
  */
 export function isUrlSafeHref(href: string): boolean {
-	if (!(href.startsWith('http://') || href.startsWith('https://'))) {
-		return false;
-	}
-	return true;
+  if (!(href.startsWith("http://") || href.startsWith("https://"))) {
+    return false;
+  }
+  return true;
 }
 
 /**
@@ -41,8 +41,8 @@ export function isUrlSafeHref(href: string): boolean {
  * @returns A string representation of the error message
  */
 export function errorToString(error: unknown): string {
-	if (error instanceof Error) {
-		return error.message;
-	}
-	return String(error);
+  if (error instanceof Error) {
+    return error.message;
+  }
+  return String(error);
 }

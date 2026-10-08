@@ -1,82 +1,96 @@
 <script lang="ts">
-	import type { TreeNode } from '$lib/sync/tree';
-	import { isUrlSafeHref } from '$lib/util/string';
-	import { ChevronDownOutline, ChevronRightOutline } from 'flowbite-svelte-icons';
-	import Self from './Tree.svelte';
+  import type { TreeNode } from "$lib/sync/tree";
+  import { isUrlSafeHref } from "$lib/util/string";
+  import {
+    ChevronDownOutline,
+    ChevronRightOutline,
+  } from "flowbite-svelte-icons";
+  import Self from "./Tree.svelte";
 
-	interface Props {
-		treeNode: TreeNode;
-		collapsed?: boolean;
-		/** Override for title -- root-only. */
-		nodeTitleOverride?: string | null;
-		/** Special property for overriding defaults for all children components. */
-		propagatingDefaults?: {
-			collapsed?: boolean;
-		};
-	}
-	let { treeNode, collapsed, nodeTitleOverride = null, propagatingDefaults }: Props = $props();
+  interface Props {
+    treeNode: TreeNode;
+    collapsed?: boolean;
+    /** Override for title -- root-only. */
+    nodeTitleOverride?: string | null;
+    /** Special property for overriding defaults for all children components. */
+    propagatingDefaults?: {
+      collapsed?: boolean;
+    };
+  }
+  let {
+    treeNode,
+    collapsed,
+    nodeTitleOverride = null,
+    propagatingDefaults,
+  }: Props = $props();
 
-	const isFolder: boolean = $derived(treeNode.isFolder());
-	const href: string | null = $derived(treeNode.url);
-	const nodeTitle: string = $derived(nodeTitleOverride || treeNode.title || '');
-	const hasChildren: boolean = $derived(treeNode.children ? treeNode.children.length > 0 : false);
-	const descendantCount: number = $derived(treeNode.countDescendants());
-	const pathString: string = $derived(treeNode.getPath().toString());
+  const isFolder: boolean = $derived(treeNode.isFolder());
+  const href: string | null = $derived(treeNode.url);
+  const nodeTitle: string = $derived(nodeTitleOverride || treeNode.title || "");
+  const hasChildren: boolean = $derived(
+    treeNode.children ? treeNode.children.length > 0 : false,
+  );
+  const descendantCount: number = $derived(treeNode.countDescendants());
+  const pathString: string = $derived(treeNode.getPath().toString());
 
-	const toggleCollapse = () => {
-		collapsed = !collapsed;
-	};
+  const toggleCollapse = () => {
+    collapsed = !collapsed;
+  };
 
-	$effect(() => {
-		if (collapsed === undefined) {
-			collapsed = propagatingDefaults?.collapsed ?? true;
-		}
-	});
+  $effect(() => {
+    if (collapsed === undefined) {
+      collapsed = propagatingDefaults?.collapsed ?? true;
+    }
+  });
 </script>
 
 <div class="leading-relaxed" data-testid={pathString}>
-	{#if isFolder}
-		<div class="inline-flex items-center gap-1.5">
-			{#if hasChildren}
-				<button
-					type="button"
-					onclick={toggleCollapse}
-					class="inline-flex cursor-pointer items-center gap-1.5 rounded px-1.5 py-0.5 transition-colors hover:bg-gray-100"
-					data-testid={`${pathString}::toggle`}
-				>
-					{#if collapsed}
-						<ChevronRightOutline class="h-3.5 w-3.5 shrink-0 text-gray-600" />
-					{:else}
-						<ChevronDownOutline class="h-3.5 w-3.5 shrink-0 text-gray-600" />
-					{/if}
-					<strong class="text-sm">📁 {nodeTitle}</strong>
-					<span class="text-xs font-normal text-gray-500">({descendantCount})</span>
-				</button>
-			{:else}
-				<span class="inline-flex items-center gap-1.5 px-1.5 py-0.5">
-					<span class="h-3.5 w-3.5"></span>
-					<strong class="text-sm">📁 {nodeTitle}</strong>
-					<span class="text-xs font-normal text-gray-500">({descendantCount})</span>
-				</span>
-			{/if}
-		</div>
-	{:else}
-		<div class="inline-flex items-center px-1.5 py-0.5">
-			<span class="mr-1.5 h-3.5 w-3.5"></span>
-			<a
-				href={href && isUrlSafeHref(href) ? href : undefined}
-				target="_blank"
-				rel="noopener noreferrer"
-				class="text-sm text-blue-600 transition-colors hover:text-blue-700 hover:underline"
-				data-testid={`${pathString}::link`}>🔖 {nodeTitle}</a
-			>
-		</div>
-	{/if}
-	{#if hasChildren && !collapsed}
-		<div class="mt-0.5 ml-6">
-			{#each treeNode.children ?? [] as child (child.id)}
-				<Self treeNode={child} {propagatingDefaults} />
-			{/each}
-		</div>
-	{/if}
+  {#if isFolder}
+    <div class="inline-flex items-center gap-1.5">
+      {#if hasChildren}
+        <button
+          type="button"
+          onclick={toggleCollapse}
+          class="inline-flex cursor-pointer items-center gap-1.5 rounded px-1.5 py-0.5 transition-colors hover:bg-gray-100"
+          data-testid={`${pathString}::toggle`}
+        >
+          {#if collapsed}
+            <ChevronRightOutline class="h-3.5 w-3.5 shrink-0 text-gray-600" />
+          {:else}
+            <ChevronDownOutline class="h-3.5 w-3.5 shrink-0 text-gray-600" />
+          {/if}
+          <strong class="text-sm">📁 {nodeTitle}</strong>
+          <span class="text-xs font-normal text-gray-500"
+            >({descendantCount})</span
+          >
+        </button>
+      {:else}
+        <span class="inline-flex items-center gap-1.5 px-1.5 py-0.5">
+          <span class="h-3.5 w-3.5"></span>
+          <strong class="text-sm">📁 {nodeTitle}</strong>
+          <span class="text-xs font-normal text-gray-500"
+            >({descendantCount})</span
+          >
+        </span>
+      {/if}
+    </div>
+  {:else}
+    <div class="inline-flex items-center px-1.5 py-0.5">
+      <span class="mr-1.5 h-3.5 w-3.5"></span>
+      <a
+        href={href && isUrlSafeHref(href) ? href : undefined}
+        target="_blank"
+        rel="noopener noreferrer"
+        class="text-sm text-blue-600 transition-colors hover:text-blue-700 hover:underline"
+        data-testid={`${pathString}::link`}>🔖 {nodeTitle}</a
+      >
+    </div>
+  {/if}
+  {#if hasChildren && !collapsed}
+    <div class="mt-0.5 ml-6">
+      {#each treeNode.children ?? [] as child (child.id)}
+        <Self treeNode={child} {propagatingDefaults} />
+      {/each}
+    </div>
+  {/if}
 </div>
