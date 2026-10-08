@@ -81,7 +81,7 @@
     "flowbite-svelte-icons": "3.1.0",
     "globals": "17.13.0",
     "happy-dom": "20.14.5",
-    "postcss": "8.5.28",
+    "postcss": "8.5.29",
     "prettier": "3.9.9",
     "prettier-plugin-svelte": "4.1.1",
     "prettier-plugin-tailwindcss": "0.8.1",
@@ -90,7 +90,7 @@
     "tailwind-merge": "3.7.0",
     "tailwindcss": "4.3.3",
     "typescript": "6.0.3",
-    "typescript-eslint": "8.71.0",
+    "typescript-eslint": "8.71.1",
     "vite": "8.3.2",
     "vite-plugin-zip-pack": "1.2.4",
     "vitest": "5.0.3"
