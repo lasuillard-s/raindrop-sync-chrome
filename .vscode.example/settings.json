@@ -1,10 +1,10 @@
 {
-	"[javascript][typescript][svelte][json][jsonc][yaml][markdown]": {
-		"editor.defaultFormatter": "esbenp.prettier-vscode"
-	},
-	"files.associations": {
-		"**/*.css": "tailwindcss"
-	},
-	"playwright.updateSnapshots": "changed",
-	"svelte.enable-ts-plugin": true
+  "[javascript][typescript][svelte][json][jsonc][yaml][markdown]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
+  },
+  "files.associations": {
+    "**/*.css": "tailwindcss"
+  },
+  "playwright.updateSnapshots": "changed",
+  "svelte.enable-ts-plugin": true
 }

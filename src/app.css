@@ -1,26 +1,26 @@
-@import 'tailwindcss';
-@import '@fontsource-variable/inter/index.css';
+@import "tailwindcss";
+@import "@fontsource-variable/inter/index.css";
 
-@plugin 'flowbite/plugin';
+@plugin "flowbite/plugin";
 
 @custom-variant dark (&:is(.dark *));
 
 @theme {
-	--font-sans: 'Inter Variable', sans-serif;
-	--color-primary-50: #fff5f2;
-	--color-primary-100: #fff1ee;
-	--color-primary-200: #ffe4de;
-	--color-primary-300: #ffd5cc;
-	--color-primary-400: #ffbcad;
-	--color-primary-500: #fe795d;
-	--color-primary-600: #ef562f;
-	--color-primary-700: #eb4f27;
-	--color-primary-800: #cc4522;
-	--color-primary-900: #a5371b;
+  --font-sans: "Inter Variable", sans-serif;
+  --color-primary-50: #fff5f2;
+  --color-primary-100: #fff1ee;
+  --color-primary-200: #ffe4de;
+  --color-primary-300: #ffd5cc;
+  --color-primary-400: #ffbcad;
+  --color-primary-500: #fe795d;
+  --color-primary-600: #ef562f;
+  --color-primary-700: #eb4f27;
+  --color-primary-800: #cc4522;
+  --color-primary-900: #a5371b;
 }
 
-@source '../node_modules/flowbite-svelte/dist';
-@source '../node_modules/flowbite-svelte-icons/dist';
+@source "../node_modules/flowbite-svelte/dist";
+@source "../node_modules/flowbite-svelte-icons/dist";
 
 /*
   The default border color has changed to `currentcolor` in Tailwind CSS v4,
@@ -31,17 +31,17 @@
   color utility to any element that depends on these defaults.
 */
 @layer base {
-	*,
-	::after,
-	::before,
-	::backdrop,
-	::file-selector-button {
-		border-color: var(--color-gray-200, currentcolor);
-	}
+  *,
+  ::after,
+  ::before,
+  ::backdrop,
+  ::file-selector-button {
+    border-color: var(--color-gray-200, currentcolor);
+  }
 
-	* {
-		font-family: var(--font-sans);
-		-webkit-font-smoothing: antialiased;
-		-moz-osx-font-smoothing: grayscale;
-	}
+  * {
+    font-family: var(--font-sans);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
 }

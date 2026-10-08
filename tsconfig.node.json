@@ -1,11 +1,11 @@
 {
-	"include": ["vite.config.ts", "playwright.config.ts", "manifest.config.ts"],
-	"compilerOptions": {
-		"composite": true,
-		"module": "ESNext",
-		"resolveJsonModule": true,
-		"allowSyntheticDefaultImports": true,
-		"types": ["node"],
-		"checkJs": true
-	}
+  "include": ["vite.config.ts", "playwright.config.ts", "manifest.config.ts"],
+  "compilerOptions": {
+    "composite": true,
+    "module": "ESNext",
+    "resolveJsonModule": true,
+    "allowSyntheticDefaultImports": true,
+    "types": ["node"],
+    "checkJs": true
+  }
 }

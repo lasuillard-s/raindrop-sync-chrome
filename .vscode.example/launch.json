@@ -1,15 +1,15 @@
 {
-	"version": "0.2.0",
-	"configurations": [
-		{
-			"name": "Node.js: Attach to Chrome",
-			"port": 9222,
-			"request": "attach",
-			"type": "chrome",
-			"webRoot": "${workspaceFolder}/src",
-			"urlFilter": "chrome-extension://*",
-			"sourceMaps": true,
-			"resolveSourceMapLocations": ["!**/node_modules/**"]
-		}
-	]
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "Node.js: Attach to Chrome",
+      "port": 9222,
+      "request": "attach",
+      "type": "chrome",
+      "webRoot": "${workspaceFolder}/src",
+      "urlFilter": "chrome-extension://*",
+      "sourceMaps": true,
+      "resolveSourceMapLocations": ["!**/node_modules/**"]
+    }
+  ]
 }

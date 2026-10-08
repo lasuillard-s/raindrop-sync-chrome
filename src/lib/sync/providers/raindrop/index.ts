@@ -1,1 +1,1 @@
-export { RaindropAdapter, RaindropBookmarkTreeNode } from './adapter';
+export { RaindropAdapter, RaindropBookmarkTreeNode } from "./adapter";

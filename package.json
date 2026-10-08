@@ -1,103 +1,103 @@
 {
-	"name": "raindrop-sync-chrome",
-	"version": "0.7.4",
-	"private": true,
-	"license": "GPL-3.0-only",
-	"repository": {
-		"type": "git",
-		"url": "git+https://github.com/lasuillard-s/raindrop-sync-chrome.git"
-	},
-	"author": {
-		"name": "Yuchan Lee",
-		"url": "https://github.com/lasuillard",
-		"email": "lasuillard@gmail.com"
-	},
-	"homepage": "https://github.com/lasuillard-s/raindrop-sync-chrome",
-	"bugs": {
-		"url": "https://github.com/lasuillard-s/raindrop-sync-chrome/issues"
-	},
-	"scripts": {
-		"dev": "vite dev",
-		"build": "vite build",
-		"build:watch": "vite build --watch",
-		"fmt": "prettier --write --list-different .",
-		"fmt:check": "prettier --check .",
-		"lint": "eslint .",
-		"lint:fix": "eslint . --fix",
-		"check": "svelte-check --tsconfig ./tsconfig.json",
-		"check:watch": "svelte-check --tsconfig ./tsconfig.json --watch",
-		"test": "vitest --run",
-		"test:watch": "vitest --watch --ui",
-		"e2e": "playwright test",
-		"e2e:watch": "playwright test --ui"
-	},
-	"type": "module",
-	"devEngines": {
-		"runtime": {
-			"name": "node",
-			"version": ">=24",
-			"onFail": "error"
-		},
-		"packageManager": {
-			"name": "npm",
-			"version": ">=11",
-			"onFail": "error"
-		}
-	},
-	"dependencies": {
-		"@lasuillard/raindrop-client": "0.9.1",
-		"axios": "1.20.0",
-		"date-fns": "4.4.0",
-		"webextension-polyfill": "0.12.0",
-		"zod": "4.6.5"
-	},
-	"devDependencies": {
-		"@codecov/vite-plugin": "2.0.1",
-		"@crxjs/vite-plugin": "3.0.0",
-		"@eslint/eslintrc": "3.3.7",
-		"@eslint/js": "10.0.1",
-		"@faker-js/faker": "10.6.0",
-		"@floating-ui/dom": "1.8.0",
-		"@fontsource-variable/inter": "5.3.0",
-		"@playwright/test": "1.63.0",
-		"@sveltejs/vite-plugin-svelte": "7.3.1",
-		"@tailwindcss/postcss": "4.3.3",
-		"@tailwindcss/vite": "4.3.3",
-		"@testing-library/svelte": "5.4.2",
-		"@testing-library/user-event": "14.6.7",
-		"@tsconfig/svelte": "5.0.8",
-		"@types/firefox-webext-browser": "143.0.1",
-		"@types/node": "25.9.9",
-		"@types/webextension-polyfill": "0.12.6",
-		"@vitest/coverage-v8": "5.0.3",
-		"@vitest/ui": "5.0.3",
-		"concurrently": "10.0.5",
-		"eslint": "10.12.0",
-		"eslint-config-prettier": "10.1.8",
-		"eslint-plugin-jsdoc": "65.1.0",
-		"eslint-plugin-svelte": "3.23.0",
-		"flowbite": "4.0.2",
-		"flowbite-svelte": "1.33.1",
-		"flowbite-svelte-icons": "3.1.0",
-		"globals": "17.13.0",
-		"happy-dom": "20.14.5",
-		"postcss": "8.5.28",
-		"prettier": "3.9.9",
-		"prettier-plugin-svelte": "4.1.1",
-		"prettier-plugin-tailwindcss": "0.8.1",
-		"svelte": "5.57.1",
-		"svelte-check": "4.7.6",
-		"tailwind-merge": "3.7.0",
-		"tailwindcss": "4.3.3",
-		"typescript": "6.0.3",
-		"typescript-eslint": "8.71.0",
-		"vite": "8.3.2",
-		"vite-plugin-zip-pack": "1.2.4",
-		"vitest": "5.0.3"
-	},
-	"overrides": {
-		"@codecov/vite-plugin": {
-			"vite": "$vite"
-		}
-	}
+  "name": "raindrop-sync-chrome",
+  "version": "0.7.4",
+  "private": true,
+  "license": "GPL-3.0-only",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/lasuillard-s/raindrop-sync-chrome.git"
+  },
+  "author": {
+    "name": "Yuchan Lee",
+    "url": "https://github.com/lasuillard",
+    "email": "lasuillard@gmail.com"
+  },
+  "homepage": "https://github.com/lasuillard-s/raindrop-sync-chrome",
+  "bugs": {
+    "url": "https://github.com/lasuillard-s/raindrop-sync-chrome/issues"
+  },
+  "scripts": {
+    "dev": "vite dev",
+    "build": "vite build",
+    "build:watch": "vite build --watch",
+    "fmt": "prettier --write --list-different .",
+    "fmt:check": "prettier --check .",
+    "lint": "eslint .",
+    "lint:fix": "eslint . --fix",
+    "check": "svelte-check --tsconfig ./tsconfig.json",
+    "check:watch": "svelte-check --tsconfig ./tsconfig.json --watch",
+    "test": "vitest --run",
+    "test:watch": "vitest --watch --ui",
+    "e2e": "playwright test",
+    "e2e:watch": "playwright test --ui"
+  },
+  "type": "module",
+  "devEngines": {
+    "runtime": {
+      "name": "node",
+      "version": ">=24",
+      "onFail": "error"
+    },
+    "packageManager": {
+      "name": "npm",
+      "version": ">=11",
+      "onFail": "error"
+    }
+  },
+  "dependencies": {
+    "@lasuillard/raindrop-client": "0.9.1",
+    "axios": "1.20.0",
+    "date-fns": "4.4.0",
+    "webextension-polyfill": "0.12.0",
+    "zod": "4.6.5"
+  },
+  "devDependencies": {
+    "@codecov/vite-plugin": "2.0.1",
+    "@crxjs/vite-plugin": "3.0.0",
+    "@eslint/eslintrc": "3.3.7",
+    "@eslint/js": "10.0.1",
+    "@faker-js/faker": "10.6.0",
+    "@floating-ui/dom": "1.8.0",
+    "@fontsource-variable/inter": "5.3.0",
+    "@playwright/test": "1.63.0",
+    "@sveltejs/vite-plugin-svelte": "7.3.1",
+    "@tailwindcss/postcss": "4.3.3",
+    "@tailwindcss/vite": "4.3.3",
+    "@testing-library/svelte": "5.4.2",
+    "@testing-library/user-event": "14.6.7",
+    "@tsconfig/svelte": "5.0.8",
+    "@types/firefox-webext-browser": "143.0.1",
+    "@types/node": "25.9.9",
+    "@types/webextension-polyfill": "0.12.6",
+    "@vitest/coverage-v8": "5.0.3",
+    "@vitest/ui": "5.0.3",
+    "concurrently": "10.0.5",
+    "eslint": "10.12.0",
+    "eslint-config-prettier": "10.1.8",
+    "eslint-plugin-jsdoc": "65.1.0",
+    "eslint-plugin-svelte": "3.23.0",
+    "flowbite": "4.0.2",
+    "flowbite-svelte": "1.33.1",
+    "flowbite-svelte-icons": "3.1.0",
+    "globals": "17.13.0",
+    "happy-dom": "20.14.5",
+    "postcss": "8.5.28",
+    "prettier": "3.9.9",
+    "prettier-plugin-svelte": "4.1.1",
+    "prettier-plugin-tailwindcss": "0.8.1",
+    "svelte": "5.57.1",
+    "svelte-check": "4.7.6",
+    "tailwind-merge": "3.7.0",
+    "tailwindcss": "4.3.3",
+    "typescript": "6.0.3",
+    "typescript-eslint": "8.71.0",
+    "vite": "8.3.2",
+    "vite-plugin-zip-pack": "1.2.4",
+    "vitest": "5.0.3"
+  },
+  "overrides": {
+    "@codecov/vite-plugin": {
+      "vite": "$vite"
+    }
+  }
 }
