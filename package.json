@@ -80,7 +80,7 @@
     "flowbite-svelte": "1.33.1",
     "flowbite-svelte-icons": "3.1.0",
     "globals": "17.13.0",
-    "happy-dom": "20.14.6",
+    "happy-dom": "21.0.4",
     "postcss": "8.5.31",
     "prettier": "3.9.10",
     "prettier-plugin-svelte": "4.1.1",
