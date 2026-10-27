@@ -74,7 +74,7 @@
     "concurrently": "10.0.6",
     "eslint": "10.13.0",
     "eslint-config-prettier": "10.1.8",
-    "eslint-plugin-jsdoc": "65.4.1",
+    "eslint-plugin-jsdoc": "65.4.2",
     "eslint-plugin-svelte": "3.23.1",
     "flowbite": "4.0.2",
     "flowbite-svelte": "1.33.1",
