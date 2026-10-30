@@ -45,7 +45,7 @@
     }
   },
   "dependencies": {
-    "@lasuillard/raindrop-client": "0.9.2",
+    "@lasuillard/raindrop-client": "0.9.3",
     "axios": "1.20.0",
     "date-fns": "4.4.0",
     "webextension-polyfill": "0.12.0",
