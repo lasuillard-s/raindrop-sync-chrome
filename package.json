@@ -67,7 +67,7 @@
     "@testing-library/user-event": "14.6.8",
     "@tsconfig/svelte": "5.0.8",
     "@types/firefox-webext-browser": "143.0.1",
-    "@types/node": "25.9.9",
+    "@types/node": "26.6.6",
     "@types/webextension-polyfill": "0.12.6",
     "@vitest/coverage-v8": "5.0.5",
     "@vitest/ui": "5.0.5",
