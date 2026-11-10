@@ -2,5 +2,26 @@
   "$schema": "https://docs.renovatebot.com/renovate-schema.json",
   "extends": [
     "local>lasuillard-s/renovate-config"
+  ],
+  "packageRules": [
+    {
+      "description": "Group third-party runtime dependencies separately from the internal client",
+      "matchManagers": [
+        "npm"
+      ],
+      "matchDepTypes": [
+        "dependencies"
+      ],
+      "matchPackageNames": [
+        "!@lasuillard/raindrop-client"
+      ],
+      "matchUpdateTypes": [
+        "minor",
+        "patch"
+      ],
+      "groupName": "Runtime Dependencies (non-major)",
+      "groupSlug": "runtime-dependencies",
+      "automerge": false
+    }
   ]
 }
