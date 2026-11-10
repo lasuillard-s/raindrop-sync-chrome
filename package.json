@@ -89,7 +89,7 @@
     "svelte-check": "^4.7.8",
     "tailwind-merge": "^3.7.0",
     "tailwindcss": "^4.3.4",
-    "typescript": "^6.0.3",
+    "typescript": "^7.0.0",
     "typescript-eslint": "^8.72.1",
     "vite": "^8.3.6",
     "vite-plugin-zip-pack": "^1.2.4",
