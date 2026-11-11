@@ -5,22 +5,15 @@
   ],
   "packageRules": [
     {
-      "description": "Group third-party runtime dependencies separately from the internal client",
+      "description": "Review the internal Raindrop client separately from third-party runtime updates",
       "matchManagers": [
         "npm"
       ],
-      "matchDepTypes": [
-        "dependencies"
-      ],
       "matchPackageNames": [
-        "!@lasuillard/raindrop-client"
+        "@lasuillard/raindrop-client"
       ],
-      "matchUpdateTypes": [
-        "minor",
-        "patch"
-      ],
-      "groupName": "Runtime Dependencies (non-major)",
-      "groupSlug": "runtime-dependencies",
+      "groupName": null,
+      "groupSlug": null,
       "automerge": false
     }
   ]
